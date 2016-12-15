@@ -1,11 +1,9 @@
 package com.kevinkyang.inventory;
 
-import android.app.Dialog;
-import android.support.annotation.NonNull;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +12,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
-	private ItemData itemData = ItemData.getInstance();
+	private ItemData itemData = null;
 	private ListView itemListView;
 	private ItemAdapter itemAdapter;
 	private FloatingActionButton addItemButton;
@@ -23,6 +21,11 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+		// TODO need better solution
+		DBManager dbManager = DBManager.getInstance();
+		dbManager.init(this);
+		itemData = ItemData.getInstance();
 
 		itemListView = (ListView) findViewById(R.id.item_list);
 		itemAdapter = new ItemAdapter(this, itemData.getItems());

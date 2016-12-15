@@ -13,7 +13,8 @@ public class ItemData {
 	 * of inventories. So this class will need to consider the
 	 * metadata and be able to produce different data sets
 	 */
-	private ArrayList<Item> items;
+	private ArrayList<Item> items = null;
+	private DBManager dbManager = DBManager.getInstance();
 
 	private static ItemData instance = new ItemData();
 
@@ -22,11 +23,12 @@ public class ItemData {
 	}
 
 	private ItemData() {
-		items = new ArrayList<Item>();
+		items = dbManager.getItems();
 	}
 
 	public void addItem(Item item) {
 		items.add(item);
+		dbManager.addItem(item);
 	}
 
 	public ArrayList<Item> getItems() {

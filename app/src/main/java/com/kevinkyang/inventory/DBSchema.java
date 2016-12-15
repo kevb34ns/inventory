@@ -6,12 +6,12 @@ package com.kevinkyang.inventory;
 
 public class DBSchema {
 	public static final class TABLE_ITEMS {
+		public static final String TABLE_NAME = "items";
+
 		// Column names
-		public static final String KEY_ID = "id";
 		public static final String KEY_NAME = "name";
 
 		// Column indices
-		public static final int COL_ID = 0;
-		public static final int COL_NAME = 1;
+		public static final int COL_NAME = 0;
 	}
 }
