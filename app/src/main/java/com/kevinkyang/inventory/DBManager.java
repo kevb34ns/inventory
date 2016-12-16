@@ -28,6 +28,8 @@ public class DBManager {
 
 	public void init(Context context) {
 		this.context = context;
+		// TODO should not call getWritableDatabase from main thread
+		// TODO main thread will have to wait to populate the list
 		database = new DBHelper(context).getWritableDatabase();
 	}
 
