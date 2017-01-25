@@ -50,7 +50,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	@Override
 	public void onAddItemClicked(String name) {
-		itemData.addItem(new Item(name));
+		itemData.addItem(new Item(name,
+				TimeManager.getDateTimeLocal(),
+				TimeManager.getDateTimeLocal(),
+				1));
 		itemAdapter.notifyDataSetChanged();
 	}
 
@@ -64,8 +67,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//			getDialog().setTitle("Add Item");
-			getDialog().setTitle(TimeManager.getLocalDateTimeFromUTC(TimeManager.getDateTimeUTC()));
+			getDialog().setTitle("Add Item");
 
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);
 			nameEditText = (EditText) view.findViewById(R.id.input_name);

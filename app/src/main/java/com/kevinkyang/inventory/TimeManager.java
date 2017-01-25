@@ -11,7 +11,8 @@ import java.util.TimeZone;
  */
 
 public class TimeManager {
-	public static final String DEFAULT_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+//	public static final String DEFAULT_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	public static final String DEFAULT_TIME_FORMAT = "MM/dd/yyyy";
 
 	public static String getDateTimeUTC() {
 		Calendar cal = Calendar.getInstance();

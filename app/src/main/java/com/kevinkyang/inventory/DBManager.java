@@ -45,7 +45,10 @@ public class DBManager {
 			// populate items array
 			for(int i = 0; i < cursor.getCount(); i++) {
 				String name = cursor.getString(TABLE_ITEMS.COL_NAME);
-				items.add(new Item(name));
+				String created = cursor.getString(TABLE_ITEMS.COL_CREATED);
+				String expires = cursor.getString(TABLE_ITEMS.COL_EXPIRES);
+				int quantity = cursor.getInt(TABLE_ITEMS.COL_QUANTITY);
+				items.add(new Item(name, created, expires, quantity));
 				cursor.moveToNext();
 			}
 		}
@@ -57,6 +60,9 @@ public class DBManager {
 	public void addItem(Item item) {
 		ContentValues cv = new ContentValues();
 		cv.put(TABLE_ITEMS.KEY_NAME, item.getName());
+		cv.put(TABLE_ITEMS.KEY_CREATED, item.getCreatedDate());
+		cv.put(TABLE_ITEMS.KEY_EXPIRES, item.getExpiresDate());
+		cv.put(TABLE_ITEMS.KEY_QUANTITY, item.getQuantity());
 
 		database.insert(TABLE_ITEMS.TABLE_NAME, null, cv);
 	}

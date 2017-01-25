@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 /**
@@ -25,9 +27,19 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 			convertView = LayoutInflater.from(getContext()).inflate(R.layout.item, parent, false);
 		}
 
-		TextView name = (TextView) convertView.findViewById(R.id.item_name);
 		Item item = getItem(position);
+
+		TextView name = (TextView) convertView.findViewById(R.id.item_name);
 		name.setText(item.getName());
+
+		TextView createdDate = (TextView) convertView.findViewById(R.id.created_date);
+		createdDate.setText("Created: " + item.getCreatedDate());
+
+		TextView expiresDate = (TextView) convertView.findViewById(R.id.expires_date);
+		expiresDate.setText("Expires: " + item.getExpiresDate());
+
+		TextView quantity = (TextView) convertView.findViewById(R.id.quantity);
+		quantity.setText("Quantity: " + item.getQuantity());
 
 		return convertView;
 	}
