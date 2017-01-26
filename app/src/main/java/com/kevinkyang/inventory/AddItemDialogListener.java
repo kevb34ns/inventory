@@ -5,5 +5,5 @@ package com.kevinkyang.inventory;
  */
 
 interface AddItemDialogListener {
-	void onAddItemClicked(String name);
+	void onAddItemClicked(String name, int quantity, int expCode);
 }

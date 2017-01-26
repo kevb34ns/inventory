@@ -2,4 +2,7 @@
     <string name="app_name">Inventory</string>
     <string name="name">Name</string>
     <string name="add">Add</string>
+    <string name="quantity">Quantity</string>
+    <string name="minus_string">-</string>
+    <string name="plus_string">+</string>
 </resources>

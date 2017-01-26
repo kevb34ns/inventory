@@ -39,7 +39,7 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 		expiresDate.setText("Expires: " + item.getExpiresDate());
 
 		TextView quantity = (TextView) convertView.findViewById(R.id.quantity);
-		quantity.setText("Quantity: " + item.getQuantity());
+		quantity.setText(Integer.toString(item.getQuantity()));
 
 		return convertView;
 	}

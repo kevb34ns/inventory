@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
 	private ItemData itemData = null;
@@ -49,16 +50,38 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	@Override
-	public void onAddItemClicked(String name) {
+	public void onAddItemClicked(String name, int quantity, int expCode) {
+		/* Selected Item Positions TODO find better solution for visibility
+		   None = 0
+		   1 day = 1
+		   3 days = 2
+		   1 week = 3
+		   2 weeks = 4
+		   1 month = 5
+		   3 months = 6
+		 */
+		int daysToAdd = 0;
+		switch (expCode) {
+			case 1: daysToAdd = 1; break;
+			case 2: daysToAdd = 3; break;
+			case 3: daysToAdd = 7; break;
+			case 4: daysToAdd = 14; break;
+			case 5: daysToAdd = 30; break;
+			case 6: daysToAdd = 90; break;
+			default: break;
+		}
+
 		itemData.addItem(new Item(name,
 				TimeManager.getDateTimeLocal(),
-				TimeManager.getDateTimeLocal(),
-				1));
+				TimeManager.addDaysToDate(TimeManager.getDateTimeLocal(), daysToAdd),
+				quantity));
 		itemAdapter.notifyDataSetChanged();
 	}
 
 	public static class AddItemDialog extends DialogFragment {
 		private EditText nameEditText;
+		private EditText quantityEditText;
+		private Spinner expirationSpinner;
 		private Button addButton;
 
 		public AddItemDialog() {
@@ -71,6 +94,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);
 			nameEditText = (EditText) view.findViewById(R.id.input_name);
+			quantityEditText = (EditText) view.findViewById(R.id.input_quantity);
+			expirationSpinner = (Spinner) view.findViewById(R.id.spinner_expiration);
 			addButton = (Button) view.findViewById(R.id.add_button);
 
 			addListeners();
@@ -88,9 +113,17 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			addButton.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View view) {
 					String name = nameEditText.getText().toString().trim();
-					if (name.length() > 0) {
+					if (!name.isEmpty()) {
+						String quantityString = quantityEditText.getText().toString();
+						int quantity = 1;
+						if (!quantityString.isEmpty()) {
+							quantity = Integer.parseInt(quantityString);
+						}
+
+						int expCode = expirationSpinner.getSelectedItemPosition();
+
 						AddItemDialogListener activity = (AddItemDialogListener) getActivity();
-						activity.onAddItemClicked(name);
+						activity.onAddItemClicked(name, quantity, expCode);
 						AddItemDialog.this.dismiss();
 					}
 
