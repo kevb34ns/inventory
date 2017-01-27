@@ -31,6 +31,14 @@ public class ItemData {
 		dbManager.addItem(item);
 	}
 
+	public boolean removeItem(Item item) {
+		if (dbManager.removeItem(item) == 1) {
+			items.remove(item);
+			return true;
+		}
+		else return false;
+	}
+
 	public ArrayList<Item> getItems() {
 		return items;
 	}

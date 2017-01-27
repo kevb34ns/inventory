@@ -5,11 +5,15 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -34,9 +38,33 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		itemListView = (ListView) findViewById(R.id.item_list);
 		itemAdapter = new ItemAdapter(this, itemData.getItems());
 		itemListView.setAdapter(itemAdapter);
+		registerForContextMenu(itemListView);
 
 		addItemButton = (FloatingActionButton) findViewById(R.id.add_item_button);
 		addListeners();
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.list_item_context_menu, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+			case R.id.list_item_delete:
+				Item it = itemAdapter.getItem(menuInfo.position);
+				if (itemData.removeItem(it)) {
+					itemAdapter.notifyDataSetChanged();
+					return true;
+				}
+				else return false;
+			default:
+				return super.onContextItemSelected(item);
+		}
 	}
 
 	private void addListeners() {
@@ -71,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			default: break;
 		}
 
-		itemData.addItem(new Item(name,
+		itemData.addItem(new Item(-1, name,
 				TimeManager.getDateTimeLocal(),
 				TimeManager.addDaysToDate(TimeManager.getDateTimeLocal(), daysToAdd),
 				quantity));

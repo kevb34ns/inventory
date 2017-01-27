@@ -38,10 +38,12 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/decrease_quantity"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/minus_string"/>
+        android:text="@string/minus_string"
+        android:focusable="false"/>
 
     <TextView
         android:id="@+id/quantity"
@@ -51,10 +53,12 @@
         android:textSize="20sp"/>
 
     <Button
+        android:id="@+id/increase_quantity"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:text="@string/plus_string"/>
+        android:text="@string/plus_string"
+        android:focusable="false"/>
 
 
 

@@ -5,19 +5,30 @@ package com.kevinkyang.inventory;
  */
 
 public class Item {
+	private long rowID;
 	private String name;
 	private String createdDate;
 	private String expiresDate;
 	private int quantity;
 
-	public Item(String name,
+	public Item(long rowID,
+				String name,
 				String createdDate,
 				String expiresDate,
 				int quantity) {
+		this.rowID = rowID;
 		this.name = name;
 		this.createdDate = createdDate;
 		this.expiresDate = expiresDate;
 		this.quantity = quantity;
+	}
+
+	public long getRowID() {
+		return rowID;
+	}
+
+	public void setRowID(long rowID) {
+		this.rowID = rowID;
 	}
 
 	public String getName() {
