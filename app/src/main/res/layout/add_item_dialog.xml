@@ -19,14 +19,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <!-- TODO textinputlayout color doesn't match rest of app -->
         <android.support.design.widget.TextInputLayout
             android:id="@+id/input_layout_quantity"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/input_quantity"
@@ -38,9 +38,8 @@
 
         <Spinner
             android:id="@+id/spinner_expiration"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
             android:entries="@array/array_expires_dates">
 
         </Spinner>
@@ -54,6 +53,8 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_gravity="end|bottom"
-        android:text="@string/add"/>
+        android:text="@string/add"
+        android:textColor="@drawable/button_borderless_text_color"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"/>
 
 </LinearLayout>
