@@ -3,4 +3,8 @@
     <item
         android:id="@+id/options_item_notify"
         android:title="Notify"/>
+
+    <item
+        android:id="@+id/options_item_schedule"
+        android:title="Schedule"/>
 </menu>

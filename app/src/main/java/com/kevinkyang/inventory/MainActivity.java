@@ -59,11 +59,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		ExpirationManager manager = new ExpirationManager(this); //TODO fix this
 		switch (item.getItemId()) {
-			// TODO notify option is for testing only; get rid of it
+			// TODO some options for testing only; get rid of it
 			case R.id.options_item_notify:
-				ExpirationManager manager = new ExpirationManager(this);
 				manager.sendNotifications();
+				return true;
+			case R.id.options_item_schedule:
+				manager.scheduleNotifications();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
