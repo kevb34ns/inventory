@@ -27,6 +27,27 @@ public class TimeManager {
 		return sdFormat.format(cal.getTime());
 	}
 
+	/* return difference in days between two dates
+	 * negative: endDate < startDate
+	 * zero: endDate == startDate
+	 * positive: endDate > startDate
+	 */
+	public static int getDateDifferenceInDays(String startDate, String endDate) {
+		SimpleDateFormat sdFormat = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
+		int difference = 0;
+		try {
+			Date sDate = sdFormat.parse(startDate);
+			Date eDate = sdFormat.parse(endDate);
+			difference = ((int) (eDate.getTime() / (24 * 60 * 60 * 1000))) /
+					((int) (sDate.getTime() / (24 * 60 * 60 * 1000)));
+
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return difference;
+	}
+
 	public static String getDateTimeUTC() {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeZone(TimeZone.getTimeZone("UTC"));

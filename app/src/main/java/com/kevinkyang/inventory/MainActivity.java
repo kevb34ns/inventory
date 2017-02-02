@@ -1,18 +1,17 @@
 package com.kevinkyang.inventory;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -45,10 +44,29 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main_options_menu, menu);
+		return true;
+	}
+
+	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.list_item_context_menu, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.options_item_notify:
+				ExpirationManager manager = new ExpirationManager(this);
+				manager.sendNotifications();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 
 	@Override
@@ -75,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				dialog.show(getSupportFragmentManager(), "dialog");
 			}
 		});
+
 	}
 
 	@Override

@@ -11,6 +11,8 @@ public class Item {
 	private String expiresDate;
 	private int quantity;
 
+	private int daysUntilExpiration;
+
 	public Item(long rowID,
 				String name,
 				String createdDate,
@@ -61,5 +63,13 @@ public class Item {
 
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
+	}
+
+	public int getDaysUntilExpiration() {
+		return daysUntilExpiration;
+	}
+
+	public void setDaysUntilExpiration(int daysUntilExpiration) {
+		this.daysUntilExpiration = daysUntilExpiration;
 	}
 }

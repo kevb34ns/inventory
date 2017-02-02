@@ -42,4 +42,20 @@ public class ItemData {
 	public ArrayList<Item> getItems() {
 		return items;
 	}
+
+	public ArrayList<Item> getExpiringItems(int rangeInDays) {
+		ArrayList<Item> expiring = new ArrayList<Item>();
+		for (Item item : items) {
+			int daysUntilExpiration =
+					TimeManager.getDateDifferenceInDays(
+							item.getCreatedDate(),
+							item.getExpiresDate());
+			item.setDaysUntilExpiration(daysUntilExpiration);
+			if (daysUntilExpiration <= rangeInDays) {
+				expiring.add(item);
+			}
+		}
+
+		return expiring;
+	}
 }
