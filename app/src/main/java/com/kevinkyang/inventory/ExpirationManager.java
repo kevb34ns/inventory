@@ -32,14 +32,14 @@ public class ExpirationManager {
 		String contentTitle = "You have " + expiring.size() + " items expiring soon.";
 		String contentText = "";
 		for (Item i : expiring) {
-			contentText += i.getName() + " in" +
-					i.getDaysUntilExpiration() + "days; ";
+			contentText += i.getName() + " in " +
+					i.getDaysUntilExpiration() + " days; ";
 		}
 		NotificationCompat.Builder builder =
 				new NotificationCompat.Builder(context)
 						.setSmallIcon(R.drawable.ic_action_add)
 						.setContentTitle(contentTitle)
-						.setContentText("Your milk is expiring in 3 days.");
+						.setContentText(contentText);
 		int notificationId = 001;
 		NotificationManager notifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 		notifyMgr.notify(notificationId, builder.build());

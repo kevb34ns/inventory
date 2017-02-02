@@ -38,7 +38,7 @@ public class TimeManager {
 		try {
 			Date sDate = sdFormat.parse(startDate);
 			Date eDate = sdFormat.parse(endDate);
-			difference = ((int) (eDate.getTime() / (24 * 60 * 60 * 1000))) /
+			difference = ((int) (eDate.getTime() / (24 * 60 * 60 * 1000))) -
 					((int) (sDate.getTime() / (24 * 60 * 60 * 1000)));
 
 		} catch (ParseException e) {

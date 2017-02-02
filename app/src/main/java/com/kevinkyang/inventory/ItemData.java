@@ -48,7 +48,7 @@ public class ItemData {
 		for (Item item : items) {
 			int daysUntilExpiration =
 					TimeManager.getDateDifferenceInDays(
-							item.getCreatedDate(),
+							TimeManager.getDateTimeLocal(),
 							item.getExpiresDate());
 			item.setDaysUntilExpiration(daysUntilExpiration);
 			if (daysUntilExpiration <= rangeInDays) {
