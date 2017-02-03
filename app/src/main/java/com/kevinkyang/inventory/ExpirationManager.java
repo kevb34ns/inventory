@@ -6,8 +6,11 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
+import android.graphics.Typeface;
 import android.support.v4.app.NotificationCompat;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,6 +30,22 @@ public class ExpirationManager {
 		this.context = context;
 	}
 
+	// returns a String with bolded title + content
+	private SpannableString getFormattedLine(String title, String content) {
+		if (title == null || content == null) {
+			return null;
+		}
+
+		StyleSpan boldStyle = new StyleSpan(Typeface.BOLD);
+		SpannableString string = new SpannableString(
+				String.format("%s %s", title, content));
+		string.setSpan(
+				boldStyle,
+				0, title.length(),
+				Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return string;
+	}
+
 	// TODO style notification, look at Notification.InboxStyle
 	private Notification getNotification() {
 		ArrayList<Item> expiring = ItemData.getInstance().getExpiringItems(RANGE);
@@ -36,15 +55,68 @@ public class ExpirationManager {
 
 		String contentTitle = "You have " + expiring.size() + " items expiring soon.";
 		String contentText = "";
-		for (Item i : expiring) {
-			contentText += i.getName() + " in " +
-					i.getDaysUntilExpiration() + " days; "; // TODO day(s)
+		for (int i = 0; i < expiring.size(); i++) {
+			// if size=1 or size=2, no comma
+			// if size=2, put 'and' between items 1 and 2
+			// if size > 2, put 'and x more'
+			contentText += expiring.get(i).getName();
+			if (expiring.size() > 2) {
+				contentText += ", ";
+			} else if (i == 0 && expiring.size() == 2) {
+				contentText += " and ";
+			}
+
+			if (i == 2) {
+				int remaining = expiring.size() - 2;
+				contentText += "and " + remaining + " more";
+				break;
+			}
 		}
+
+		Intent clickIntent = new Intent(context, MainActivity.class);
+		PendingIntent clickPendingIntent =
+				PendingIntent.getActivity(
+						context,
+						0,
+						clickIntent,
+						PendingIntent.FLAG_UPDATE_CURRENT
+				);
+
+		NotificationCompat.InboxStyle style =
+				new NotificationCompat.InboxStyle();
+		style.setBigContentTitle("Expiring soon:");
+		for (int i = 0; i < expiring.size(); i++) {
+			if (i == 5) {
+				// limit 5 items
+				int remaining = expiring.size() - 4;
+				style.addLine("+" + remaining + " more...");
+				break;
+			}
+
+			Item item = expiring.get(i);
+			String title = item.getName();
+			String content;
+			int days = item.getDaysUntilExpiration();
+			if (days < 0) {
+				content = days + " days ago";
+			} else if (days == 0) {
+				content = " today";
+			} else if (days == 1) {
+				content = " in 1 day";
+			} else {
+				content = " in " + days + " days";
+			}
+			style.addLine(getFormattedLine(title, content));
+		}
+
 		NotificationCompat.Builder builder =
 				new NotificationCompat.Builder(context)
 						.setSmallIcon(R.drawable.ic_action_add)
 						.setContentTitle(contentTitle)
-						.setContentText(contentText);
+						.setContentText(contentText)
+						.setContentIntent(clickPendingIntent)
+						.setStyle(style)
+						.setAutoCancel(true);
 		return builder.build();
 	}
 
