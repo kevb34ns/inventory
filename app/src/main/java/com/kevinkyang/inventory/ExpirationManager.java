@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.app.NotificationCompat;
 import android.text.SpannableString;
@@ -53,7 +54,9 @@ public class ExpirationManager {
 			return null;
 		}
 
-		String contentTitle = "You have " + expiring.size() + " items expiring soon.";
+		String contentTitle = "You have " + expiring.size() +
+				((expiring.size() == 1) ? " item" : " items") +
+				" expiring soon.";
 		String contentText = "";
 		for (int i = 0; i < expiring.size(); i++) {
 			// if size=1 or size=2, no comma
@@ -109,19 +112,29 @@ public class ExpirationManager {
 			style.addLine(getFormattedLine(title, content));
 		}
 
+		int accentColor =
+			context
+				.getResources()
+				.getColor(R.color.colorPrimary, null);
+
 		NotificationCompat.Builder builder =
 				new NotificationCompat.Builder(context)
-						.setSmallIcon(R.drawable.ic_action_add)
+						.setSmallIcon(R.drawable.ic_action_inbox)
 						.setContentTitle(contentTitle)
 						.setContentText(contentText)
 						.setContentIntent(clickPendingIntent)
 						.setStyle(style)
+						.setColor(accentColor)
 						.setAutoCancel(true);
 		return builder.build();
 	}
 
 	public void sendNotifications() {
 		Notification notification = getNotification();
+		if (notification == null) {
+			return;
+		}
+
 		int notificationId = 001;
 		NotificationManager notifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 		notifyMgr.notify(notificationId, notification);

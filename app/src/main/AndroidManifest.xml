@@ -15,7 +15,12 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".GroceryListActivity">
+        </activity>
+
         <receiver android:name=".NotificationReceiver"/>
+
     </application>
 
 </manifest>

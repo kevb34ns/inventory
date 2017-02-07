@@ -1,5 +1,6 @@
 package com.kevinkyang.inventory;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -62,6 +63,11 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		ExpirationManager manager = new ExpirationManager(this); //TODO fix this
 		switch (item.getItemId()) {
 			// TODO some options for testing only; get rid of it
+			case R.id.options_item_groceries:
+				// TODO
+				Intent intent = new Intent(this, GroceryListActivity.class);
+				startActivity(intent);
+				return true;
 			case R.id.options_item_notify:
 				manager.sendNotifications();
 				return true;
