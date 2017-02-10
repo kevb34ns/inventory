@@ -19,6 +19,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.google.firebase.storage.StorageReference;
+
+import java.io.File;
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
 	private ItemData itemData = null;
 	private ListView itemListView;
