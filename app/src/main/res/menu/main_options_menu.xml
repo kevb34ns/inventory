@@ -8,6 +8,10 @@
         app:showAsAction="ifRoom"/>
 
     <item
+        android:id="@+id/options_item_suggestions"
+        android:title="Get Suggestions"/>
+
+    <item
         android:id="@+id/options_item_notify"
         android:title="Notify"/>
 

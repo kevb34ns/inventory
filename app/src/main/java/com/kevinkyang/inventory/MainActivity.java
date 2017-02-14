@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -21,7 +22,9 @@ import android.widget.Spinner;
 
 import com.google.firebase.storage.StorageReference;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
@@ -65,7 +68,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		ExpirationManager manager = new ExpirationManager(this); //TODO fix this
+		ExpirationManager manager = null; //TODO fix this
+		SuggestionManager suggestionManager = null;
 		switch (item.getItemId()) {
 			// TODO some options for testing only; get rid of it
 			case R.id.options_item_groceries:
@@ -73,10 +77,33 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				Intent intent = new Intent(this, GroceryListActivity.class);
 				startActivity(intent);
 				return true;
+			case R.id.options_item_suggestions:
+				suggestionManager = new SuggestionManager(this);
+				suggestionManager.checkSuggestionDb(); // TODO
+				File localFile = new File(this.getFilesDir(), "suggestion_database.json");
+				try {
+					BufferedReader br = new BufferedReader(new FileReader(localFile));
+					String fileString = "";
+					String line = br.readLine();
+					while (line != null) {
+						fileString += line + "\n";
+						line = br.readLine();
+					}
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+					builder.setMessage(fileString).setTitle("Suggestion File");
+					AlertDialog dialog = builder.create();
+					dialog.show();
+					this.deleteFile("suggestions_database.json");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return true;
 			case R.id.options_item_notify:
+				manager = new ExpirationManager(this);
 				manager.sendNotifications();
 				return true;
 			case R.id.options_item_schedule:
+				manager = new ExpirationManager(this);
 				manager.scheduleNotifications();
 				return true;
 			default:
