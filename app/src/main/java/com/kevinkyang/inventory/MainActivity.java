@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private ItemData itemData = null;
 	private ListView itemListView;
 	private ItemAdapter itemAdapter;
+	private SuggestionManager suggestionManager;
 	private FloatingActionButton addItemButton;
 
     @Override
@@ -47,6 +48,9 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		itemAdapter = new ItemAdapter(this, itemData.getItems());
 		itemListView.setAdapter(itemAdapter);
 		registerForContextMenu(itemListView);
+
+		suggestionManager = new SuggestionManager(this);
+		suggestionManager.executeThread();
 
 		addItemButton = (FloatingActionButton) findViewById(R.id.add_item_button);
 		addListeners();
@@ -77,27 +81,13 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				Intent intent = new Intent(this, GroceryListActivity.class);
 				startActivity(intent);
 				return true;
-//			case R.id.options_item_suggestions:
-//				suggestionManager = new SuggestionManager(this);
-//				suggestionManager.checkSuggestionDb(); // TODO
-//				File localFile = new File(this.getFilesDir(), "suggestion_database.json");
-//				try {
-//					BufferedReader br = new BufferedReader(new FileReader(localFile));
-//					String fileString = "";
-//					String line = br.readLine();
-//					while (line != null) {
-//						fileString += line + "\n";
-//						line = br.readLine();
-//					}
-//					AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//					builder.setMessage(fileString).setTitle("Suggestion File");
-//					AlertDialog dialog = builder.create();
-//					dialog.show();
-//					this.deleteFile("suggestions_database.json");
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//				return true;
+			case R.id.options_item_suggestions:
+				SuggestionAdapter suggestionAdapter = new SuggestionAdapter(this, suggestionManager.getSuggestionData());
+				itemListView.setAdapter(suggestionAdapter);
+				return true;
+			case R.id.options_item_clear:
+				suggestionManager.clearData();
+				return true;
 			case R.id.options_item_notify:
 				manager = new ExpirationManager(this);
 				manager.sendNotifications();

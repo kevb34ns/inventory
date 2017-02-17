@@ -16,8 +16,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -32,6 +30,7 @@ public class SuggestionManager {
 	public static final String ASSET_VERSION_PREF = "assetVersion";
 
 	public static final String VERSION_CHECK_URL = "https://inventory-3dbe4.firebaseapp.com/version.json";
+	// TODO save file names as final Strings instead of hardcoding them in the code
 
 	public static final int LOCAL_INDEX = 0;
 	public static final int ASSET_INDEX = 1;
@@ -62,12 +61,17 @@ public class SuggestionManager {
 	/**
 	 * Checks if there is a newer version of the
 	 * suggestion database online, and downloads it.
-	 * @param localVersion the most recent version of the
-	 *                     suggestion database currently
-	 *                     on the device.
 	 */
-	private void checkSuggestionDb(double localVersion) {
+	private void checkSuggestionDb() {
 		double latestVersion = -1.0;
+		double localVersion = -1.0;
+
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+		if (mostRecentLocalDatabase() == LOCAL_INDEX) {
+			localVersion = prefs.getFloat(LOCAL_VERSION_PREF, -1.0f);
+		} else {
+			localVersion = prefs.getFloat(ASSET_VERSION_PREF, -1.0f);
+		}
 
 		try {
 			URL verURL = new URL(VERSION_CHECK_URL);
@@ -98,12 +102,19 @@ public class SuggestionManager {
 					.addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
 						@Override
 						public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-							/** TODO need to handle success and failure?
-							 */
+							SharedPreferences.Editor prefsEditor =
+									context.getSharedPreferences(PREFS_NAME, 0)
+									.edit();
+							updatePrefs(prefsEditor);
+							String date = TimeManager.getDateTimeLocal();
+							prefsEditor.putString(DATE_PREF, date);
+							prefsEditor.apply();
+							readDatabase();
 						}
 					}).addOnFailureListener(new OnFailureListener() {
 						@Override
 						public void onFailure(@NonNull Exception e) {
+							readDatabase();
 							e.printStackTrace();
 						}
 					});
@@ -111,19 +122,17 @@ public class SuggestionManager {
 
 	}
 
-	private void readDatabase(int location) {
+	private void readDatabase() {
 		JsonReader reader = null;
 		try {
-			if (location == ASSET_INDEX) {
+			if (mostRecentLocalDatabase() == ASSET_INDEX) {
 				reader = new JsonReader(
 						new InputStreamReader(
 								context.getAssets().open("suggestion_database.json")));
-			} else if (location == LOCAL_INDEX) {
+			} else {
 				File localFile = new File(context.getFilesDir(), "suggestion_database.json");
 				reader = new JsonReader(
 						new FileReader(localFile));
-			} else {
-				return;
 			}
 
 			reader.beginObject();
@@ -138,6 +147,8 @@ public class SuggestionManager {
 							data.add(readSuggestionItem(reader));
 						}
 						reader.endArray();
+					} else {
+						reader.skipValue();
 					}
 				}
 				reader.endObject();
@@ -192,13 +203,15 @@ public class SuggestionManager {
 			assetReader.close();
 
 			File localFile = new File(context.getFilesDir(), "suggestion_database.json");
-			JsonReader localReader = new JsonReader(
-					new FileReader(localFile));
-			double localVersion = getVersionFromFile(localReader);
-			if (localVersion >= 0.0) {
-				editor.putFloat(LOCAL_VERSION_PREF, (float) getVersionFromFile(localReader));
+			if (localFile.exists()) {
+				JsonReader localReader = new JsonReader(
+						new FileReader(localFile));
+				double localVersion = getVersionFromFile(localReader);
+				if (localVersion >= 0.0) {
+					editor.putFloat(LOCAL_VERSION_PREF, (float) localVersion);
+				}
+				localReader.close();
 			}
-			localReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -214,7 +227,8 @@ public class SuggestionManager {
 				key = reader.nextName();
 				if (key.equals("version")) {
 					version = reader.nextDouble();
-					break;
+				} else {
+					reader.skipValue();
 				}
 			}
 			reader.endObject();
@@ -222,6 +236,40 @@ public class SuggestionManager {
 		reader.endObject();
 
 		return version;
+	}
+
+	private boolean hasCheckedOnlineToday() {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+		String date = TimeManager.getDateTimeLocal();
+		String prefDate = prefs.getString(DATE_PREF, "none");
+		return date.equals(prefDate);
+	}
+
+	/**
+	 * Looks at the version number of the bundled suggestion
+	 * database and the one in internal storage (if it exists)
+	 * and determines the more up-to-date one.
+	 * @return the index of the most recent suggestion database.
+	 */
+	private int mostRecentLocalDatabase() {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+		double localVersion = prefs.getFloat(LOCAL_VERSION_PREF, -1.0f);
+		double assetVersion = prefs.getFloat(ASSET_VERSION_PREF, -1.0f);
+		if (localVersion > assetVersion && localVersion >= 0.0) {
+			return LOCAL_INDEX;
+		} else {
+			return ASSET_INDEX;
+		}
+	}
+
+	/**
+	 * TODO temp function that deletes prefs and deletes internal storage file
+	 */
+	public void clearData() {
+		SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME, 0).edit();
+		editor.clear();
+		editor.commit();
+		context.deleteFile("suggestion_database.json");
 	}
 
 	/**
@@ -232,33 +280,13 @@ public class SuggestionManager {
 
 		@Override
 		protected Void doInBackground(Void... voids) {
-			SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-			SharedPreferences.Editor prefsEditor = prefs.edit();
-			String date = TimeManager.getDateTimeLocal();
-			String prefDate = prefs.getString(DATE_PREF, "none");
-			double localVersion = prefs.getFloat(LOCAL_VERSION_PREF, -1.0f);
-			double assetVersion = prefs.getFloat(ASSET_VERSION_PREF, -1.0f);
-			if (prefDate.equals(date)) {
-				// already checked today
-				if (localVersion > assetVersion && localVersion >= 0.0) {
-					readDatabase(LOCAL_INDEX);
-				} else {
-					readDatabase(ASSET_INDEX);
-				}
+			if (!hasCheckedOnlineToday()) {
+				checkSuggestionDb();
+				// TODO ensure that all cases are handled, such as first time opening the app (no internal storage db), app has been updated (new assets/ db), local file gets corrupted but the prefs tell the app to use it, causing the app to crash when it tries to parse the file
 			} else {
-				prefsEditor.putString(DATE_PREF, date);
-				if (localVersion > assetVersion && localVersion >= 0.0) {
-					checkSuggestionDb(localVersion);
-					readDatabase(LOCAL_INDEX);
-				} else {
-					checkSuggestionDb(assetVersion);
-					readDatabase(ASSET_INDEX);
-				}
-				updatePrefs(prefsEditor);
-				// TODO lots of repeated method calls inside these methods (ie reading from the same files a bunch), see if you can fix
+				readDatabase();
 			}
 
-			prefsEditor.apply();
 			return null;
 		}
 	}
