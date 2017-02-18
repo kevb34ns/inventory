@@ -9,4 +9,8 @@
         <item>1 month</item>
         <item>3 months</item>
     </string-array>
+    <string-array name="array_nav_drawer">
+        <item>Inventory</item>
+        <item>Grocery List</item>
+    </string-array>
 </resources>

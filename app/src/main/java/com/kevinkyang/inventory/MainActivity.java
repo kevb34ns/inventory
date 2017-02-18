@@ -4,8 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -33,6 +37,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private ItemAdapter itemAdapter;
 	private SuggestionManager suggestionManager;
 	private FloatingActionButton addItemButton;
+
+	private String[] drawerTitles;
+	private DrawerLayout drawerLayout;
+	private ListView drawerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +61,13 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		suggestionManager.executeThread();
 
 		addItemButton = (FloatingActionButton) findViewById(R.id.add_item_button);
+
+		// Set up toolbar
+		Toolbar toolbar = (Toolbar) findViewById(R.id.custom_action_bar);
+		toolbar.setTitleTextColor(0xFFFFFFFF);
+		setSupportActionBar(toolbar);
+
+		initializeDrawer();
 		addListeners();
 	}
 
@@ -77,9 +92,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		switch (item.getItemId()) {
 			// TODO some options for testing only; get rid of it
 			case R.id.options_item_groceries:
-				// TODO
-				Intent intent = new Intent(this, GroceryListActivity.class);
-				startActivity(intent);
+				// TODO go to grocery list
 				return true;
 			case R.id.options_item_suggestions:
 				SuggestionAdapter suggestionAdapter = new SuggestionAdapter(this, suggestionManager.getSuggestionData());
@@ -116,6 +129,25 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				return super.onContextItemSelected(item);
 		}
 	}
+
+	private void initializeDrawer() {
+		drawerTitles = getResources().getStringArray(R.array.array_nav_drawer);
+
+		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		drawerLayout.setStatusBarBackground(R.color.colorPrimary);
+
+		drawerList = (ListView) findViewById(R.id.navigation_drawer_list);
+		drawerList.setAdapter(new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1, drawerTitles));
+		drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+			}
+		});
+	}
+
+
 
 	private void addListeners() {
 		addItemButton.setOnClickListener(new View.OnClickListener() {

@@ -1,27 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
-    android:id="@+id/activity_main"
+<android.support.v4.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kevinkyang.inventory.MainActivity"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:fitsSystemWindows="true">
 
-    <ListView
-        android:id="@+id/item_list"
+    <!--Main content frame-->
+    <LinearLayout
+        android:id="@+id/activity_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context="com.kevinkyang.inventory.MainActivity">
 
-    </ListView>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/custom_action_bar"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:minHeight="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"/>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/add_item_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_action_add"
-        app:layout_anchor="@id/item_list"
-        app:layout_anchorGravity="bottom|right|end"/>
+        <android.support.design.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+            <ListView
+                android:id="@+id/item_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-</android.support.design.widget.CoordinatorLayout>
+            </ListView>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/add_item_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_action_add"
+                app:layout_anchor="@id/item_list"
+                app:layout_anchorGravity="bottom|right|end"/>
+        </android.support.design.widget.CoordinatorLayout>
+
+    </LinearLayout>
+
+    <!--Navigation drawer-->
+    <LinearLayout
+        android:id="@+id/navigation_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="start"
+        android:background="#ffffff"
+        android:fitsSystemWindows="true">
+
+        <ListView
+            android:id="@+id/navigation_drawer_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dp"/>
+    </LinearLayout>
+
+    
+</android.support.v4.widget.DrawerLayout>
