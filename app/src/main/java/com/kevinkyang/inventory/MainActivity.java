@@ -1,12 +1,12 @@
 package com.kevinkyang.inventory;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
@@ -24,17 +24,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import com.google.firebase.storage.StorageReference;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
 	private ItemData itemData = null;
-	private ListView itemListView;
-	private ItemAdapter itemAdapter;
 	private SuggestionManager suggestionManager;
 	private FloatingActionButton addItemButton;
 
@@ -42,7 +33,12 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private DrawerLayout drawerLayout;
 	private ListView drawerList;
 
-    @Override
+	private InventoryFragment inventoryFragment;
+	private GroceryFragment groceryFragment;
+
+//	TODO app currently does not handle this activity being destroyed and recreated, eg fragment persists so you need to check for that
+//	TODO manager classes need to conform to android definition of managers (itp341 fragments lecture slide 47)
+	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -52,11 +48,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		dbManager.init(this);
 		itemData = ItemData.getInstance();
 
-		itemListView = (ListView) findViewById(R.id.item_list);
-		itemAdapter = new ItemAdapter(this, itemData.getItems());
-		itemListView.setAdapter(itemAdapter);
-		registerForContextMenu(itemListView);
-
 		suggestionManager = new SuggestionManager(this);
 		suggestionManager.executeThread();
 
@@ -65,7 +56,24 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		// Set up toolbar
 		Toolbar toolbar = (Toolbar) findViewById(R.id.custom_action_bar);
 		toolbar.setTitleTextColor(0xFFFFFFFF);
+		toolbar.setNavigationIcon(R.drawable.ic_menu);
 		setSupportActionBar(toolbar);
+
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		inventoryFragment = new InventoryFragment();
+		fragmentManager.beginTransaction()
+				.add(R.id.fragment_container,
+						inventoryFragment,
+						"0")
+				.commit();
+
+		groceryFragment = new GroceryFragment();
+		fragmentManager.beginTransaction()
+				.add(R.id.fragment_container,
+						groceryFragment,
+						"1")
+				.hide(groceryFragment)
+				.commit();
 
 		initializeDrawer();
 		addListeners();
@@ -79,13 +87,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.list_item_context_menu, menu);
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		ExpirationManager manager = null; //TODO fix this
 //		SuggestionManager suggestionManager = null; TODO
@@ -94,10 +95,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			case R.id.options_item_groceries:
 				// TODO go to grocery list
 				return true;
-			case R.id.options_item_suggestions:
-				SuggestionAdapter suggestionAdapter = new SuggestionAdapter(this, suggestionManager.getSuggestionData());
-				itemListView.setAdapter(suggestionAdapter);
-				return true;
+//			case R.id.options_item_suggestions:
+//				SuggestionAdapter suggestionAdapter = new SuggestionAdapter(this, suggestionManager.getSuggestionData());
+//				itemListView.setAdapter(suggestionAdapter);
+//				return true; //TODO to test this, must show in a fragment now
 			case R.id.options_item_clear:
 				suggestionManager.clearData();
 				return true;
@@ -114,22 +115,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		}
 	}
 
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		switch (item.getItemId()) {
-			case R.id.list_item_delete:
-				Item it = itemAdapter.getItem(menuInfo.position);
-				if (itemData.removeItem(it)) {
-					itemAdapter.notifyDataSetChanged();
-					return true;
-				}
-				else return false;
-			default:
-				return super.onContextItemSelected(item);
-		}
-	}
-
 	private void initializeDrawer() {
 		drawerTitles = getResources().getStringArray(R.array.array_nav_drawer);
 
@@ -141,12 +126,33 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				android.R.layout.simple_list_item_1, drawerTitles));
 		drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
 			@Override
-			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+				changeFragments(Integer.toString(position));
 
 			}
 		});
 	}
 
+	private void changeFragments(String tag) {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+
+		Fragment fragment;
+		fragment = fragmentManager.findFragmentByTag(tag);
+
+		String otherTag = (tag.equals("0")) ? "1" : "0"; // TODO unsustainable solution if more than 2 fragments
+		Fragment otherFragment;
+		otherFragment = fragmentManager.findFragmentByTag(otherTag);
+
+		fragmentManager.beginTransaction()
+				.hide(otherFragment)
+				.commit();
+
+		fragmentManager.beginTransaction()
+				.show(fragment)
+				.commit();
+
+		drawerLayout.closeDrawers();
+	}
 
 
 	private void addListeners() {
@@ -186,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				TimeManager.getDateTimeLocal(),
 				TimeManager.addDaysToDate(TimeManager.getDateTimeLocal(), daysToAdd),
 				quantity));
-		itemAdapter.notifyDataSetChanged();
+		inventoryFragment.refresh();
 	}
 
 	public static class AddItemDialog extends DialogFragment {

@@ -8,10 +8,7 @@ import java.util.ArrayList;
 
 public class ItemData {
 	/**
-	 * TODO consideration: the app will have to
-	 * display different inventories, and various subsets
-	 * of inventories. So this class will need to consider the
-	 * metadata and be able to produce different data sets
+	 * TODO consideration: the app will have to display different inventories, and various subsets of inventories. So will need to add inventory column to the database so you can get items based on which inventory they belong to.
 	 */
 	private ArrayList<Item> items = null;
 	private DBManager dbManager = DBManager.getInstance();
