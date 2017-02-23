@@ -10,6 +10,9 @@ public class Item {
 	private String createdDate;
 	private String expiresDate;
 	private int quantity;
+	private String unit;
+	private String type;
+	private String inventory;
 
 	private int daysUntilExpiration;
 
@@ -17,12 +20,18 @@ public class Item {
 				String name,
 				String createdDate,
 				String expiresDate,
-				int quantity) {
+				int quantity,
+				String unit,
+				String type,
+				String inventory) {
 		this.rowID = rowID;
 		this.name = name;
 		this.createdDate = createdDate;
 		this.expiresDate = expiresDate;
 		this.quantity = quantity;
+		this.unit = unit;
+		this.type = type;
+		this.inventory = inventory;
 	}
 
 	public long getRowID() {
@@ -63,6 +72,30 @@ public class Item {
 
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
+	}
+
+	public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getInventory() {
+		return inventory;
+	}
+
+	public void setInventory(String inventory) {
+		this.inventory = inventory;
 	}
 
 	public int getDaysUntilExpiration() {

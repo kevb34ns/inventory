@@ -5,4 +5,6 @@
     <string name="quantity">Quantity</string>
     <string name="minus_string">-</string>
     <string name="plus_string">+</string>
+    <string name="unit">Unit</string>
+    <string name="type">Type</string>
 </resources>

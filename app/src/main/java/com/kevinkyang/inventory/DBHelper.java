@@ -21,7 +21,10 @@ public class DBHelper extends SQLiteOpenHelper {
 					TABLE_ITEMS.KEY_NAME + " TEXT, " +
 					TABLE_ITEMS.KEY_CREATED + " TEXT, " +
 					TABLE_ITEMS.KEY_EXPIRES + " TEXT, " +
-					TABLE_ITEMS.KEY_QUANTITY + " INTEGER" +
+					TABLE_ITEMS.KEY_QUANTITY + " INTEGER, " +
+					TABLE_ITEMS.KEY_UNIT + " TEXT, " +
+					TABLE_ITEMS.KEY_TYPE + " TEXT, " +
+					TABLE_ITEMS.KEY_INVENTORY + " TEXT" +
 					");";
 
 	public DBHelper(Context context) {

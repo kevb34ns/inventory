@@ -42,7 +42,10 @@ public class DBManager {
 				TABLE_ITEMS.KEY_NAME,
 				TABLE_ITEMS.KEY_CREATED,
 				TABLE_ITEMS.KEY_EXPIRES,
-				TABLE_ITEMS.KEY_QUANTITY
+				TABLE_ITEMS.KEY_QUANTITY,
+				TABLE_ITEMS.KEY_UNIT,
+				TABLE_ITEMS.KEY_TYPE,
+				TABLE_ITEMS.KEY_INVENTORY
 		};
 
 		Cursor cursor = database.query(
@@ -57,7 +60,10 @@ public class DBManager {
 				String created = cursor.getString(TABLE_ITEMS.COL_CREATED);
 				String expires = cursor.getString(TABLE_ITEMS.COL_EXPIRES);
 				int quantity = cursor.getInt(TABLE_ITEMS.COL_QUANTITY);
-				items.add(new Item(rowID, name, created, expires, quantity));
+				String unit = cursor.getString(TABLE_ITEMS.COL_UNIT);
+				String type = cursor.getString(TABLE_ITEMS.COL_TYPE);
+				String inventory = cursor.getString(TABLE_ITEMS.COL_INVENTORY);
+				items.add(new Item(rowID, name, created, expires, quantity, unit, type, inventory));
 				cursor.moveToNext();
 			}
 		}
@@ -72,6 +78,9 @@ public class DBManager {
 		cv.put(TABLE_ITEMS.KEY_CREATED, item.getCreatedDate());
 		cv.put(TABLE_ITEMS.KEY_EXPIRES, item.getExpiresDate());
 		cv.put(TABLE_ITEMS.KEY_QUANTITY, item.getQuantity());
+		cv.put(TABLE_ITEMS.KEY_UNIT, item.getUnit());
+		cv.put(TABLE_ITEMS.KEY_TYPE, item.getType());
+		cv.put(TABLE_ITEMS.KEY_INVENTORY, item.getInventory());
 
 		long rowID = database.insert(TABLE_ITEMS.TABLE_NAME, null, cv);
 		item.setRowID(rowID);
@@ -81,13 +90,26 @@ public class DBManager {
 		ContentValues cv = new ContentValues();
 		switch (col) {
 			case TABLE_ITEMS.COL_NAME:
-				cv.put(TABLE_ITEMS.KEY_NAME, item.getName()); break;
+				cv.put(TABLE_ITEMS.KEY_NAME, item
+					.getName()); break;
 			case TABLE_ITEMS.COL_CREATED:
-				cv.put(TABLE_ITEMS.KEY_CREATED, item.getCreatedDate()); break;
+				cv.put(TABLE_ITEMS.KEY_CREATED, item
+					.getCreatedDate()); break;
 			case TABLE_ITEMS.COL_EXPIRES:
-				cv.put(TABLE_ITEMS.KEY_EXPIRES, item.getExpiresDate()); break;
+				cv.put(TABLE_ITEMS.KEY_EXPIRES, item
+					.getExpiresDate()); break;
 			case TABLE_ITEMS.COL_QUANTITY:
-				cv.put(TABLE_ITEMS.KEY_QUANTITY, item.getQuantity()); break;
+				cv.put(TABLE_ITEMS.KEY_QUANTITY, item
+					.getQuantity()); break;
+			case TABLE_ITEMS.COL_UNIT:
+				cv.put(TABLE_ITEMS.KEY_UNIT, item
+					.getUnit()); break;
+			case TABLE_ITEMS.COL_TYPE:
+				cv.put(TABLE_ITEMS.KEY_TYPE, item
+					.getType()); break;
+			case TABLE_ITEMS.COL_INVENTORY:
+				cv.put(TABLE_ITEMS.KEY_INVENTORY, item
+					.getInventory()); break;
 			default: return;
 		}
 

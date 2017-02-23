@@ -14,6 +14,9 @@ public class DBSchema {
 		public static final String KEY_CREATED = "created";
 		public static final String KEY_EXPIRES = "expires";
 		public static final String KEY_QUANTITY = "quantity";
+		public static final String KEY_UNIT = "unit";
+		public static final String KEY_TYPE = "type";
+		public static final String KEY_INVENTORY = "inventory";
 
 		// Column indices
 		public static final int COL_ROW_ID = 0;
@@ -21,6 +24,9 @@ public class DBSchema {
 		public static final int COL_CREATED = 2;
 		public static final int COL_EXPIRES = 3;
 		public static final int COL_QUANTITY = 4;
+		public static final int COL_UNIT = 5;
+		public static final int COL_TYPE = 6;
+		public static final int COL_INVENTORY = 7;
 
 	}
 }

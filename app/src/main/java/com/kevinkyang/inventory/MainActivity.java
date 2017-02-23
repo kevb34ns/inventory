@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		itemData.addItem(new Item(-1, name,
 				TimeManager.getDateTimeLocal(),
 				TimeManager.addDaysToDate(TimeManager.getDateTimeLocal(), daysToAdd),
-				quantity));
+				quantity, "", "", ""));//TODO have to add unit, type, and inventory here
 		inventoryFragment.refresh();
 	}
 

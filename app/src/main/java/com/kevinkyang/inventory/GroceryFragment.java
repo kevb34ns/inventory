@@ -39,7 +39,7 @@ public class GroceryFragment extends Fragment {
 		parent = (MainActivity) getActivity();
 
 		tempItems = new ArrayList<Item>();
-		tempItems.add(new Item(0, "Peanut Butter", "02/17/2017", "02/20/2017", 2));
+		tempItems.add(new Item(0, "Peanut Butter", "02/17/2017", "02/20/2017", 2, "", "", ""));
 		itemAdapter = new ItemAdapter(parent, tempItems);
 		inventoryListView.setAdapter(itemAdapter);
 		registerForContextMenu(inventoryListView);
