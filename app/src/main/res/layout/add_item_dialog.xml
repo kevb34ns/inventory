@@ -93,7 +93,7 @@
             android:id="@+id/spinner_inventory"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:entries="@array/array_expires_dates" />
+            android:entries="@array/array_inventories" />
     </LinearLayout>
 
 

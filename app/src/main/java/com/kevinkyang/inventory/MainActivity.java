@@ -167,7 +167,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	@Override
-	public void onAddItemClicked(String name, int quantity, int expCode) {
+	public void onAddItemClicked(String name, int quantity, int expCode,
+								 String unit, String type, String inventory) {
 		/* Selected Item Positions TODO find better solution for visibility
 		   None = 0
 		   1 day = 1
@@ -191,14 +192,17 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		itemData.addItem(new Item(-1, name,
 				TimeManager.getDateTimeLocal(),
 				TimeManager.addDaysToDate(TimeManager.getDateTimeLocal(), daysToAdd),
-				quantity, "", "", ""));//TODO have to add unit, type, and inventory here
+				quantity, unit, type, inventory));//TODO have to add unit, type, and inventory here
 		inventoryFragment.refresh();
 	}
 
 	public static class AddItemDialog extends DialogFragment {
 		private EditText nameEditText;
 		private EditText quantityEditText;
+		private EditText unitEditText;
+		private EditText typeEditText;
 		private Spinner expirationSpinner;
+		private Spinner inventorySpinner;
 		private Button addButton;
 
 		public AddItemDialog() {
@@ -212,7 +216,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);
 			nameEditText = (EditText) view.findViewById(R.id.input_name);
 			quantityEditText = (EditText) view.findViewById(R.id.input_quantity);
+			unitEditText = (EditText) view.findViewById(R.id.input_layout_unit);
+			typeEditText = (EditText) view.findViewById(R.id.input_type);
 			expirationSpinner = (Spinner) view.findViewById(R.id.spinner_expiration);
+			inventorySpinner = (Spinner) view.findViewById(R.id.spinner_inventory);
 			addButton = (Button) view.findViewById(R.id.add_button);
 
 			addListeners();
@@ -236,11 +243,17 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						if (!quantityString.isEmpty()) {
 							quantity = Integer.parseInt(quantityString);
 						}
-
+						String unitString = unitEditText.getText().toString();
+						String typeString = unitEditText.getText().toString();
 						int expCode = expirationSpinner.getSelectedItemPosition();
+						String invString = "";
+						if (inventorySpinner.getSelectedItemPosition() != 0) {
+							invString = (String) inventorySpinner.getSelectedItem();
+						}
 
 						AddItemDialogListener activity = (AddItemDialogListener) getActivity();
-						activity.onAddItemClicked(name, quantity, expCode);
+						activity.onAddItemClicked(name, quantity, expCode,
+								unitString, typeString, invString);
 						AddItemDialog.this.dismiss();
 					}
 

@@ -22,7 +22,7 @@ public class GroceryFragment extends Fragment {
 	private MainActivity parent;
 
 	private ListView inventoryListView;
-	private ItemAdapter itemAdapter;
+	private GroceryItemAdapter itemAdapter;
 	private ArrayList<Item> tempItems;
 
 	@Nullable
@@ -40,7 +40,7 @@ public class GroceryFragment extends Fragment {
 
 		tempItems = new ArrayList<Item>();
 		tempItems.add(new Item(0, "Peanut Butter", "02/17/2017", "02/20/2017", 2, "", "", ""));
-		itemAdapter = new ItemAdapter(parent, tempItems);
+		itemAdapter = new GroceryItemAdapter(parent, tempItems);
 		inventoryListView.setAdapter(itemAdapter);
 		registerForContextMenu(inventoryListView);
 		super.onActivityCreated(savedInstanceState);
