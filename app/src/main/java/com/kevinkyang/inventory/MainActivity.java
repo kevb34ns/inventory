@@ -5,11 +5,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	private InventoryFragment inventoryFragment;
 	private GroceryFragment groceryFragment;
+	private boolean inGroceryMode;
 
 //	TODO app currently does not handle this activity being destroyed and recreated, eg fragment persists so you need to check for that
 //	TODO manager classes need to conform to android definition of managers (itp341 fragments lecture slide 47)
@@ -74,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						"1")
 				.hide(groceryFragment)
 				.commit();
+
+		inGroceryMode = false;
 
 		initializeDrawer();
 		addListeners();
@@ -140,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		fragment = fragmentManager.findFragmentByTag(tag);
 
 		String otherTag = (tag.equals("0")) ? "1" : "0"; // TODO unsustainable solution if more than 2 fragments
+		inGroceryMode = tag.equals("1"); //TODO must change once structure of drawer changes
 		Fragment otherFragment;
 		otherFragment = fragmentManager.findFragmentByTag(otherTag);
 
@@ -168,7 +170,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	@Override
 	public void onAddItemClicked(String name, int quantity, int expCode,
-								 String unit, String type, String inventory) {
+								 String unit, String type, String inventory,
+								 boolean inGroceryList) {
 		/* Selected Item Positions TODO find better solution for visibility
 		   None = 0
 		   1 day = 1
@@ -191,9 +194,20 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 		itemData.addItem(new Item(-1, name,
 				TimeManager.getDateTimeLocal(),
-				TimeManager.addDaysToDate(TimeManager.getDateTimeLocal(), daysToAdd),
-				quantity, unit, type, inventory));//TODO have to add unit, type, and inventory here
-		inventoryFragment.refresh();
+				TimeManager.addDaysToDate(
+						TimeManager.getDateTimeLocal(),
+						daysToAdd), quantity, unit, type,
+						inventory, inGroceryList));
+		if (isInGroceryMode()) {
+			groceryFragment.refresh();
+		} else {
+			inventoryFragment.refresh();
+		}
+	}
+
+	@Override
+	public boolean isInGroceryMode() {
+		return inGroceryMode;
 	}
 
 	public static class AddItemDialog extends DialogFragment {
@@ -216,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);
 			nameEditText = (EditText) view.findViewById(R.id.input_name);
 			quantityEditText = (EditText) view.findViewById(R.id.input_quantity);
-			unitEditText = (EditText) view.findViewById(R.id.input_layout_unit);
+			unitEditText = (EditText) view.findViewById(R.id.input_unit);
 			typeEditText = (EditText) view.findViewById(R.id.input_type);
 			expirationSpinner = (Spinner) view.findViewById(R.id.spinner_expiration);
 			inventorySpinner = (Spinner) view.findViewById(R.id.spinner_inventory);
@@ -253,7 +267,9 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 						AddItemDialogListener activity = (AddItemDialogListener) getActivity();
 						activity.onAddItemClicked(name, quantity, expCode,
-								unitString, typeString, invString);
+								unitString, typeString, invString,
+								activity.isInGroceryMode());
+						// TODO must change dialog UI so user knows if they are adding to grocery list or inventory
 						AddItemDialog.this.dismiss();
 					}
 

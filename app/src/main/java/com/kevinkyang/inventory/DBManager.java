@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import com.kevinkyang.inventory.DBSchema.TABLE_ITEMS;
 
@@ -62,8 +63,19 @@ public class DBManager {
 				int quantity = cursor.getInt(TABLE_ITEMS.COL_QUANTITY);
 				String unit = cursor.getString(TABLE_ITEMS.COL_UNIT);
 				String type = cursor.getString(TABLE_ITEMS.COL_TYPE);
-				String inventory = cursor.getString(TABLE_ITEMS.COL_INVENTORY);
-				items.add(new Item(rowID, name, created, expires, quantity, unit, type, inventory));
+				String[] invTokens = cursor.getString(
+						TABLE_ITEMS.COL_INVENTORY).split("\\|");
+				boolean inGroceryList = false;
+				String inventory = "";
+				if (invTokens[0].equals("Grocery")) {
+					inGroceryList = true;
+					if (invTokens.length == 2) {
+						inventory = invTokens[1];
+					}
+				} else {
+					inventory = invTokens[0];
+				}
+				items.add(new Item(rowID, name, created, expires, quantity, unit, type, inventory, inGroceryList));
 				cursor.moveToNext();
 			}
 		}
@@ -80,7 +92,7 @@ public class DBManager {
 		cv.put(TABLE_ITEMS.KEY_QUANTITY, item.getQuantity());
 		cv.put(TABLE_ITEMS.KEY_UNIT, item.getUnit());
 		cv.put(TABLE_ITEMS.KEY_TYPE, item.getType());
-		cv.put(TABLE_ITEMS.KEY_INVENTORY, item.getInventory());
+		cv.put(TABLE_ITEMS.KEY_INVENTORY, getInventoryString(item));
 
 		long rowID = database.insert(TABLE_ITEMS.TABLE_NAME, null, cv);
 		item.setRowID(rowID);
@@ -91,25 +103,31 @@ public class DBManager {
 		switch (col) {
 			case TABLE_ITEMS.COL_NAME:
 				cv.put(TABLE_ITEMS.KEY_NAME, item
-					.getName()); break;
+					.getName());
+				break;
 			case TABLE_ITEMS.COL_CREATED:
 				cv.put(TABLE_ITEMS.KEY_CREATED, item
-					.getCreatedDate()); break;
+					.getCreatedDate());
+				break;
 			case TABLE_ITEMS.COL_EXPIRES:
 				cv.put(TABLE_ITEMS.KEY_EXPIRES, item
-					.getExpiresDate()); break;
+					.getExpiresDate());
+				break;
 			case TABLE_ITEMS.COL_QUANTITY:
 				cv.put(TABLE_ITEMS.KEY_QUANTITY, item
-					.getQuantity()); break;
+					.getQuantity());
+				break;
 			case TABLE_ITEMS.COL_UNIT:
 				cv.put(TABLE_ITEMS.KEY_UNIT, item
-					.getUnit()); break;
+					.getUnit());
+				break;
 			case TABLE_ITEMS.COL_TYPE:
 				cv.put(TABLE_ITEMS.KEY_TYPE, item
-					.getType()); break;
+					.getType());
+				break;
 			case TABLE_ITEMS.COL_INVENTORY:
-				cv.put(TABLE_ITEMS.KEY_INVENTORY, item
-					.getInventory()); break;
+				cv.put(TABLE_ITEMS.KEY_INVENTORY, getInventoryString(item));
+				break;
 			default: return;
 		}
 
@@ -120,5 +138,14 @@ public class DBManager {
 	public int removeItem(Item item) {
 		String[] whereArgs = { String.valueOf(item.getRowID()) };
 		return database.delete(TABLE_ITEMS.TABLE_NAME, "rowid=?", whereArgs);
+	}
+
+	private String getInventoryString(Item item) {
+		String invString = "";
+		if (item.isInGroceryList()) {
+			invString += "Grocery|";
+		}
+		invString += item.getInventory();
+		return invString;
 	}
 }

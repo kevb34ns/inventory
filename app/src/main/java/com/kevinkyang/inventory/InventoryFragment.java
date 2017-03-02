@@ -16,12 +16,14 @@ import android.widget.ListView;
  * Created by Kevin on 2/17/2017.
  */
 
-public class InventoryFragment extends Fragment {
+public class InventoryFragment extends Fragment implements CustomFragment {
 	private MainActivity parent;
 
 	private ItemData itemData = null;
 	private ListView inventoryListView;
 	private ItemAdapter itemAdapter;
+
+	private String inventory;
 
 	@Nullable
 	@Override
@@ -37,8 +39,9 @@ public class InventoryFragment extends Fragment {
 		parent = (MainActivity) getActivity();
 
 		itemData = ItemData.getInstance();
-		itemAdapter = new ItemAdapter(parent, itemData.getItems());
+		itemAdapter = new ItemAdapter(parent, itemData.getInventoryItems());
 		inventoryListView.setAdapter(itemAdapter);
+		inventory = null;
 		registerForContextMenu(inventoryListView);
 		super.onActivityCreated(savedInstanceState);
 	}
@@ -61,7 +64,7 @@ public class InventoryFragment extends Fragment {
 			case R.id.list_item_delete:
 				Item it = itemAdapter.getItem(menuInfo.position);
 				if (itemData.removeItem(it)) {
-					itemAdapter.notifyDataSetChanged();
+					itemAdapter.notifyDataSetChanged(); //TODO probably need to call refresh now
 					return true;
 				}
 				else return false;
@@ -74,7 +77,15 @@ public class InventoryFragment extends Fragment {
 	 * Call this when changes occur in other parts of the
 	 * app that affect the inventory list.
 	 */
+	@Override
 	public void refresh() {
-		itemAdapter.notifyDataSetChanged();
+		itemAdapter.notifyDataSetInvalidated();
+		itemAdapter = new ItemAdapter(parent,
+				itemData.getItemsByInventory(inventory));
+		inventoryListView.setAdapter(itemAdapter);
+	}
+
+	public void setInventory(String inventory) {
+		this.inventory = inventory;
 	}
 }

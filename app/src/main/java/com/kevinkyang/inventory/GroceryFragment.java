@@ -18,12 +18,12 @@ import java.util.ArrayList;
  * Created by Kevin on 2/17/2017.
  */
 
-public class GroceryFragment extends Fragment {
+public class GroceryFragment extends Fragment implements CustomFragment {
 	private MainActivity parent;
 
+	private ItemData itemData = null;
 	private ListView inventoryListView;
 	private GroceryItemAdapter itemAdapter;
-	private ArrayList<Item> tempItems;
 
 	@Nullable
 	@Override
@@ -38,9 +38,8 @@ public class GroceryFragment extends Fragment {
 		// this fragment can only be attached to MainActivity
 		parent = (MainActivity) getActivity();
 
-		tempItems = new ArrayList<Item>();
-		tempItems.add(new Item(0, "Peanut Butter", "02/17/2017", "02/20/2017", 2, "", "", ""));
-		itemAdapter = new GroceryItemAdapter(parent, tempItems);
+		itemData = ItemData.getInstance();
+		itemAdapter = new GroceryItemAdapter(parent, itemData.getGroceryListItems());
 		inventoryListView.setAdapter(itemAdapter);
 		registerForContextMenu(inventoryListView);
 		super.onActivityCreated(savedInstanceState);
@@ -78,7 +77,11 @@ public class GroceryFragment extends Fragment {
 	 * Call this when changes occur in other parts of the
 	 * app that affect the inventory list.
 	 */
+	@Override
 	public void refresh() {
-		itemAdapter.notifyDataSetChanged();
+		itemAdapter.notifyDataSetInvalidated();
+		itemAdapter = new GroceryItemAdapter(parent,
+				itemData.getGroceryListItems());
+		inventoryListView.setAdapter(itemAdapter);
 	}
 }

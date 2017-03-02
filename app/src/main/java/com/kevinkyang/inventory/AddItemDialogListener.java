@@ -6,5 +6,8 @@ package com.kevinkyang.inventory;
 
 interface AddItemDialogListener {
 	void onAddItemClicked(String name, int quantity, int expCode,
-						  String unit, String type, String inventory);
+						  String unit, String type, String inventory,
+						  boolean inGrocerList);
+
+	boolean isInGroceryMode();
 }

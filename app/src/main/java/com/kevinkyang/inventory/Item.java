@@ -13,6 +13,7 @@ public class Item {
 	private String unit;
 	private String type;
 	private String inventory;
+	private boolean inGroceryList;
 
 	private int daysUntilExpiration;
 
@@ -23,7 +24,8 @@ public class Item {
 				int quantity,
 				String unit,
 				String type,
-				String inventory) {
+				String inventory,
+				boolean inGroceryList) {
 		this.rowID = rowID;
 		this.name = name;
 		this.createdDate = createdDate;
@@ -32,6 +34,7 @@ public class Item {
 		this.unit = unit;
 		this.type = type;
 		this.inventory = inventory;
+		this.inGroceryList = inGroceryList;
 	}
 
 	public long getRowID() {
@@ -96,6 +99,14 @@ public class Item {
 
 	public void setInventory(String inventory) {
 		this.inventory = inventory;
+	}
+
+	public boolean isInGroceryList() {
+		return inGroceryList;
+	}
+
+	public void setInGroceryList(boolean inGroceryList) {
+		this.inGroceryList = inGroceryList;
 	}
 
 	public int getDaysUntilExpiration() {

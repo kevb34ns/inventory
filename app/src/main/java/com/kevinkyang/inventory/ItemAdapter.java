@@ -62,7 +62,7 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 				if (item != null) {
 					item.setQuantity(item.getQuantity() + amount);
 					dbManager.updateItem(item, DBSchema.TABLE_ITEMS.COL_QUANTITY);
-					ItemAdapter.this.notifyDataSetChanged();
+					ItemAdapter.this.notifyDataSetChanged(); //TODO need to call refresh now
 				}
 			}
 		};
