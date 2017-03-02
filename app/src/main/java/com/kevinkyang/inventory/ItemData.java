@@ -33,8 +33,6 @@ public class ItemData {
 		else return false;
 	}
 
-	// TODO must structure items lists so that references to the lists that go into the adapters are held by this object, otherwise changes won't show in the lists when the data set changes. This presents a problem because sub-inventories use a subset of the data (and thus, a new arraylist) in the first place, so it will be complicated to do when you add an item to a subinventory and have to refresh it. You will probably need to get the list from this object again whenever refresh is called, which may be slower.
-
 	/**
 	 * Get all items except for those in the
 	 * grocery list.

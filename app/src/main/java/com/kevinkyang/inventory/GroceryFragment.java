@@ -39,7 +39,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 		parent = (MainActivity) getActivity();
 
 		itemData = ItemData.getInstance();
-		itemAdapter = new GroceryItemAdapter(parent, itemData.getGroceryListItems());
+		itemAdapter = new GroceryItemAdapter(parent, itemData.getGroceryListItems(), this);
 		inventoryListView.setAdapter(itemAdapter);
 		registerForContextMenu(inventoryListView);
 		super.onActivityCreated(savedInstanceState);
@@ -81,7 +81,20 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	public void refresh() {
 		itemAdapter.notifyDataSetInvalidated();
 		itemAdapter = new GroceryItemAdapter(parent,
-				itemData.getGroceryListItems());
+				itemData.getGroceryListItems(), this);
 		inventoryListView.setAdapter(itemAdapter);
+	}
+
+	/**
+	 * Removes the item from the grocery list and
+	 * adds it to the inventory it belongs to.
+	 * @param item the item to be removed.
+	 */
+	public void removeItem(Item item) {
+		//TODO might be able to do this by calling DbManager.updateItem
+		itemData.removeItem(item);
+		item.setInGroceryList(false);
+		itemData.addItem(item);
+		refresh();
 	}
 }

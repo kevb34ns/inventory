@@ -153,6 +153,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				.show(fragment)
 				.commit();
 
+		refreshCurrentList();
+
 		drawerLayout.closeDrawers();
 	}
 
@@ -198,16 +200,21 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						TimeManager.getDateTimeLocal(),
 						daysToAdd), quantity, unit, type,
 						inventory, inGroceryList));
-		if (isInGroceryMode()) {
-			groceryFragment.refresh();
-		} else {
-			inventoryFragment.refresh();
-		}
+
+		refreshCurrentList();
 	}
 
 	@Override
 	public boolean isInGroceryMode() {
 		return inGroceryMode;
+	}
+
+	private void refreshCurrentList() {
+		if (isInGroceryMode()) {
+			groceryFragment.refresh();
+		} else {
+			inventoryFragment.refresh();
+		}
 	}
 
 	public static class AddItemDialog extends DialogFragment {

@@ -39,7 +39,8 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		parent = (MainActivity) getActivity();
 
 		itemData = ItemData.getInstance();
-		itemAdapter = new ItemAdapter(parent, itemData.getInventoryItems());
+		itemAdapter = new ItemAdapter(parent,
+				itemData.getInventoryItems(), this);
 		inventoryListView.setAdapter(itemAdapter);
 		inventory = null;
 		registerForContextMenu(inventoryListView);
@@ -64,7 +65,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 			case R.id.list_item_delete:
 				Item it = itemAdapter.getItem(menuInfo.position);
 				if (itemData.removeItem(it)) {
-					itemAdapter.notifyDataSetChanged(); //TODO probably need to call refresh now
+					refresh();
 					return true;
 				}
 				else return false;
@@ -81,7 +82,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	public void refresh() {
 		itemAdapter.notifyDataSetInvalidated();
 		itemAdapter = new ItemAdapter(parent,
-				itemData.getItemsByInventory(inventory));
+				itemData.getItemsByInventory(inventory), this);
 		inventoryListView.setAdapter(itemAdapter);
 	}
 

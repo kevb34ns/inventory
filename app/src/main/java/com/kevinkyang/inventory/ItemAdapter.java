@@ -19,12 +19,14 @@ import java.util.ArrayList;
 
 public class ItemAdapter extends ArrayAdapter<Item> {
 	private DBManager dbManager = DBManager.getInstance();
+	private InventoryFragment parent;
 	private TextView expiresDate;
 	private TextView quantity;
 
-	public ItemAdapter(Context context, ArrayList<Item> items) {
+	public ItemAdapter(Context context, ArrayList<Item> items, InventoryFragment parent) {
 		super(context, 0, items);
 		dbManager = DBManager.getInstance();
+		this.parent = parent;
 		expiresDate = null;
 		quantity = null;
 	}
@@ -62,7 +64,7 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 				if (item != null) {
 					item.setQuantity(item.getQuantity() + amount);
 					dbManager.updateItem(item, DBSchema.TABLE_ITEMS.COL_QUANTITY);
-					ItemAdapter.this.notifyDataSetChanged(); //TODO need to call refresh now
+					ItemAdapter.this.parent.refresh();
 				}
 			}
 		};
