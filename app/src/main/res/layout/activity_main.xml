@@ -55,11 +55,11 @@
         android:background="#ffffff"
         android:fitsSystemWindows="true">
 
-        <ListView
+        <ExpandableListView
             android:id="@+id/navigation_drawer_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:choiceMode="singleChoice"
+            android:indicatorRight="?android:attr/expandableListPreferredItemIndicatorLeft"
             android:divider="@android:color/transparent"
             android:dividerHeight="0dp"/>
     </LinearLayout>

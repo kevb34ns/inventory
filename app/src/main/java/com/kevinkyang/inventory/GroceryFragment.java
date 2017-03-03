@@ -3,16 +3,10 @@ package com.kevinkyang.inventory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
-
-import java.util.ArrayList;
 
 /**
  * Created by Kevin on 2/17/2017.
@@ -44,20 +38,20 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 		registerForContextMenu(inventoryListView);
 		super.onActivityCreated(savedInstanceState);
 	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-		if (parent == null) {
-			return;
-		}
-
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = parent.getMenuInflater();
-		inflater.inflate(R.menu.list_item_context_menu, menu);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
+// TODO solve this context menu problem, this fragment has a different context menu than the invfragment but there's no layout for that menu atm
+//	@Override
+//	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+//		if (parent == null) {
+//			return;
+//		}
+//
+//		super.onCreateContextMenu(menu, v, menuInfo);
+//		MenuInflater inflater = parent.getMenuInflater();
+//		inflater.inflate(R.menu.list_item_context_menu, menu);
+//	}
+//
+//	@Override
+//	public boolean onContextItemSelected(MenuItem item) {
 //		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 //		switch (item.getItemId()) {
 //			case R.id.list_item_delete:
@@ -70,8 +64,8 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 //			default:
 //				return super.onContextItemSelected(item);
 //		}
-		return super.onContextItemSelected(item);
-	}
+//		return super.onContextItemSelected(item);
+//	}
 
 	/**
 	 * Call this when changes occur in other parts of the

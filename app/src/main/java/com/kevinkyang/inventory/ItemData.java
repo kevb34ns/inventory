@@ -65,7 +65,7 @@ public class ItemData {
 		for (Item i : items) {
 			if (!i.isInGroceryList() &&
 					i.getInventory().equals(inventory)) {
-				results.add(i); // TODO check if this is a reference to the item in items, which would cause the item in items to be modifed if you modified the new items
+				results.add(i);
 			}
 		}
 

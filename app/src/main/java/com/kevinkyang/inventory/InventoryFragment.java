@@ -61,14 +61,17 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+		Item it = itemAdapter.getItem(menuInfo.position);
 		switch (item.getItemId()) {
 			case R.id.list_item_delete:
-				Item it = itemAdapter.getItem(menuInfo.position);
 				if (itemData.removeItem(it)) {
 					refresh();
 					return true;
 				}
 				else return false;
+			case R.id.list_item_add_to_grocery:
+				swapToGroceryList(it);
+				return true;
 			default:
 				return super.onContextItemSelected(item);
 		}
@@ -88,5 +91,13 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 
 	public void setInventory(String inventory) {
 		this.inventory = inventory;
+	}
+
+	private void swapToGroceryList(Item item) {
+		//TODO might be able to do this by calling DbManager.updateItem
+		itemData.removeItem(item);
+		item.setInGroceryList(true);
+		itemData.addItem(item);
+		refresh();
 	}
 }

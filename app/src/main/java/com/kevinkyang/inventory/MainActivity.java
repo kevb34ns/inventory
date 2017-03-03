@@ -19,8 +19,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.Spinner;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
 	private ItemData itemData = null;
@@ -29,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	private String[] drawerTitles;
 	private DrawerLayout drawerLayout;
-	private ListView drawerList;
+	private ExpandableListView drawerList;
 
 	private InventoryFragment inventoryFragment;
 	private GroceryFragment groceryFragment;
@@ -122,16 +127,36 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerLayout.setStatusBarBackground(R.color.colorPrimary);
 
-		drawerList = (ListView) findViewById(R.id.navigation_drawer_list);
-		drawerList.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_1, drawerTitles));
-		drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-				changeFragments(Integer.toString(position));
+		HashMap<String, ArrayList<String>> childrenMap = getInventoryMap();
+		ArrayList<String> titles = new ArrayList<String>();
+		titles.add("Inventory");
+		titles.add("Grocery List");
 
+		drawerList = (ExpandableListView) findViewById(R.id.navigation_drawer_list);
+		drawerList.setAdapter(new DrawerAdapter(this, titles, childrenMap, drawerList));
+		drawerList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+			@Override
+			public boolean onGroupClick(ExpandableListView parent, View view, int groupPosition, long id) {
+				changeFragments(Integer.toString(groupPosition));
+				return true;
 			}
 		});
+	}
+
+	private HashMap<String, ArrayList<String>> getInventoryMap() {
+		//TODO actually get inventories rather than hardcode
+		ArrayList<String> inventoryList = new ArrayList<String>();
+		inventoryList.add("Fridge");
+		inventoryList.add("Freezer");
+		inventoryList.add("Pantry");
+
+		HashMap<String, ArrayList<String>> invMap =
+				new HashMap<String, ArrayList<String>>();
+		invMap.put("Inventory", inventoryList);
+
+		invMap.put("Grocery List", new ArrayList<String>());
+
+		return invMap;
 	}
 
 	private void changeFragments(String tag) {
