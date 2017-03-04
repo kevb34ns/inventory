@@ -29,6 +29,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
 	private ItemData itemData = null;
+	private DBManager dbManager = null;
 	private SuggestionManager suggestionManager;
 	private FloatingActionButton addItemButton;
 
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
         setContentView(R.layout.activity_main);
 
 		// TODO need better solution
-		DBManager dbManager = DBManager.getInstance();
+		dbManager = DBManager.getInstance();
 		dbManager.init(this);
 		itemData = ItemData.getInstance();
 
@@ -145,10 +146,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	private HashMap<String, ArrayList<String>> getInventoryMap() {
 		//TODO actually get inventories rather than hardcode
-		ArrayList<String> inventoryList = new ArrayList<String>();
-		inventoryList.add("Fridge");
-		inventoryList.add("Freezer");
-		inventoryList.add("Pantry");
+		ArrayList<String> inventoryList = dbManager.getInventories();
 
 		HashMap<String, ArrayList<String>> invMap =
 				new HashMap<String, ArrayList<String>>();

@@ -1,10 +1,12 @@
 package com.kevinkyang.inventory;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.kevinkyang.inventory.DBSchema.TABLE_ITEMS;
+import com.kevinkyang.inventory.DBSchema.TABLE_INVENTORY_INFO;
 
 /**
  * Created by Kevin on 12/14/2016.
@@ -27,6 +29,14 @@ public class DBHelper extends SQLiteOpenHelper {
 					TABLE_ITEMS.KEY_INVENTORY + " TEXT" +
 					");";
 
+	public static final String CREATE_TABLE_INVENTORY_INFO =
+			"CREATE TABLE " +
+					TABLE_INVENTORY_INFO.TABLE_NAME + " (" +
+					TABLE_INVENTORY_INFO.KEY_NAME +
+					" TEXT PRIMARY KEY, " +
+					TABLE_INVENTORY_INFO.KEY_COLOR + " TEXT" +
+					");";
+
 	public DBHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 	}
@@ -34,10 +44,11 @@ public class DBHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase sqLiteDatabase) {
 		sqLiteDatabase.execSQL(CREATE_TABLE_ITEMS);
+		sqLiteDatabase.execSQL(CREATE_TABLE_INVENTORY_INFO);
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+	public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 		// TODO upgrade db
 	}
 }

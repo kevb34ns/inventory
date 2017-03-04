@@ -10,9 +10,12 @@ public class ItemData {
 	private ArrayList<Item> items = null;
 	private DBManager dbManager = DBManager.getInstance();
 
-	private static ItemData instance = new ItemData();
+	private static ItemData instance = null;
 
 	public static ItemData getInstance() {
+		if (instance == null) {
+			instance = new ItemData();
+		}
 		return instance;
 	}
 

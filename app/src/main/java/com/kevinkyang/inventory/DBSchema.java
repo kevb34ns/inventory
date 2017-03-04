@@ -27,6 +27,17 @@ public class DBSchema {
 		public static final int COL_UNIT = 5;
 		public static final int COL_TYPE = 6;
 		public static final int COL_INVENTORY = 7;
+	}
 
+	public static final class TABLE_INVENTORY_INFO {
+		public static final String TABLE_NAME = "inventory_info";
+
+		// Column names
+		public static final String KEY_NAME = "name";
+		public static final String KEY_COLOR = "color";
+
+		// Column indices
+		public static final int COL_NAME = 0;
+		public static final int COL_COLOR = 1;
 	}
 }
