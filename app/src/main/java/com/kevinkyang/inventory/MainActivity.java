@@ -1,6 +1,8 @@
 package com.kevinkyang.inventory;
 
+import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -22,6 +24,7 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +36,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private SuggestionManager suggestionManager;
 	private FloatingActionButton addItemButton;
 
-	private String[] drawerTitles;
 	private DrawerLayout drawerLayout;
 	private ExpandableListView drawerList;
 	private DrawerAdapter drawerAdapter;
@@ -124,8 +126,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	private void initializeDrawer() {
-		drawerTitles = getResources().getStringArray(R.array.array_nav_drawer);
-
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerLayout.setStatusBarBackground(R.color.colorPrimary);
 
@@ -203,12 +203,17 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		drawerLayout.closeDrawers();
 	}
 
-
 	private void addListeners() {
 		addItemButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				AddItemDialog dialog = new AddItemDialog();
+				if (!inGroceryMode) {
+					Bundle args = new Bundle();
+					args.putString("Inventory",
+							inventoryFragment.getCurrentInventory());
+					dialog.setArguments(args);
+				}
 				dialog.show(getSupportFragmentManager(), "dialog");
 			}
 		});
@@ -271,8 +276,19 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		private Spinner inventorySpinner;
 		private Button addButton;
 
+		private String currentInventory;
+
 		public AddItemDialog() {
 
+		}
+
+		@Override
+		public void onCreate(@Nullable Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			Bundle args = getArguments();
+			if (args != null) {
+				currentInventory = args.getString("Inventory");
+			}
 		}
 
 		@Override
@@ -285,7 +301,26 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			unitEditText = (EditText) view.findViewById(R.id.input_unit);
 			typeEditText = (EditText) view.findViewById(R.id.input_type);
 			expirationSpinner = (Spinner) view.findViewById(R.id.spinner_expiration);
+
 			inventorySpinner = (Spinner) view.findViewById(R.id.spinner_inventory);
+			ArrayList<String> inventories = DBManager.getInstance().getInventories();
+			inventories.add(0, "Inventory");
+			inventorySpinner.setAdapter(new ArrayAdapter<String>(getContext(),
+					android.R.layout.simple_spinner_dropdown_item,
+					inventories));
+			if (currentInventory != null) {
+				for (int i = 1;
+					 i < inventorySpinner.getCount();
+					 i++) {
+					if (inventorySpinner
+							.getItemAtPosition(i)
+							.equals(currentInventory)) {
+						inventorySpinner.setSelection(i);
+						break;
+					}
+				}
+			}
+
 			addButton = (Button) view.findViewById(R.id.add_button);
 
 			addListeners();

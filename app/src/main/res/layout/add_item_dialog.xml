@@ -92,8 +92,7 @@
         <Spinner
             android:id="@+id/spinner_inventory"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:entries="@array/array_inventories" />
+            android:layout_height="48dp" />
     </LinearLayout>
 
 

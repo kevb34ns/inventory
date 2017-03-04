@@ -89,6 +89,10 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		refresh();
 	}
 
+	public String getCurrentInventory() {
+		return inventory;
+	}
+
 	/**
 	 * Call this when changes occur in other parts of the
 	 * app that affect the inventory list.

@@ -41,6 +41,12 @@ public class DBManager {
 		database = new DBHelper(context).getWritableDatabase();
 	}
 
+	/**
+	 * Returns the list of inventory names. Gets
+	 * them from the database if it is the first
+	 * time this method is called.
+	 * @return a copy of the inventory names list.
+	 */
 	public ArrayList<String> getInventories() {
 		if (inventories == null) {
 			inventories = new ArrayList<String>();
@@ -76,7 +82,7 @@ public class DBManager {
 			}
 		}
 
-		return inventories;
+		return new ArrayList<String>(inventories);
 	}
 
 	public ArrayList<Item> getItems() {

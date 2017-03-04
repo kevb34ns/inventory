@@ -1,6 +1,7 @@
 package com.kevinkyang.inventory;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
 	private Map<String, ArrayList<String>> childrenMap;
 	private ExpandableListView parentListView;
 
+	private TypedArray colorArray;
+
 	public DrawerAdapter(Context context,
 						 ArrayList<String> titles,
 						 Map<String, ArrayList<String>> childrenMap,
@@ -30,6 +33,9 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
 		this.titles = titles;
 		this.childrenMap = childrenMap;
 		this.parentListView = parentListView;
+
+		colorArray = context.getResources()
+				.obtainTypedArray(R.array.array_inventory_colors);
 	}
 
 	@Override
@@ -115,6 +121,10 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
 
 		TextView childTextView = (TextView) convertView.findViewById(R.id.drawer_child_textview);
 		childTextView.setText(titleText);
+
+		View colorTag = convertView.findViewById(R.id.drawer_child_color_tag);
+		colorTag.setBackgroundColor(colorArray.getColor(childPosition, 0));
+
 		return convertView;
 	}
 
