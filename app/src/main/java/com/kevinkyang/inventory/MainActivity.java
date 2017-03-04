@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private String[] drawerTitles;
 	private DrawerLayout drawerLayout;
 	private ExpandableListView drawerList;
+	private DrawerAdapter drawerAdapter;
 
 	private InventoryFragment inventoryFragment;
 	private GroceryFragment groceryFragment;
@@ -134,18 +135,39 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		titles.add("Grocery List");
 
 		drawerList = (ExpandableListView) findViewById(R.id.navigation_drawer_list);
-		drawerList.setAdapter(new DrawerAdapter(this, titles, childrenMap, drawerList));
+		drawerAdapter = new DrawerAdapter(this, titles, childrenMap, drawerList);
+		drawerList.setAdapter(drawerAdapter);
+
 		drawerList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
 			@Override
 			public boolean onGroupClick(ExpandableListView parent, View view, int groupPosition, long id) {
+				String title = (String) drawerAdapter
+						.getGroup(groupPosition);
+				if (title.equals("Inventory")) {
+					inventoryFragment.showInventory(null);
+				}
 				changeFragments(Integer.toString(groupPosition));
+				return true;
+			}
+		});
+
+		drawerList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+			@Override
+			public boolean onChildClick(ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
+				String title = (String) drawerAdapter
+						.getGroup(groupPosition);
+				if (title.equals("Inventory")) {
+					String inventory = (String) drawerAdapter
+							.getChild(groupPosition, childPosition);
+					inventoryFragment.showInventory(inventory);
+					changeFragments(Integer.toString(groupPosition));
+				}
 				return true;
 			}
 		});
 	}
 
 	private HashMap<String, ArrayList<String>> getInventoryMap() {
-		//TODO actually get inventories rather than hardcode
 		ArrayList<String> inventoryList = dbManager.getInventories();
 
 		HashMap<String, ArrayList<String>> invMap =

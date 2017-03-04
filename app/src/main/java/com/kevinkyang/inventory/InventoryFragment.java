@@ -78,6 +78,18 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	}
 
 	/**
+	 * Changes the list displayed by this fragment
+	 * to the items belonging to a certain inventory.
+	 * @param inventory the name of the inventory to
+	 *                  display, or null to display
+	 *                  all items.
+	 */
+	public void showInventory(String inventory) {
+		this.inventory = inventory;
+		refresh();
+	}
+
+	/**
 	 * Call this when changes occur in other parts of the
 	 * app that affect the inventory list.
 	 */

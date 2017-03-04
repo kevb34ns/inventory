@@ -54,8 +54,8 @@ public class ItemData {
 	/**
 	 * TODO description here
 	 * @param inventory the name of the inventory the items
-	 *                  are located in, or, if this is null,
-	 *                  every inventory item.
+	 *                  are located in, or null to return
+	 *                  all items.
 	 * @return a subset of the inventory items based on the
 	 * inventory it belongs to.
 	 */
