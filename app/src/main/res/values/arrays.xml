@@ -14,19 +14,16 @@
         <item>#80c2af</item>
         <item>#f4a259</item>
         <item>#397367</item>
-        <item>#0b4f6c</item>
         <item>#46237a</item>
         <item>#772e25</item>
         <item>#01baef</item>
         <item>#86cd82</item>
+        <item>#0b4f6c</item>
         <item>#ff495c</item>
         <item>#ff9b71</item>
         <item>#2d3047</item>
-        <item>#a0dde6</item>
         <item>#493843</item>
-        <item>#a0b2a6</item>
         <item>#bc4b51</item>
-        <item>#cddfa0</item>
         <item>#7b9ea8</item>
         <item>#197278</item>
         <item>#edae49</item>
@@ -34,5 +31,8 @@
         <item>#35393c</item>
         <item>#6c3a5c</item>
         <item>#c1ae7c</item>
+        <item>#cddfa0</item>
+        <item>#a0dde6</item>
+        <item>#a0b2a6</item>
     </array>
 </resources>

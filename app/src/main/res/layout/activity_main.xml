@@ -48,7 +48,7 @@
     <!--Navigation drawer-->
     <LinearLayout
         android:id="@+id/navigation_drawer"
-        android:layout_width="240dp"
+        android:layout_width="280dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:layout_gravity="start"

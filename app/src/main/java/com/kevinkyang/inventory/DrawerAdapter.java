@@ -2,12 +2,17 @@ package com.kevinkyang.inventory;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -122,8 +127,25 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
 		TextView childTextView = (TextView) convertView.findViewById(R.id.drawer_child_textview);
 		childTextView.setText(titleText);
 
-		View colorTag = convertView.findViewById(R.id.drawer_child_color_tag);
-		colorTag.setBackgroundColor(colorArray.getColor(childPosition, 0));
+		ImageView colorTag = (ImageView) convertView.findViewById(R.id.drawer_child_color_tag);
+		TextView itemCountLabel = (TextView) convertView.findViewById(R.id.label_item_count);
+		if (childPosition != getChildrenCount(groupPosition) - 1) {
+			colorTag.setBackgroundColor(colorArray.getColor(childPosition, 0));
+			int count = ItemData.getInstance().getInventoryItemCount(titleText);
+			if (count < 100) {
+				itemCountLabel.setText(Integer.toString(count));
+			} else {
+				itemCountLabel.setText("99+");
+			}
+		} else {
+			Drawable addIcon = context.getResources().getDrawable(R.drawable.ic_action_add, null);
+			addIcon = addIcon.getConstantState().newDrawable().mutate();
+			addIcon.setColorFilter(new PorterDuffColorFilter(context.getColor(android.R.color.primary_text_light), PorterDuff.Mode.MULTIPLY));
+			colorTag.getLayoutParams().width = 40;
+			colorTag.setImageDrawable(addIcon);
+
+			itemCountLabel.setVisibility(View.INVISIBLE);
+		}
 
 		return convertView;
 	}

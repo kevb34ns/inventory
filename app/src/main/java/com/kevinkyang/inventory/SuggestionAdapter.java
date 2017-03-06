@@ -30,9 +30,6 @@ public class SuggestionAdapter extends ArrayAdapter<SuggestionItem> {
 		TextView name = (TextView) convertView.findViewById(R.id.item_name);
 		name.setText(item.getName());
 
-		TextView createdDate = (TextView) convertView.findViewById(R.id.created_date);
-		createdDate.setText("Type: " + item.getType() + "; Exp: " + item.getDefaultExpiration() + "; Unit: " + item.getDefaultUnit());
-
 		return convertView;
 	}
 }

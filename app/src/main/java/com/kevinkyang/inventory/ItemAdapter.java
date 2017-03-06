@@ -18,17 +18,13 @@ import java.util.ArrayList;
  */
 
 public class ItemAdapter extends ArrayAdapter<Item> {
-	private DBManager dbManager = DBManager.getInstance();
+	private DBManager dbManager;
 	private InventoryFragment parent;
-	private TextView expiresDate;
-	private TextView quantity;
 
 	public ItemAdapter(Context context, ArrayList<Item> items, InventoryFragment parent) {
 		super(context, 0, items);
 		dbManager = DBManager.getInstance();
 		this.parent = parent;
-		expiresDate = null;
-		quantity = null;
 	}
 
 	@Override
@@ -42,13 +38,10 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 		TextView name = (TextView) convertView.findViewById(R.id.item_name);
 		name.setText(item.getName());
 
-		TextView createdDate = (TextView) convertView.findViewById(R.id.created_date);
-		createdDate.setText("Created: " + item.getCreatedDate());
-
-		expiresDate = (TextView) convertView.findViewById(R.id.expires_date);
+		TextView expiresDate = (TextView) convertView.findViewById(R.id.expires_date);
 		expiresDate.setText("Expires: " + item.getExpiresDate());
 
-		quantity = (TextView) convertView.findViewById(R.id.quantity);
+		TextView quantity = (TextView) convertView.findViewById(R.id.quantity);
 		quantity.setText(Integer.toString(item.getQuantity()));
 
 		View.OnClickListener quantityListener = new View.OnClickListener() {

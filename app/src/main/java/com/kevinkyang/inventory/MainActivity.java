@@ -1,6 +1,8 @@
 package com.kevinkyang.inventory;
 
-import android.database.DataSetObserver;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -8,8 +10,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,18 +22,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
 	private ItemData itemData = null;
@@ -51,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-		// TODO need better solution
 		dbManager = DBManager.getInstance();
 		dbManager.init(this);
 		itemData = ItemData.getInstance();
@@ -157,18 +160,82 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				String title = (String) drawerAdapter
 						.getGroup(groupPosition);
 				if (title.equals("Inventory")) {
-					String inventory = (String) drawerAdapter
-							.getChild(groupPosition, childPosition);
-					inventoryFragment.showInventory(inventory);
-					changeFragments(Integer.toString(groupPosition));
+					if (childPosition != drawerAdapter.getChildrenCount(groupPosition) - 1) {
+						String inventory = (String) drawerAdapter
+								.getChild(groupPosition, childPosition);
+						inventoryFragment.showInventory(inventory);
+						changeFragments(Integer.toString(groupPosition));
+					} else {
+						newInventoryDialog();
+					}
 				}
 				return true;
 			}
 		});
 	}
 
+	private void newInventoryDialog() {
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+
+		TextView title = new TextView(this);
+		title.setText("Add New Inventory");
+		title.setGravity(Gravity.START);
+		title.setPadding(30, 30, 30, 30);
+		title.setTextSize(20);
+		title.setTextColor(getColor(android.R.color.primary_text_light));
+//		title.setTypeface(null, Typeface.BOLD);
+		alertDialog.setCustomTitle(title);
+
+		final EditText input = new EditText(this);
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT);
+		input.setLayoutParams(lp);
+		input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+		alertDialog.setView(input);
+
+		alertDialog.setPositiveButton("Add",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						String newInventory = input.getText().toString().trim();
+						if (newInventory.isEmpty()) {
+							return;
+						}
+
+						if (newInventory.equals("Expiring")) {
+							// TODO 'Expiring' is a reserved inventory; do not hardcode, make array of reserved inventories and check against it
+							String msg = "This inventory is reserved by the app.";
+							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+						} else if (dbManager.getInventories().contains(newInventory)) {
+							String msg = "This inventory already exists.";
+							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+						} else {
+							dbManager.addInventory(newInventory);
+							HashMap<String, ArrayList<String>> childrenMap = getInventoryMap();
+							ArrayList<String> titles = new ArrayList<String>();
+							titles.add("Inventory");
+							titles.add("Grocery List");
+							drawerAdapter = new DrawerAdapter(MainActivity.this, titles, childrenMap, drawerList);
+							drawerList.setAdapter(drawerAdapter);
+						}
+					}
+				});
+
+		alertDialog.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				});
+
+		AlertDialog dialog = alertDialog.create();
+		dialog.show();
+		dialog.getWindow().setLayout(800, 500);
+	}
+
 	private HashMap<String, ArrayList<String>> getInventoryMap() {
 		ArrayList<String> inventoryList = dbManager.getInventories();
+		inventoryList.add("New inventory...");
 
 		HashMap<String, ArrayList<String>> invMap =
 				new HashMap<String, ArrayList<String>>();
@@ -345,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 							quantity = Integer.parseInt(quantityString);
 						}
 						String unitString = unitEditText.getText().toString();
-						String typeString = unitEditText.getText().toString();
+						String typeString = typeEditText.getText().toString();
 						int expCode = expirationSpinner.getSelectedItemPosition();
 						String invString = "";
 						if (inventorySpinner.getSelectedItemPosition() != 0) {

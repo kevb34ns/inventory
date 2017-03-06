@@ -75,6 +75,16 @@ public class ItemData {
 		return results;
 	}
 
+	/**
+	 * TODO inefficient alg, description needed
+	 * @param inventory the name of the inventory the items
+	 *                  are located in, or null for all items.
+	 * @return the number of items in the specified inventory
+	 */
+	public int getInventoryItemCount(String inventory) {
+		return getItemsByInventory(inventory).size();
+	}
+
 	public ArrayList<Item> getGroceryListItems() {
 		ArrayList<Item> results = new ArrayList<Item>();
 		for (Item i : items) {

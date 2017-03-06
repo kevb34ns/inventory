@@ -214,7 +214,10 @@ public class DBManager {
 	 * false if it already exists in the database.
 	 */
 	public boolean addInventory(String inventory) {
-		if (inventories.contains(inventory)) {
+		if (inventory == null) {
+			return false;
+		} else if (inventory.isEmpty() ||
+				inventories.contains(inventory)) {
 			return false;
 		}
 
