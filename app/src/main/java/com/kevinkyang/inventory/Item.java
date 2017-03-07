@@ -1,10 +1,13 @@
 package com.kevinkyang.inventory;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Object representing an inventory item
  */
 
-public class Item {
+public class Item implements Parcelable{
 	private long rowID;
 	private String name;
 	private String createdDate;
@@ -35,6 +38,19 @@ public class Item {
 		this.type = type;
 		this.inventory = inventory;
 		this.inGroceryList = inGroceryList;
+	}
+
+	private Item(Parcel in) {
+		rowID = in.readLong();
+		name = in.readString();
+		createdDate = in.readString();
+		expiresDate = in.readString();
+		quantity = in.readInt();
+		unit = in.readString();
+		type = in.readString();
+		inventory = in.readString();
+		inGroceryList = in.readByte() != 0;
+		daysUntilExpiration = in.readInt();
 	}
 
 	public long getRowID() {
@@ -115,5 +131,36 @@ public class Item {
 
 	public void setDaysUntilExpiration(int daysUntilExpiration) {
 		this.daysUntilExpiration = daysUntilExpiration;
+	}
+
+	public static final Creator<Item> CREATOR = new Creator<Item>() {
+		@Override
+		public Item createFromParcel(Parcel in) {
+			return new Item(in);
+		}
+
+		@Override
+		public Item[] newArray(int size) {
+			return new Item[size];
+		}
+	};
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel parcel, int i) {
+		parcel.writeLong(rowID);
+		parcel.writeString(name);
+		parcel.writeString(createdDate);
+		parcel.writeString(expiresDate);
+		parcel.writeInt(quantity);
+		parcel.writeString(unit);
+		parcel.writeString(type);
+		parcel.writeString(inventory);
+		parcel.writeByte((byte) (inGroceryList ? 1 : 0));
+		parcel.writeInt(daysUntilExpiration);
 	}
 }

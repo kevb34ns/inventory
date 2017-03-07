@@ -9,8 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
 /**
@@ -56,7 +54,7 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 				Item item = getItem(position);
 				if (item != null) {
 					item.setQuantity(item.getQuantity() + amount);
-					dbManager.updateItem(item, DBSchema.TABLE_ITEMS.COL_QUANTITY);
+					dbManager.updateItemColumn(item, DBSchema.TABLE_ITEMS.COL_QUANTITY);
 					ItemAdapter.this.parent.refresh();
 				}
 			}

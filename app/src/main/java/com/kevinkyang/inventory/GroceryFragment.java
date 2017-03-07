@@ -85,7 +85,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	 * @param item the item to be removed.
 	 */
 	public void removeItem(Item item) {
-		//TODO might be able to do this by calling DbManager.updateItem
+		//TODO might be able to do this by calling DbManager.updateItemColumn
 		itemData.removeItem(item);
 		item.setInGroceryList(false);
 		itemData.addItem(item);

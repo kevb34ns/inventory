@@ -164,7 +164,29 @@ public class DBManager {
 		item.setRowID(rowID);
 	}
 
-	public void updateItem(Item item, int col) {
+	//TODO may want to return a boolean and have callers check for success
+	public void updateItem(Item item) {
+		ContentValues values = new ContentValues();
+		values.put(TABLE_ITEMS.KEY_NAME,
+				item.getName());
+		values.put(TABLE_ITEMS.KEY_CREATED,
+				item.getCreatedDate());
+		values.put(TABLE_ITEMS.KEY_EXPIRES,
+				item.getExpiresDate());
+		values.put(TABLE_ITEMS.KEY_QUANTITY,
+				item.getQuantity());
+		values.put(TABLE_ITEMS.KEY_UNIT,
+				item.getUnit());
+		values.put(TABLE_ITEMS.KEY_TYPE,
+				item.getType());
+		values.put(TABLE_ITEMS.KEY_INVENTORY,
+				getInventoryString(item));
+
+		String[] whereArgs = { String.valueOf(item.getRowID()) };
+		database.update(TABLE_ITEMS.TABLE_NAME, values, "rowid=?", whereArgs);
+	}
+
+	public void updateItemColumn(Item item, int col) {
 		ContentValues cv = new ContentValues();
 		switch (col) {
 			case TABLE_ITEMS.COL_NAME:

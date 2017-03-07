@@ -72,7 +72,7 @@ public class GroceryItemAdapter extends ArrayAdapter<Item> {
 				Item item = getItem(position);
 				if (item != null) {
 					item.setQuantity(item.getQuantity() + amount);
-					dbManager.updateItem(item, DBSchema.TABLE_ITEMS.COL_QUANTITY);
+					dbManager.updateItemColumn(item, DBSchema.TABLE_ITEMS.COL_QUANTITY);
 					GroceryItemAdapter.this.parent.refresh();
 				}
 			}

@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private ExpandableListView drawerList;
 	private DrawerAdapter drawerAdapter;
 
+	private Toolbar toolbar;
+
 	private InventoryFragment inventoryFragment;
 	private GroceryFragment groceryFragment;
 	private boolean inGroceryMode;
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		addItemButton = (FloatingActionButton) findViewById(R.id.add_item_button);
 
 		// Set up toolbar
-		Toolbar toolbar = (Toolbar) findViewById(R.id.custom_action_bar);
+		toolbar = (Toolbar) findViewById(R.id.custom_action_bar);
 		toolbar.setTitleTextColor(0xFFFFFFFF);
 		toolbar.setNavigationIcon(R.drawable.ic_menu);
 		setSupportActionBar(toolbar);
@@ -105,9 +107,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 //		SuggestionManager suggestionManager = null; TODO
 		switch (item.getItemId()) {
 			// TODO some options for testing only; get rid of it
-			case R.id.options_item_groceries:
-				// TODO go to grocery list
-				return true;
 //			case R.id.options_item_suggestions:
 //				SuggestionAdapter suggestionAdapter = new SuggestionAdapter(this, suggestionManager.getSuggestionData());
 //				itemListView.setAdapter(suggestionAdapter);
@@ -135,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		HashMap<String, ArrayList<String>> childrenMap = getInventoryMap();
 		ArrayList<String> titles = new ArrayList<String>();
 		titles.add("Inventory");
+		titles.add("Expiring");
 		titles.add("Grocery List");
 
 		drawerList = (ExpandableListView) findViewById(R.id.navigation_drawer_list);
@@ -148,8 +148,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						.getGroup(groupPosition);
 				if (title.equals("Inventory")) {
 					inventoryFragment.showInventory(null);
+					changeFragments("0");
+				} else if (title.equals("Expiring")) {
+					inventoryFragment.showInventory(title);
+					changeFragments("0");
+				} else if (title.equals("Grocery List")) {
+					changeFragments("1");
 				}
-				changeFragments(Integer.toString(groupPosition));
+				changeActionBarTitle(title);
 				return true;
 			}
 		});
@@ -165,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 								.getChild(groupPosition, childPosition);
 						inventoryFragment.showInventory(inventory);
 						changeFragments(Integer.toString(groupPosition));
+						changeActionBarTitle(inventory);
 					} else {
 						newInventoryDialog();
 					}
@@ -172,6 +179,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				return true;
 			}
 		});
+	}
+
+	private void changeActionBarTitle(String title) {
+		toolbar.setTitle(title);
 	}
 
 	private void newInventoryDialog() {
@@ -214,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 							HashMap<String, ArrayList<String>> childrenMap = getInventoryMap();
 							ArrayList<String> titles = new ArrayList<String>();
 							titles.add("Inventory");
+							titles.add("Expiring");
 							titles.add("Grocery List");
 							drawerAdapter = new DrawerAdapter(MainActivity.this, titles, childrenMap, drawerList);
 							drawerList.setAdapter(drawerAdapter);
@@ -240,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		HashMap<String, ArrayList<String>> invMap =
 				new HashMap<String, ArrayList<String>>();
 		invMap.put("Inventory", inventoryList);
-
+		invMap.put("Expiring", new ArrayList<String>());
 		invMap.put("Grocery List", new ArrayList<String>());
 
 		return invMap;
@@ -322,8 +334,32 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	@Override
+	public void onSaveItemClicked(String name, int quantity, int expCode, String unit, String type, String inventory, boolean inGroceryList, Item item) {
+		item.setName(name);
+		item.setQuantity(quantity);
+		// TODO expiration, created date doesn't need update
+		item.setUnit(unit);
+		item.setType(type);
+		item.setInventory(inventory);
+		item.setInGroceryList(inGroceryList); // TODO is this needed
+
+		dbManager.updateItem(item);
+		refreshCurrentList();
+	}
+
+	@Override
 	public boolean isInGroceryMode() {
 		return inGroceryMode;
+	}
+
+	public void showEditDialog(Item item) {
+		Bundle args = new Bundle();
+		args.putBoolean("InEditMode", true);
+		args.putParcelable("ItemParcel", item);
+
+		AddItemDialog dialog = new AddItemDialog();
+		dialog.setArguments(args);
+		dialog.show(getSupportFragmentManager(), "dialog");
 	}
 
 	private void refreshCurrentList() {
@@ -342,8 +378,11 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		private Spinner expirationSpinner;
 		private Spinner inventorySpinner;
 		private Button addButton;
+		private Button cancelButton;
 
 		private String currentInventory;
+		private boolean inEditMode;
+		private Item itemToEdit;
 
 		public AddItemDialog() {
 
@@ -354,13 +393,22 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			super.onCreate(savedInstanceState);
 			Bundle args = getArguments();
 			if (args != null) {
+				inEditMode = args.getBoolean("InEditMode");
+				itemToEdit = args.getParcelable("ItemParcel");
 				currentInventory = args.getString("Inventory");
 			}
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			getDialog().setTitle("Add Item");
+			AddItemDialogListener parent = (AddItemDialogListener) getActivity();
+			if (inEditMode) {
+				getDialog().setTitle("Edit Item");
+			} else if (parent.isInGroceryMode()) {
+				getDialog().setTitle("New Grocery Item");
+			} else {
+				getDialog().setTitle("New Item");
+			}
 
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);
 			nameEditText = (EditText) view.findViewById(R.id.input_name);
@@ -375,22 +423,12 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			inventorySpinner.setAdapter(new ArrayAdapter<String>(getContext(),
 					android.R.layout.simple_spinner_dropdown_item,
 					inventories));
-			if (currentInventory != null) {
-				for (int i = 1;
-					 i < inventorySpinner.getCount();
-					 i++) {
-					if (inventorySpinner
-							.getItemAtPosition(i)
-							.equals(currentInventory)) {
-						inventorySpinner.setSelection(i);
-						break;
-					}
-				}
-			}
 
 			addButton = (Button) view.findViewById(R.id.add_button);
+			cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
 			addListeners();
+			populateFields();
 			getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 			return view;
 		}
@@ -420,15 +458,56 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						}
 
 						AddItemDialogListener activity = (AddItemDialogListener) getActivity();
-						activity.onAddItemClicked(name, quantity, expCode,
-								unitString, typeString, invString,
-								activity.isInGroceryMode());
-						// TODO must change dialog UI so user knows if they are adding to grocery list or inventory
+						if (inEditMode) {
+							activity.onSaveItemClicked(name, quantity, expCode,
+									unitString, typeString, invString,
+									activity.isInGroceryMode(),
+									itemToEdit);
+						} else {
+							activity.onAddItemClicked(name, quantity, expCode,
+									unitString, typeString, invString,
+									activity.isInGroceryMode());
+						}
+
 						AddItemDialog.this.dismiss();
 					}
 
 				}
 			});
+
+			cancelButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					AddItemDialog.this.dismiss();
+				}
+			});
+		}
+
+		private void populateFields() {
+			if (inEditMode) {
+				addButton.setText("Save");
+				nameEditText.setText(itemToEdit.getName());
+				quantityEditText.setText(Integer.toString(itemToEdit.getQuantity()));
+				unitEditText.setText(itemToEdit.getUnit());
+				typeEditText.setText(itemToEdit.getType());
+				//TODO need expiration to be exact dates
+				setInventorySpinnerPosition(itemToEdit.getInventory());
+			} else if (currentInventory != null) {
+				setInventorySpinnerPosition(currentInventory);
+			}
+		}
+
+		private void setInventorySpinnerPosition(String inventory) {
+			for (int i = 1;
+				 i < inventorySpinner.getCount();
+				 i++) {
+				if (inventorySpinner
+						.getItemAtPosition(i)
+						.equals(inventory)) {
+					inventorySpinner.setSelection(i);
+					break;
+				}
+			}
 		}
 	}
 

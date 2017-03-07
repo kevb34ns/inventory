@@ -44,6 +44,8 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		inventoryListView.setAdapter(itemAdapter);
 		inventory = null;
 		registerForContextMenu(inventoryListView);
+
+		addListeners();
 		super.onActivityCreated(savedInstanceState);
 	}
 
@@ -109,8 +111,18 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		this.inventory = inventory;
 	}
 
+	private void addListeners() {
+		inventoryListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Item item = (Item) inventoryListView.getItemAtPosition(position);
+				InventoryFragment.this.parent.showEditDialog(item);
+			}
+		});
+	}
+
 	private void swapToGroceryList(Item item) {
-		//TODO might be able to do this by calling DbManager.updateItem
+		//TODO might be able to do this by calling DbManager.updateItemColumn
 		itemData.removeItem(item);
 		item.setInGroceryList(true);
 		itemData.addItem(item);

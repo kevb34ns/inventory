@@ -96,14 +96,29 @@
             android:layout_height="48dp" />
     </LinearLayout>
 
-
-    <Button
-        android:id="@+id/add_button"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_gravity="end|bottom"
-        android:text="@string/add"
-        android:textColor="@drawable/button_borderless_text_color"
-        style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="end|bottom">
+        <Button
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="@string/cancel"
+            android:textColor="@drawable/button_borderless_text_color"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+
+        <Button
+            android:id="@+id/add_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="@string/add"
+            android:textColor="@drawable/button_borderless_text_color"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+
+
+    </LinearLayout>
+
 
 </LinearLayout>

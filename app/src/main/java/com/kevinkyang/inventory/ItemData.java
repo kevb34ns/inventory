@@ -62,6 +62,8 @@ public class ItemData {
 	public ArrayList<Item> getItemsByInventory(String inventory) {
 		if (inventory == null) {
 			return getInventoryItems();
+		} else if (inventory.equals("Expiring")) {
+			return getExpiringItems(ExpirationManager.RANGE);
 		}
 
 		ArrayList<Item> results = new ArrayList<Item>();
@@ -99,6 +101,11 @@ public class ItemData {
 	public ArrayList<Item> getExpiringItems(int rangeInDays) {
 		ArrayList<Item> expiring = new ArrayList<Item>();
 		for (Item item : items) {
+			if (item.isInGroceryList()) {
+				// ignore grocery items
+				continue;
+			}
+
 			int daysUntilExpiration =
 					TimeManager.getDateDifferenceInDays(
 							TimeManager.getDateTimeLocal(),
