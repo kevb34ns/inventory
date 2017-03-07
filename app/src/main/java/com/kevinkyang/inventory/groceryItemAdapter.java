@@ -18,12 +18,12 @@ import java.util.ArrayList;
  */
 
 public class GroceryItemAdapter extends ArrayAdapter<Item> {
-	private TextView quantity;
-	private CheckBox checkBox;
+	private DBManager dbManager;
 	private GroceryFragment parent;
 
 	public GroceryItemAdapter(Context context, ArrayList<Item> items, GroceryFragment parent) {
 		super(context, 0, items);
+		dbManager = DBManager.getInstance();
 		this.parent = parent;
 	}
 
@@ -36,7 +36,8 @@ public class GroceryItemAdapter extends ArrayAdapter<Item> {
 
 		Item item = getItem(position);
 
-		checkBox = (CheckBox) convertView.findViewById(R.id.grocery_item_checkbox);
+		CheckBox checkBox = (CheckBox) convertView.findViewById(R.id.grocery_item_checkbox);
+		checkBox.setFocusable(false);
 		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
@@ -50,7 +51,7 @@ public class GroceryItemAdapter extends ArrayAdapter<Item> {
 		TextView name = (TextView) convertView.findViewById(R.id.grocery_item_name);
 		name.setText(item.getName());
 
-		quantity = (TextView) convertView.findViewById(R.id.grocery_item_quantity);
+		TextView quantity = (TextView) convertView.findViewById(R.id.grocery_item_quantity);
 		quantity.setText(Integer.toString(item.getQuantity()));
 
 		View.OnClickListener quantityListener = new View.OnClickListener() {
@@ -58,10 +59,10 @@ public class GroceryItemAdapter extends ArrayAdapter<Item> {
 			public void onClick(View view) {
 				int amount = 0;
 				switch (view.getId()) {
-					case R.id.decrease_quantity:
+					case R.id.grocery_item_decrease_quantity:
 						amount = -1;
 						break;
-					case R.id.increase_quantity:
+					case R.id.grocery_item_increase_quantity:
 						amount = 1;
 						break;
 					default:
@@ -71,8 +72,8 @@ public class GroceryItemAdapter extends ArrayAdapter<Item> {
 				Item item = getItem(position);
 				if (item != null) {
 					item.setQuantity(item.getQuantity() + amount);
-//					dbManager.updateItem(item, DBSchema.TABLE_ITEMS.COL_QUANTITY); //TODO
-					GroceryItemAdapter.this.notifyDataSetChanged();
+					dbManager.updateItemColumn(item, DBSchema.TABLE_ITEMS.COL_QUANTITY);
+					GroceryItemAdapter.this.parent.refresh();
 				}
 			}
 		};

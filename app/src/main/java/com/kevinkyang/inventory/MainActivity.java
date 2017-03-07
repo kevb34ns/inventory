@@ -1,7 +1,11 @@
 package com.kevinkyang.inventory;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,12 +25,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private GroceryFragment groceryFragment;
 	private boolean inGroceryMode;
 
+	private TypedArray colorArray;
+
 //	TODO app currently does not handle this activity being destroyed and recreated, eg fragment persists so you need to check for that
 //	TODO manager classes need to conform to android definition of managers (itp341 fragments lecture slide 47)
 	@Override
@@ -65,10 +74,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		suggestionManager.executeThread();
 
 		addItemButton = (FloatingActionButton) findViewById(R.id.add_item_button);
+		addItemButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary, null)));
 
 		// Set up toolbar
 		toolbar = (Toolbar) findViewById(R.id.custom_action_bar);
-		toolbar.setTitleTextColor(0xFFFFFFFF);
 		toolbar.setNavigationIcon(R.drawable.ic_menu);
 		setSupportActionBar(toolbar);
 
@@ -89,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				.commit();
 
 		inGroceryMode = false;
+
+		colorArray = null;
 
 		initializeDrawer();
 		addListeners();
@@ -156,6 +167,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 					changeFragments("1");
 				}
 				changeActionBarTitle(title);
+
+				setUIColor(getResources()
+						.getColor(R.color.colorPrimary, null));
+
 				return true;
 			}
 		});
@@ -172,6 +187,9 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						inventoryFragment.showInventory(inventory);
 						changeFragments(Integer.toString(groupPosition));
 						changeActionBarTitle(inventory);
+
+						setUIColor(getInventoryColor(childPosition));
+
 					} else {
 						newInventoryDialog();
 					}
@@ -370,6 +388,22 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		}
 	}
 
+	private void setUIColor(int color) {
+		toolbar.setBackgroundColor(color);
+		addItemButton.setBackgroundTintList(
+				ColorStateList.valueOf(
+						color));
+		drawerLayout.setStatusBarBackgroundColor(color);
+	}
+
+	private int getInventoryColor(int position) {
+		if (colorArray == null) {
+			colorArray = getResources().obtainTypedArray(R.array.array_inventory_colors);
+		}
+
+		return colorArray.getColor(position, 0);
+	}
+
 	public static class AddItemDialog extends DialogFragment {
 		private EditText nameEditText;
 		private EditText quantityEditText;
@@ -478,7 +512,18 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			cancelButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					AddItemDialog.this.dismiss();
+//					AddItemDialog.this.dismiss(); //TODO uncomment
+//					DatePicker datePicker = new DatePicker(getActivity());
+//					datePicker.setVisibility(View.VISIBLE);
+//					datePicker.setEnabled(true);
+//					datePicker.setBackgroundColor(getActivity().getColor(android.R.color.white));
+//					datePicker.setMinDate(System.currentTimeMillis()); //TODO
+					LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					View v = inflater.inflate(R.layout.expiration_picker_dialog, null, false);
+					PopupWindow popupWindow = new PopupWindow(v, 500, 500, true);
+					popupWindow.showAtLocation(cancelButton,
+							Gravity.CENTER,
+							0, 0);
 				}
 			});
 		}

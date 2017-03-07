@@ -18,4 +18,10 @@
     <style name="DialogTheme" parent="@style/Theme.AppCompat.Light.Dialog">
         <item name="android:windowNoTitle">false</item>
     </style>
+
+    <style name="ToolbarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColor">@android:color/primary_text_light</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:elevation">3dp</item>
+    </style>
 </resources>
