@@ -4,7 +4,7 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:padding="@dimen/activity_default_margin">
+              android:background="@android:color/white">
 
 
     <LinearLayout
@@ -17,7 +17,9 @@
             android:id="@+id/date_picker"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:datePickerMode="spinner"/>
+            android:calendarViewShown="false"
+            android:datePickerMode="spinner"
+            />
 
         <!--TODO presets here-->
 

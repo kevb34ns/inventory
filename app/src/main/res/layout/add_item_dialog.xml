@@ -88,6 +88,14 @@
                 android:layout_height="48dp"
                 android:layout_weight="3"
                 android:entries="@array/array_expires_dates" />
+
+            <ImageButton
+                android:id="@+id/button_expiration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_today"/>
         </LinearLayout>
 
         <Spinner

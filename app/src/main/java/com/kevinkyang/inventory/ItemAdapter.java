@@ -18,11 +18,14 @@ import java.util.ArrayList;
 public class ItemAdapter extends ArrayAdapter<Item> {
 	private DBManager dbManager;
 	private InventoryFragment parent;
+	private int defaultColor;
 
 	public ItemAdapter(Context context, ArrayList<Item> items, InventoryFragment parent) {
 		super(context, 0, items);
 		dbManager = DBManager.getInstance();
 		this.parent = parent;
+
+		defaultColor = context.getResources().getColor(R.color.defaultTextColor, context.getTheme());
 	}
 
 	@Override
@@ -36,8 +39,38 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 		TextView name = (TextView) convertView.findViewById(R.id.item_name);
 		name.setText(item.getName());
 
-		TextView expiresDate = (TextView) convertView.findViewById(R.id.expires_date);
-		expiresDate.setText("Expires: " + item.getExpiresDate());
+		TextView expiresNum = (TextView) convertView.findViewById(R.id.expires_num);
+		TextView expiresUnit = (TextView) convertView.findViewById(R.id.expires_unit);
+		int dateDifference = TimeManager.getDateDifferenceInDays(
+				TimeManager.getDateTimeLocal(),
+				item.getExpiresDate());
+		String convertedTime = TimeManager.convertDays(dateDifference);
+		String[] splitString = convertedTime.split(" ");
+		expiresNum.setText(splitString[0]);
+		expiresUnit.setText(splitString[1]);
+		String msg = "";
+		if (dateDifference < 0) {
+			//TODO should factor out color change into a different method, would require turning local vars into private class members
+			int color = getContext()
+					.getResources()
+					.getColor(
+							android.R.color.holo_red_dark, null);
+			name.setTextColor(color);
+			expiresNum.setTextColor(color);
+			expiresUnit.setTextColor(color);
+			msg += "Expired " + convertedTime +
+					" ago";
+		} else if (dateDifference == 0) {
+			name.setTextColor(defaultColor);
+			expiresNum.setTextColor(defaultColor);
+			expiresUnit.setTextColor(defaultColor);
+			msg += "Expires today";
+		} else {
+			name.setTextColor(defaultColor);
+			expiresNum.setTextColor(defaultColor);
+			expiresUnit.setTextColor(defaultColor);
+			msg += "Expires in " + convertedTime;
+		}
 
 		TextView quantity = (TextView) convertView.findViewById(R.id.quantity);
 		quantity.setText(Integer.toString(item.getQuantity()));

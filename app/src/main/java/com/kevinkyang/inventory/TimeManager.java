@@ -27,10 +27,16 @@ public class TimeManager {
 		return sdFormat.format(cal.getTime());
 	}
 
-	/* return difference in days between two dates
-	 * negative: endDate < startDate
-	 * zero: endDate == startDate
-	 * positive: endDate > startDate
+	/**
+	 * Finds the difference in days between two
+	 * dates.
+	 * @param startDate the starting date as a
+	 *                  String.
+	 * @param endDate the ending date as a String.
+	 * @return the difference in days, which is
+	 * negative if endDate < startDate, zero if
+	 * endDate == startDate, and positive if
+	 * endDate > startDate.
 	 */
 	public static int getDateDifferenceInDays(String startDate, String endDate) {
 		SimpleDateFormat sdFormat = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
@@ -76,5 +82,50 @@ public class TimeManager {
 
 		sdFormat.setTimeZone(TimeZone.getDefault());
 		return sdFormat.format(date);
+	}
+
+	/**
+	 * Converts a number of days to, approximately,
+	 * the largest unit of time possible (weeks,
+	 * months, or years).
+	 * Rounds down, so 364 days is rounded to 11
+	 * months, and 600 days is rounded to 1 year.
+	 * @param days a non-negative number of days.
+	 * @return a String in this format:
+	 * "integer unitOfTime"
+	 */
+	public static String convertDays(int days) {
+		int num = (days >= 0) ? days : -days;
+		return convertTime(num, 0);
+	}
+
+	/**
+	 * Recursive helper method for convertDays.
+	 * @param num a non-negative integer.
+	 * @param unit an integer representing a unit:
+	 *             days = 0, weeks = 1, months = 2,
+	 *             years = 3.
+	 * @return a String in this format:
+	 * "integer unitOfTime"
+	 */
+	private static String convertTime(int num, int unit) {
+		if (unit == 0 && num < 7) {
+			String result = "" + num + " day";
+			return (num != 1) ? result + "s" : result;
+		} else if (unit == 1 && num < 30) {
+			num /= 7;
+			String result = "" + num + " wk";
+			return (num != 1) ? result + "s" : result;
+		} else if (unit == 2 && num < 365) {
+			num /= 30;
+			String result = "" + num + " mo";
+			return (num != 1) ? result + "s" : result;
+		} else if (unit == 3) {
+			num /= 365;
+			String result = "" + num + " yr";
+			return (num != 1) ? result + "s" : result;
+		} else {
+			return convertTime(num, ++unit);
+		}
 	}
 }

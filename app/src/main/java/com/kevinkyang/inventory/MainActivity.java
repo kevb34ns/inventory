@@ -3,6 +3,7 @@ package com.kevinkyang.inventory;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -18,6 +19,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,6 +35,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
@@ -404,12 +408,27 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		return colorArray.getColor(position, 0);
 	}
 
+	// TODO should be part of a static/manager class
+	public static int getAttributeColor(Context context, int attrId) {
+		TypedValue typedValue = new TypedValue();
+		context.getTheme().resolveAttribute(attrId, typedValue, true);
+		int colorRes = typedValue.resourceId;
+		int color = -1;
+		try {
+			color = context.getResources().getColor(colorRes, context.getTheme());
+		} catch (Resources.NotFoundException e) {
+			e.printStackTrace();
+		}
+		return color;
+	}
+
 	public static class AddItemDialog extends DialogFragment {
 		private EditText nameEditText;
 		private EditText quantityEditText;
 		private EditText unitEditText;
 		private EditText typeEditText;
 		private Spinner expirationSpinner;
+		private ImageButton expirationButton;
 		private Spinner inventorySpinner;
 		private Button addButton;
 		private Button cancelButton;
@@ -417,6 +436,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		private String currentInventory;
 		private boolean inEditMode;
 		private Item itemToEdit;
+
+		private int defaultColor;
 
 		public AddItemDialog() {
 
@@ -450,6 +471,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			unitEditText = (EditText) view.findViewById(R.id.input_unit);
 			typeEditText = (EditText) view.findViewById(R.id.input_type);
 			expirationSpinner = (Spinner) view.findViewById(R.id.spinner_expiration);
+			expirationButton = (ImageButton) view.findViewById(R.id.button_expiration);
 
 			inventorySpinner = (Spinner) view.findViewById(R.id.spinner_inventory);
 			ArrayList<String> inventories = DBManager.getInstance().getInventories();
@@ -512,18 +534,24 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			cancelButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-//					AddItemDialog.this.dismiss(); //TODO uncomment
-//					DatePicker datePicker = new DatePicker(getActivity());
-//					datePicker.setVisibility(View.VISIBLE);
-//					datePicker.setEnabled(true);
-//					datePicker.setBackgroundColor(getActivity().getColor(android.R.color.white));
-//					datePicker.setMinDate(System.currentTimeMillis()); //TODO
+					AddItemDialog.this.dismiss();
+				}
+			});
+
+			expirationButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
 					LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 					View v = inflater.inflate(R.layout.expiration_picker_dialog, null, false);
-					PopupWindow popupWindow = new PopupWindow(v, 500, 500, true);
-					popupWindow.showAtLocation(cancelButton,
-							Gravity.CENTER,
-							0, 0);
+					DatePicker datePicker = (DatePicker) v.findViewById(R.id.date_picker);
+					datePicker.setMinDate(System.currentTimeMillis());
+					PopupWindow popupWindow = new PopupWindow(v, 700, 400, true);
+					popupWindow.setAnimationStyle(-1);
+					popupWindow.setElevation(16.0f);
+					popupWindow.showAtLocation(typeEditText,
+							Gravity.START,
+							(int) expirationButton.getX(),
+							(int) expirationButton.getY());
 				}
 			});
 		}
