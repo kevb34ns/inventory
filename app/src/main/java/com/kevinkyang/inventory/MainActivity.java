@@ -5,9 +5,6 @@ import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -19,7 +16,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -28,7 +24,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -42,7 +37,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
@@ -322,8 +320,9 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	@Override
-	public void onAddItemClicked(String name, int quantity, int expCode,
-								 String unit, String type, String inventory,
+	public void onAddItemClicked(String name, int quantity, String unit,
+								 String type, String expiresDate,
+								 String inventory,
 								 boolean inGroceryList) {
 		/* Selected Item Positions TODO find better solution for visibility
 		   None = 0
@@ -334,32 +333,33 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		   1 month = 5
 		   3 months = 6
 		 */
-		int daysToAdd = 0;
-		switch (expCode) {
-			case 1: daysToAdd = 1; break;
-			case 2: daysToAdd = 3; break;
-			case 3: daysToAdd = 7; break;
-			case 4: daysToAdd = 14; break;
-			case 5: daysToAdd = 30; break;
-			case 6: daysToAdd = 90; break;
-			default: break;
-		}
+//		int daysToAdd = 0; TODO
+//		switch (expCode) {
+//			case 1: daysToAdd = 1; break;
+//			case 2: daysToAdd = 3; break;
+//			case 3: daysToAdd = 7; break;
+//			case 4: daysToAdd = 14; break;
+//			case 5: daysToAdd = 30; break;
+//			case 6: daysToAdd = 90; break;
+//			default: break;
+//		}
 
 		itemData.addItem(new Item(-1, name,
 				TimeManager.getDateTimeLocal(),
-				TimeManager.addDaysToDate(
-						TimeManager.getDateTimeLocal(),
-						daysToAdd), quantity, unit, type,
-						inventory, inGroceryList));
+				expiresDate, quantity, unit, type,
+				inventory, inGroceryList));
 
 		refreshCurrentList();
 	}
 
 	@Override
-	public void onSaveItemClicked(String name, int quantity, int expCode, String unit, String type, String inventory, boolean inGroceryList, Item item) {
+	public void onSaveItemClicked(String name, int quantity, String unit,
+								  String type, String expiresDate,
+								  String inventory,
+								  boolean inGroceryList, Item item) {
 		item.setName(name);
 		item.setQuantity(quantity);
-		// TODO expiration, created date doesn't need update
+		item.setExpiresDate(expiresDate);
 		item.setUnit(unit);
 		item.setType(type);
 		item.setInventory(inventory);
@@ -427,8 +427,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		private EditText quantityEditText;
 		private EditText unitEditText;
 		private EditText typeEditText;
-		private Spinner expirationSpinner;
-		private ImageButton expirationButton;
+		private Button expirationButton;
 		private Spinner inventorySpinner;
 		private Button addButton;
 		private Button cancelButton;
@@ -437,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		private boolean inEditMode;
 		private Item itemToEdit;
 
-		private int defaultColor;
+		private boolean dateSet;
 
 		public AddItemDialog() {
 
@@ -452,6 +451,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				itemToEdit = args.getParcelable("ItemParcel");
 				currentInventory = args.getString("Inventory");
 			}
+
+			dateSet = false;
 		}
 
 		@Override
@@ -470,8 +471,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			quantityEditText = (EditText) view.findViewById(R.id.input_quantity);
 			unitEditText = (EditText) view.findViewById(R.id.input_unit);
 			typeEditText = (EditText) view.findViewById(R.id.input_type);
-			expirationSpinner = (Spinner) view.findViewById(R.id.spinner_expiration);
-			expirationButton = (ImageButton) view.findViewById(R.id.button_expiration);
+			expirationButton = (Button) view.findViewById(R.id.button_expiration);
 
 			inventorySpinner = (Spinner) view.findViewById(R.id.spinner_inventory);
 			ArrayList<String> inventories = DBManager.getInstance().getInventories();
@@ -507,7 +507,12 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						}
 						String unitString = unitEditText.getText().toString();
 						String typeString = typeEditText.getText().toString();
-						int expCode = expirationSpinner.getSelectedItemPosition();
+						String expiresString = "";
+						if (dateSet) {
+							expiresString = expirationButton
+									.getText()
+									.toString();
+						}
 						String invString = "";
 						if (inventorySpinner.getSelectedItemPosition() != 0) {
 							invString = (String) inventorySpinner.getSelectedItem();
@@ -515,14 +520,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 						AddItemDialogListener activity = (AddItemDialogListener) getActivity();
 						if (inEditMode) {
-							activity.onSaveItemClicked(name, quantity, expCode,
-									unitString, typeString, invString,
-									activity.isInGroceryMode(),
+							activity.onSaveItemClicked(name, quantity,
+									unitString, typeString, expiresString,
+									invString, activity.isInGroceryMode(),
 									itemToEdit);
 						} else {
-							activity.onAddItemClicked(name, quantity, expCode,
-									unitString, typeString, invString,
-									activity.isInGroceryMode());
+							activity.onAddItemClicked(name, quantity,
+									unitString, typeString, expiresString,
+									invString, activity.isInGroceryMode());
 						}
 
 						AddItemDialog.this.dismiss();
@@ -541,17 +546,12 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			expirationButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-					View v = inflater.inflate(R.layout.expiration_picker_dialog, null, false);
-					DatePicker datePicker = (DatePicker) v.findViewById(R.id.date_picker);
-					datePicker.setMinDate(System.currentTimeMillis());
-					PopupWindow popupWindow = new PopupWindow(v, 700, 400, true);
-					popupWindow.setAnimationStyle(-1);
-					popupWindow.setElevation(16.0f);
-					popupWindow.showAtLocation(typeEditText,
-							Gravity.START,
-							(int) expirationButton.getX(),
-							(int) expirationButton.getY());
+					if (dateSet) {
+						String date = expirationButton.getText().toString();
+						setUpPopupWindow(date);
+					} else {
+						setUpPopupWindow(null);
+					}
 				}
 			});
 		}
@@ -563,7 +563,11 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				quantityEditText.setText(Integer.toString(itemToEdit.getQuantity()));
 				unitEditText.setText(itemToEdit.getUnit());
 				typeEditText.setText(itemToEdit.getType());
-				//TODO need expiration to be exact dates
+				if (!itemToEdit.getExpiresDate().isEmpty()) {
+					expirationButton.setText(
+							itemToEdit.getExpiresDate());
+					dateSet = true;
+				}
 				setInventorySpinnerPosition(itemToEdit.getInventory());
 			} else if (currentInventory != null) {
 				setInventorySpinnerPosition(currentInventory);
@@ -581,6 +585,90 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 					break;
 				}
 			}
+		}
+
+		/**
+		 *
+		 * @param dateToSet a date string formatted according to the
+		 *                  format defined in TimeManager, or null if
+		 *                  no date has been set yet.
+		 */
+		private void setUpPopupWindow(String dateToSet) {
+			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View view = inflater.inflate(R.layout.expiration_picker_dialog, null, false);
+
+			String[] presetArray = getResources().getStringArray(R.array.array_expires_dates);
+			TextView text1 = (TextView) view.findViewById(R.id.preset_exp_1);
+			text1.setText(presetArray[0]);
+			TextView text2 = (TextView) view.findViewById(R.id.preset_exp_2);
+			text2.setText(presetArray[1]);
+			TextView text3 = (TextView) view.findViewById(R.id.preset_exp_3);
+			text3.setText(presetArray[2]);
+			TextView text4 = (TextView) view.findViewById(R.id.preset_exp_4);
+			text4.setText(presetArray[3]);
+			TextView text5 = (TextView) view.findViewById(R.id.preset_exp_5);
+			text5.setText(presetArray[4]);
+			TextView text6 = (TextView) view.findViewById(R.id.preset_exp_6);
+			text6.setText(presetArray[5]);
+
+			final SimpleDateFormat sdFormat =
+					new SimpleDateFormat(
+							TimeManager.DEFAULT_DATE_FORMAT);
+
+			final DatePicker datePicker = (DatePicker) view.findViewById(R.id.date_picker);
+			datePicker.setMinDate(System.currentTimeMillis());
+			if (dateToSet != null) {
+				Calendar cal = Calendar.getInstance();
+				try {
+					cal.setTime(sdFormat.parse(dateToSet));
+					datePicker.updateDate(
+							cal.get(Calendar.YEAR),
+							cal.get(Calendar.MONTH),
+							cal.get(Calendar.DAY_OF_MONTH));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+
+			final PopupWindow popupWindow = new PopupWindow(view, 600, 650, true);
+			popupWindow.setAnimationStyle(R.style.PopupAnimation);
+			popupWindow.setElevation(16.0f);
+
+			ImageButton cancelButton = (ImageButton) view.findViewById(R.id.clear_button);
+			cancelButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					String text = getResources().getString(
+							R.string.expires_button_default_string);
+					expirationButton.setText(text);
+					dateSet = false;
+					popupWindow.dismiss();
+				}
+			});
+
+			ImageButton doneButton = (ImageButton) view.findViewById(R.id.done_button);
+			doneButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					int month = datePicker.getMonth();
+					int day = datePicker.getDayOfMonth();
+					int year = datePicker.getYear();
+
+					Calendar cal = Calendar.getInstance();
+					cal.set(year, month, day);
+					String date = sdFormat.format(cal.getTime());
+					expirationButton.setText(date);
+
+					dateSet = true;
+
+					popupWindow.dismiss();
+				}
+			});
+
+			popupWindow.showAtLocation(typeEditText,
+					Gravity.START,
+					(int) expirationButton.getX(),
+					(int) expirationButton.getY());
 		}
 	}
 

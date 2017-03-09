@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,6 +21,14 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 	private DBManager dbManager;
 	private InventoryFragment parent;
 	private int defaultColor;
+
+	private TextView name;
+	private LinearLayout expiresContainer;
+	private TextView expiresNum;
+	private TextView expiresUnit;
+	private TextView quantity;
+	private ImageButton decQuantityButton;
+	private ImageButton incQuantityButton;
 
 	public ItemAdapter(Context context, ArrayList<Item> items, InventoryFragment parent) {
 		super(context, 0, items);
@@ -36,43 +46,40 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 
 		Item item = getItem(position);
 
-		TextView name = (TextView) convertView.findViewById(R.id.item_name);
+		name = (TextView) convertView.findViewById(R.id.item_name);
 		name.setText(item.getName());
 
-		TextView expiresNum = (TextView) convertView.findViewById(R.id.expires_num);
-		TextView expiresUnit = (TextView) convertView.findViewById(R.id.expires_unit);
-		int dateDifference = TimeManager.getDateDifferenceInDays(
-				TimeManager.getDateTimeLocal(),
-				item.getExpiresDate());
-		String convertedTime = TimeManager.convertDays(dateDifference);
-		String[] splitString = convertedTime.split(" ");
-		expiresNum.setText(splitString[0]);
-		expiresUnit.setText(splitString[1]);
-		String msg = "";
-		if (dateDifference < 0) {
-			//TODO should factor out color change into a different method, would require turning local vars into private class members
-			int color = getContext()
-					.getResources()
-					.getColor(
-							android.R.color.holo_red_dark, null);
-			name.setTextColor(color);
-			expiresNum.setTextColor(color);
-			expiresUnit.setTextColor(color);
-			msg += "Expired " + convertedTime +
-					" ago";
-		} else if (dateDifference == 0) {
-			name.setTextColor(defaultColor);
-			expiresNum.setTextColor(defaultColor);
-			expiresUnit.setTextColor(defaultColor);
-			msg += "Expires today";
+		expiresContainer = (LinearLayout)
+				convertView.findViewById(R.id.expires_container);
+		expiresNum = (TextView)
+				convertView.findViewById(R.id.expires_num);
+		expiresUnit = (TextView)
+				convertView.findViewById(R.id.expires_unit);
+
+		String expiresDate = item.getExpiresDate();
+		if (!expiresDate.isEmpty()) {
+			int dateDifference = TimeManager.getDateDifferenceInDays(
+					TimeManager.getDateTimeLocal(),
+					expiresDate);
+			String convertedTime = TimeManager.convertDays(dateDifference);
+			String[] splitString = convertedTime.split(" ");
+			expiresNum.setText(splitString[0]);
+			expiresUnit.setText(splitString[1]);
+			if (dateDifference < 0) {
+				int color = getContext()
+						.getResources()
+						.getColor(
+								android.R.color.holo_red_dark, null);
+				setExpirationColor(color);
+			} else {
+				setExpirationColor(defaultColor);
+			}
+			setExpirationVisibility(View.VISIBLE);
 		} else {
-			name.setTextColor(defaultColor);
-			expiresNum.setTextColor(defaultColor);
-			expiresUnit.setTextColor(defaultColor);
-			msg += "Expires in " + convertedTime;
+			setExpirationVisibility(View.INVISIBLE);
 		}
 
-		TextView quantity = (TextView) convertView.findViewById(R.id.quantity);
+		quantity = (TextView) convertView.findViewById(R.id.quantity);
 		quantity.setText(Integer.toString(item.getQuantity()));
 
 		View.OnClickListener quantityListener = new View.OnClickListener() {
@@ -93,11 +100,26 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 			}
 		};
 
-		Button decQuantityButton = (Button) convertView.findViewById(R.id.decrease_quantity);
-		Button incQuantityButton = (Button) convertView.findViewById(R.id.increase_quantity);
+		decQuantityButton = (ImageButton) convertView.findViewById(R.id.decrease_quantity);
+		decQuantityButton.setFocusable(false);
 		decQuantityButton.setOnClickListener(quantityListener);
+
+		incQuantityButton = (ImageButton) convertView.findViewById(R.id.increase_quantity);
+		incQuantityButton.setFocusable(false);
 		incQuantityButton.setOnClickListener(quantityListener);
 
 		return convertView;
+	}
+
+	private void setExpirationVisibility(int visibility) {
+		expiresContainer.setVisibility(visibility);
+		expiresNum.setVisibility(visibility);
+		expiresUnit.setVisibility(visibility);
+	}
+
+	private void setExpirationColor(int color) {
+		name.setTextColor(color);
+		expiresNum.setTextColor(color);
+		expiresUnit.setTextColor(color);
 	}
 }

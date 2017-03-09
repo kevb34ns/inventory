@@ -15,6 +15,7 @@
         android:layout_gravity="center_vertical"/>
 
     <LinearLayout
+        android:id="@+id/expires_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="40dp"
@@ -40,18 +41,17 @@
             android:textSize="12sp"/>
     </LinearLayout>
 
-    <Button
+    <ImageButton
         android:id="@+id/decrease_quantity"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:backgroundTint="@android:color/black"
-        android:textColor="@android:color/white"
-        android:text="@string/minus_string"
-        android:focusable="false"/>
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:src="@drawable/ic_remove_circle"/>
 
     <TextView
         android:id="@+id/quantity"
@@ -60,17 +60,16 @@
         android:gravity="center_vertical"
         android:textSize="20sp"/>
 
-    <Button
+    <ImageButton
         android:id="@+id/increase_quantity"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:backgroundTint="@android:color/black"
-        android:textColor="@android:color/white"
-        android:text="@string/plus_string"
-        android:focusable="false"/>
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:backgroundTint="@color/colorPrimary"
+        android:src="@drawable/ic_add_circle"/>
 
 </LinearLayout>

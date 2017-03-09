@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="array_expires_dates">
-        <item>Expiration Date</item>
-        <item>1 day</item>
-        <item>3 days</item>
-        <item>1 week</item>
-        <item>2 weeks</item>
-        <item>1 month</item>
-        <item>3 months</item>
+        <item>1d</item>
+        <item>3d</item>
+        <item>1w</item>
+        <item>2w</item>
+        <item>1m</item>
+        <item>3m</item>
     </string-array>
     <array name="array_inventory_colors">
         <item>#e84855</item>
