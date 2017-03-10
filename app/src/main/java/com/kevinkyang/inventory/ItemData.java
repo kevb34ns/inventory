@@ -106,6 +106,12 @@ public class ItemData {
 				continue;
 			}
 
+			String expiresDate = item.getExpiresDate();
+			if (expiresDate.isEmpty()) {
+				// item has no expiration set
+				continue;
+			}
+
 			int daysUntilExpiration =
 					TimeManager.getDateDifferenceInDays(
 							TimeManager.getDateTimeLocal(),

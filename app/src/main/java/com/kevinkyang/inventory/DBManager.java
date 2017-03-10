@@ -41,6 +41,11 @@ public class DBManager {
 		database = new DBHelper(context).getWritableDatabase();
 	}
 
+	public boolean isInitialized() {
+		// TODO database has a close method, check when to close/if it's needed, and if it's needed, must check if database is closed in this method
+		return (context != null && database != null);
+	}
+
 	/**
 	 * Returns the list of inventory names. Gets
 	 * them from the database if it is the first

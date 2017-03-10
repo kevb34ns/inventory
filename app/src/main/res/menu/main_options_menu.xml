@@ -17,4 +17,8 @@
     <item
         android:id="@+id/options_item_schedule"
         android:title="Schedule"/>
+
+    <item
+        android:id="@+id/options_item_cancel"
+        android:title="Cancel Notifications"/>
 </menu>

@@ -3,6 +3,7 @@ package com.kevinkyang.inventory;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * Created by Kevin on 2/2/2017.
@@ -17,6 +18,14 @@ public class NotificationReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		ExpirationManager expirationMgr = new ExpirationManager(context);
-		expirationMgr.sendNotifications();
+		String action = intent.getAction();
+		if (action != null &&
+				intent.getAction().equals(
+				"android.intent.action.BOOT_COMPLETED")) {
+			// system rebooted, reschedule alarms
+			expirationMgr.scheduleNotifications();
+		} else {
+			expirationMgr.sendNotifications();
+		}
 	}
 }

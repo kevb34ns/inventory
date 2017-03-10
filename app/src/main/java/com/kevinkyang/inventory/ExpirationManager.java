@@ -4,15 +4,20 @@ import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.app.NotificationCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
+import android.util.Log;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -49,6 +54,9 @@ public class ExpirationManager {
 
 	// TODO style notification, look at Notification.InboxStyle
 	private Notification getNotification() {
+		if (!DBManager.getInstance().isInitialized()) {
+			DBManager.getInstance().init(context);
+		}
 		ArrayList<Item> expiring = ItemData.getInstance().getExpiringItems(RANGE);
 		if (expiring.isEmpty()) {
 			return null;
@@ -101,7 +109,7 @@ public class ExpirationManager {
 			String content;
 			int days = item.getDaysUntilExpiration();
 			if (days < 0) {
-				content = days + " days ago";
+				content = -days + " days ago";
 			} else if (days == 0) {
 				content = " today";
 			} else if (days == 1) {
@@ -135,7 +143,7 @@ public class ExpirationManager {
 			return;
 		}
 
-		int notificationId = 001;
+		int notificationId = 1;
 		NotificationManager notifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 		notifyMgr.notify(notificationId, notification);
 	}
@@ -146,10 +154,27 @@ public class ExpirationManager {
 
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(System.currentTimeMillis());
-		cal.set(Calendar.HOUR_OF_DAY, 18); // TODO make user customizable
+		cal.set(Calendar.HOUR_OF_DAY, 12); // TODO make user customizable
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
 
 		AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmMgr.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent); //TODO could this be inexact?
+		alarmMgr.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(),
+				AlarmManager.INTERVAL_DAY, pendingIntent); //TODO could this be inexact?
 	}
 
+	public void cancelNotifications() {
+		Intent intent = new Intent(context, NotificationReceiver.class);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		alarmMgr.cancel(pendingIntent);
+
+		// disable NotificationReceiver
+		ComponentName receiver = new ComponentName(context, NotificationReceiver.class);
+		PackageManager pm = context.getPackageManager();
+		pm.setComponentEnabledSetting(receiver,
+				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+				PackageManager.DONT_KILL_APP);
+	}
 }

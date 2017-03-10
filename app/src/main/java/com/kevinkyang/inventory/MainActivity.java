@@ -1,7 +1,11 @@
 package com.kevinkyang.inventory;
 
+import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -44,6 +48,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
+	public static final String TAG = "com.kevinkyang.inventory";
+
 	private ItemData itemData = null;
 	private DBManager dbManager = null;
 	private SuggestionManager suggestionManager;
@@ -105,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 		initializeDrawer();
 		addListeners();
+		checkNotificationScheduled();
 	}
 
 	@Override
@@ -134,6 +141,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			case R.id.options_item_schedule:
 				manager = new ExpirationManager(this);
 				manager.scheduleNotifications();
+				return true;
+			case R.id.options_item_cancel:
+				manager = new ExpirationManager(this);
+				manager.cancelNotifications();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -317,6 +328,24 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			}
 		});
 
+	}
+
+	private void checkNotificationScheduled() {
+		PendingIntent pendingIntent =
+				PendingIntent.getBroadcast(this, 0,
+						new Intent(this, NotificationReceiver.class),
+						PendingIntent.FLAG_NO_CREATE);
+		if (pendingIntent == null) {
+			ExpirationManager mgr = new ExpirationManager(this);
+			mgr.scheduleNotifications();
+
+			// enable NotificationReceiver
+			ComponentName receiver = new ComponentName(this, NotificationReceiver.class);
+			PackageManager pm = getPackageManager();
+			pm.setComponentEnabledSetting(receiver,
+					PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+					PackageManager.DONT_KILL_APP);
+		}
 	}
 
 	@Override
