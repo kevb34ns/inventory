@@ -1,5 +1,6 @@
 package com.kevinkyang.inventory;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -128,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		switch (item.getItemId()) {
 			// TODO some options for testing only; get rid of it
 //			case R.id.options_item_suggestions:
-//				SuggestionAdapter suggestionAdapter = new SuggestionAdapter(this, suggestionManager.getSuggestionData());
+//				SuggestionAdapter suggestionAdapter = new SuggestionAdapter(this, suggestionManager.getItemSuggestions());
 //				itemListView.setAdapter(suggestionAdapter);
 //				return true; //TODO to test this, must show in a fragment now
 			case R.id.options_item_clear:
@@ -451,11 +453,15 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		return color;
 	}
 
+	public SuggestionManager getSuggestionManager() {
+		return suggestionManager;
+	}
+
 	public static class AddItemDialog extends DialogFragment {
 		private EditText nameEditText;
 		private EditText quantityEditText;
-		private EditText unitEditText;
-		private EditText typeEditText;
+		private AutoCompleteTextView unitEditText;
+		private AutoCompleteTextView typeEditText;
 		private Button expirationButton;
 		private Spinner inventorySpinner;
 		private Button addButton;
@@ -498,8 +504,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);
 			nameEditText = (EditText) view.findViewById(R.id.input_name);
 			quantityEditText = (EditText) view.findViewById(R.id.input_quantity);
-			unitEditText = (EditText) view.findViewById(R.id.input_unit);
-			typeEditText = (EditText) view.findViewById(R.id.input_type);
+			unitEditText = (AutoCompleteTextView)
+					view.findViewById(R.id.input_unit);
+			typeEditText = (AutoCompleteTextView)
+					view.findViewById(R.id.input_type);
 			expirationButton = (Button) view.findViewById(R.id.button_expiration);
 
 			inventorySpinner = (Spinner) view.findViewById(R.id.spinner_inventory);
@@ -513,6 +521,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			cancelButton = (Button) view.findViewById(R.id.cancel_button);
 
 			addListeners();
+			setAutoCompleteViews();
 			populateFields();
 			getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 			return view;
@@ -600,6 +609,26 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				setInventorySpinnerPosition(itemToEdit.getInventory());
 			} else if (currentInventory != null) {
 				setInventorySpinnerPosition(currentInventory);
+			}
+		}
+
+		private void setAutoCompleteViews() {
+			if (getActivity() instanceof MainActivity) {
+				SuggestionManager suggestionManager =
+						((MainActivity) getActivity())
+						.getSuggestionManager();
+
+				ArrayAdapter<String> typeAdapter =
+						new ArrayAdapter<String>(getContext(),
+								android.R.layout.simple_dropdown_item_1line,
+								suggestionManager.getTypeSuggestions());
+				typeEditText.setAdapter(typeAdapter);
+
+				ArrayAdapter<String> unitAdapter =
+						new ArrayAdapter<String>(getContext(),
+								android.R.layout.simple_dropdown_item_1line,
+								suggestionManager.getUnitSuggestions());
+				unitEditText.setAdapter(unitAdapter);
 			}
 		}
 

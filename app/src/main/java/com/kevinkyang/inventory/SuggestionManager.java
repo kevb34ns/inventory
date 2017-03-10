@@ -36,11 +36,15 @@ public class SuggestionManager {
 	public static final int ASSET_INDEX = 1;
 
 	private Context context;
-	private ArrayList<SuggestionItem> data;
+	private ArrayList<SuggestionItem> itemSuggestions;
+	private ArrayList<String> typeSuggestions;
+	private ArrayList<String> unitSuggestions;
 
 	public SuggestionManager(Context context) {
 		this.context = context;
-		data = new ArrayList<SuggestionItem>();
+		itemSuggestions = new ArrayList<SuggestionItem>();
+		typeSuggestions = new ArrayList<String>();
+		unitSuggestions = new ArrayList<String>();
 	}
 
 	public void executeThread() {
@@ -52,10 +56,19 @@ public class SuggestionManager {
 	 * Get a copy of the suggestion list. This list is
 	 * populated in a background thread, so it may be
 	 * empty or incomplete when this method is called.
+	 *
 	 * @return a copy of the suggestion items array
 	 */
-	public ArrayList<SuggestionItem> getSuggestionData() {
-		return new ArrayList<SuggestionItem>(data);
+	public ArrayList<SuggestionItem> getItemSuggestions() {
+		return new ArrayList<SuggestionItem>(itemSuggestions);
+	}
+
+	public ArrayList<String> getTypeSuggestions() {
+		return new ArrayList<String>(typeSuggestions);
+	}
+
+	public ArrayList<String> getUnitSuggestions() {
+		return new ArrayList<String>(unitSuggestions);
 	}
 
 	/**
@@ -104,7 +117,7 @@ public class SuggestionManager {
 						public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
 							SharedPreferences.Editor prefsEditor =
 									context.getSharedPreferences(PREFS_NAME, 0)
-									.edit();
+											.edit();
 							updatePrefs(prefsEditor);
 							String date = TimeManager.getDateTimeLocal();
 							prefsEditor.putString(DATE_PREF, date);
@@ -112,14 +125,51 @@ public class SuggestionManager {
 							readDatabase();
 						}
 					}).addOnFailureListener(new OnFailureListener() {
-						@Override
-						public void onFailure(@NonNull Exception e) {
-							readDatabase();
-							e.printStackTrace();
-						}
-					});
+				@Override
+				public void onFailure(@NonNull Exception e) {
+					readDatabase();
+					e.printStackTrace();
+				}
+			});
 		}
 
+	}
+
+	private void readConfig() {
+		JsonReader reader = null;
+		try {
+			reader = new JsonReader(
+					new InputStreamReader(
+							context.getAssets()
+									.open("config.json")));
+			reader.beginObject();
+			String key = reader.nextName();
+			if (key.equals("config")) {
+				reader.beginObject();
+				while (reader.hasNext()) {
+					key = reader.nextName();
+					if (key.equals("types")) {
+						readStringArray(reader, typeSuggestions);
+					} else if (key.equals("units")) {
+						readStringArray(reader, unitSuggestions);
+					} else {
+						reader.skipValue();
+					}
+				}
+				reader.endObject();
+			}
+			reader.endObject();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private void readDatabase() {
@@ -128,7 +178,8 @@ public class SuggestionManager {
 			if (mostRecentLocalDatabase() == ASSET_INDEX) {
 				reader = new JsonReader(
 						new InputStreamReader(
-								context.getAssets().open("suggestion_database.json")));
+								context.getAssets()
+										.open("suggestion_database.json")));
 			} else {
 				File localFile = new File(context.getFilesDir(), "suggestion_database.json");
 				reader = new JsonReader(
@@ -144,7 +195,7 @@ public class SuggestionManager {
 					if (key.equals("items")) {
 						reader.beginArray();
 						while (reader.hasNext()) {
-							data.add(readSuggestionItem(reader));
+							itemSuggestions.add(readSuggestionItem(reader));
 						}
 						reader.endArray();
 					} else {
@@ -166,6 +217,16 @@ public class SuggestionManager {
 				}
 			}
 		}
+	}
+
+	private void readStringArray(JsonReader reader,
+								 ArrayList<String> list)
+			throws IOException {
+		reader.beginArray();
+		while (reader.hasNext()) {
+			list.add(reader.nextString());
+		}
+		reader.endArray();
 	}
 
 	private SuggestionItem readSuggestionItem(JsonReader reader) throws IOException {
@@ -249,6 +310,7 @@ public class SuggestionManager {
 	 * Looks at the version number of the bundled suggestion
 	 * database and the one in internal storage (if it exists)
 	 * and determines the more up-to-date one.
+	 *
 	 * @return the index of the most recent suggestion database.
 	 */
 	private int mostRecentLocalDatabase() {
@@ -280,6 +342,8 @@ public class SuggestionManager {
 
 		@Override
 		protected Void doInBackground(Void... voids) {
+			readConfig();
+
 			if (!hasCheckedOnlineToday()) {
 				checkSuggestionDb();
 				// TODO ensure that all cases are handled, such as first time opening the app (no internal storage db), app has been updated (new assets/ db), local file gets corrupted but the prefs tell the app to use it, causing the app to crash when it tries to parse the file

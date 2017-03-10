@@ -1,0 +1,45 @@
+{
+	"config": {
+		"types": [
+			"fruit",
+			"vegetable",
+			"protein",
+			"dairy",
+			"grain",
+			"oil",
+			"leftovers",
+			"canned",
+			"candy",
+			"snack",
+			"frozen",
+			"pastry",
+			"juice",
+			"liquor"
+		],
+		"times": [
+			"d",
+			"w",
+			"m",
+			"y"	
+		],
+		"units": [
+			"tsp",
+			"tbsp",
+			"oz",
+			"fl oz",
+			"cup",
+			"pt",
+			"qt",
+			"gal",
+			"mL",
+			"L",
+			"lb",
+			"g",
+			"kg",
+			"can",
+			"bottle",
+			"box",
+			"bag"
+		]
+	}
+}
