@@ -743,7 +743,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				}
 			}
 
-			final PopupWindow popupWindow = new PopupWindow(view, 600, 650, true);
+			int[] dim = getPopupResolution();
+			final PopupWindow popupWindow =
+					new PopupWindow(view, dim[0], dim[1], true);
+//			final PopupWindow popupWindow = new PopupWindow(view, 600, 650, true);
 			popupWindow.setAnimationStyle(R.style.PopupAnimation);
 			popupWindow.setElevation(16.0f);
 
@@ -791,14 +794,16 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		 * width in pixels at indice 0 and height at indice 1
 		 */
 		private int[] getPopupResolution() {
-			DisplayMetrics displayMetrics = new DisplayMetrics();
-			getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 			// TODO http://stackoverflow.com/questions/19610044/popupwindows-size-in-px-or-dip, go to this link to see dp conversion
+			int width = (int) TypedValue.applyDimension(
+					TypedValue.COMPLEX_UNIT_DIP, 220,
+					getResources().getDisplayMetrics());
+			int height = (int) TypedValue.applyDimension(
+					TypedValue.COMPLEX_UNIT_DIP, 250,
+					getResources().getDisplayMetrics());
 
-
-			String msg = "Height: " + displayMetrics.heightPixels +
-					"; Width: " + displayMetrics.widthPixels;
-			Log.d(TAG, msg);
+			int[] arr = {width, height};
+			return arr;
 		}
 	}
 
