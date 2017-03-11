@@ -27,6 +27,7 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 	private TextView expiresNum;
 	private TextView expiresUnit;
 	private TextView quantity;
+	private TextView quantityUnit;
 	private ImageButton decQuantityButton;
 	private ImageButton incQuantityButton;
 
@@ -81,6 +82,15 @@ public class ItemAdapter extends ArrayAdapter<Item> {
 
 		quantity = (TextView) convertView.findViewById(R.id.quantity);
 		quantity.setText(Integer.toString(item.getQuantity()));
+
+		quantityUnit = (TextView) convertView.findViewById(R.id.quantity_unit);
+		String unitString = item.getUnit().trim();
+		if (unitString.isEmpty()) {
+			quantityUnit.setVisibility(View.GONE);
+		} else {
+			quantityUnit.setText(item.getUnit());
+			quantityUnit.setVisibility(View.VISIBLE);
+		}
 
 		View.OnClickListener quantityListener = new View.OnClickListener() {
 			public void onClick(View view) {

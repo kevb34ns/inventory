@@ -90,7 +90,10 @@ public class Item implements Parcelable{
 	}
 
 	public void setQuantity(int quantity) {
-		this.quantity = quantity;
+		if (quantity >= 0) {
+			// quantity MUST be non-negative
+			this.quantity = quantity;
+		}
 	}
 
 	public String getUnit() {

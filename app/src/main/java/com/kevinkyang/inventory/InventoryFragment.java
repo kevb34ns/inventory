@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+
 /**
  * Created by Kevin on 2/17/2017.
  */
@@ -23,7 +25,8 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	private ListView inventoryListView;
 	private ItemAdapter itemAdapter;
 
-	private String inventory;
+	private String inventory = null;
+	private boolean initFinished = false;
 
 	@Nullable
 	@Override
@@ -40,13 +43,30 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 
 		itemData = ItemData.getInstance();
 		itemAdapter = new ItemAdapter(parent,
-				itemData.getInventoryItems(), this);
+				new ArrayList<Item>(), this);
 		inventoryListView.setAdapter(itemAdapter);
-		inventory = null;
 		registerForContextMenu(inventoryListView);
+
+		initFinished = true;
+
+		if (savedInstanceState != null) {
+			inventory =
+					savedInstanceState
+							.getString("currentInventory");
+			refresh();
+			parent.changeToCurrentList();
+		}
+
+		showInventory(inventory);
 
 		addListeners();
 		super.onActivityCreated(savedInstanceState);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putString("currentInventory", inventory);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -89,6 +109,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	public void showInventory(String inventory) {
 		this.inventory = inventory;
 		refresh();
+		parent.changeActionBarTitle(inventory);
 	}
 
 	public String getCurrentInventory() {
@@ -109,6 +130,10 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 
 	public void setInventory(String inventory) {
 		this.inventory = inventory;
+	}
+
+	public boolean isInitFinished() {
+		return initFinished;
 	}
 
 	private void addListeners() {

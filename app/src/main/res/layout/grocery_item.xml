@@ -2,48 +2,71 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="wrap_content"
+              android:minHeight="48dp"
+              android:paddingStart="10dp"
+              android:paddingEnd="10dp">
     <CheckBox
         android:id="@+id/grocery_item_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        android:layout_marginRight="4dp"/>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="8"
+        android:layout_gravity="center_vertical"
         android:orientation="vertical">
         <TextView
             android:id="@+id/grocery_item_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/listitem_default_margin"
-            android:textSize="20sp"
-            android:gravity="center_vertical"/>
+            android:textSize="20sp"/>
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/grocery_item_decrease_quantity"
+    <ImageButton
+        android:id="@+id/decrease_quantity"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="@string/minus_string"
-        android:focusable="false"/>
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_remove_circle"/>
 
-    <TextView
-        android:id="@+id/grocery_item_quantity"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:textSize="20sp"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical">
+        <TextView
+            android:id="@+id/quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textSize="18sp"/>
 
-    <Button
-        android:id="@+id/grocery_item_increase_quantity"
+        <TextView
+            android:id="@+id/quantity_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:textSize="12sp"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/increase_quantity"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="@string/plus_string"
-        android:focusable="false"/>
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_add_circle"/>
 </LinearLayout>

@@ -85,6 +85,7 @@ public class ExpirationManager {
 		}
 
 		Intent clickIntent = new Intent(context, MainActivity.class);
+		clickIntent.putExtra("inventory", "Expiring");
 		PendingIntent clickPendingIntent =
 				PendingIntent.getActivity(
 						context,

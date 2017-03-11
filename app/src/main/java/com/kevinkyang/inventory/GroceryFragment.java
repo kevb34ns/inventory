@@ -19,6 +19,8 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	private ListView inventoryListView;
 	private GroceryItemAdapter itemAdapter;
 
+	private boolean initFinished = false;
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -36,6 +38,11 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 		itemAdapter = new GroceryItemAdapter(parent, itemData.getGroceryListItems(), this);
 		inventoryListView.setAdapter(itemAdapter);
 		registerForContextMenu(inventoryListView);
+
+		initFinished = true;
+		if (savedInstanceState != null) {
+			parent.changeToCurrentList();
+		}
 		super.onActivityCreated(savedInstanceState);
 	}
 // TODO solve this context menu problem, this fragment has a different context menu than the invfragment but there's no layout for that menu atm
@@ -90,5 +97,9 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 		item.setInGroceryList(false);
 		itemData.addItem(item);
 		refresh();
+	}
+
+	public boolean isInitFinished() {
+		return initFinished;
 	}
 }

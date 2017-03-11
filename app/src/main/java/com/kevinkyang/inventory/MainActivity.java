@@ -10,7 +10,9 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -21,6 +23,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -50,7 +58,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
-	public static final String TAG = "com.kevinkyang.inventory";
+	public static final String TAG = "inventory";
 
 	private ItemData itemData = null;
 	private DBManager dbManager = null;
@@ -69,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	private TypedArray colorArray;
 
-//	TODO app currently does not handle this activity being destroyed and recreated, eg fragment persists so you need to check for that
 //	TODO manager classes need to conform to android definition of managers (itp341 fragments lecture slide 47)
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,33 +94,62 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		addItemButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary, null)));
 
 		// Set up toolbar
+		// TODO when returning from an onDestroy() (eg orientation change), the color of the inventory is not preserved; fix the bug so that the right color is shown
 		toolbar = (Toolbar) findViewById(R.id.custom_action_bar);
 		toolbar.setNavigationIcon(R.drawable.ic_menu);
 		setSupportActionBar(toolbar);
+		changeActionBarTitle("Inventory");
 
 		FragmentManager fragmentManager = getSupportFragmentManager();
-		inventoryFragment = new InventoryFragment();
-		fragmentManager.beginTransaction()
-				.add(R.id.fragment_container,
-						inventoryFragment,
-						"0")
-				.commit();
 
-		groceryFragment = new GroceryFragment();
-		fragmentManager.beginTransaction()
-				.add(R.id.fragment_container,
-						groceryFragment,
-						"1")
-				.hide(groceryFragment)
-				.commit();
+		inventoryFragment = (InventoryFragment) fragmentManager
+				.findFragmentByTag("0");
+		if (inventoryFragment == null) {
+			inventoryFragment = new InventoryFragment();
+			fragmentManager.beginTransaction()
+					.add(R.id.fragment_container,
+							inventoryFragment,
+							"0")
+					.commit();
+		}
 
-		inGroceryMode = false;
+		groceryFragment = (GroceryFragment) fragmentManager
+				.findFragmentByTag("1");
+		if (groceryFragment == null) {
+			groceryFragment = new GroceryFragment();
+			fragmentManager.beginTransaction()
+					.add(R.id.fragment_container,
+							groceryFragment,
+							"1")
+					.hide(groceryFragment)
+					.commit();
+		}
+
+		Intent intent = getIntent();
+		String intentInventory = intent.getStringExtra("inventory");
+		if (intentInventory != null) {
+			inventoryFragment.setInventory(intentInventory);
+		}
+
+		if (savedInstanceState != null) {
+			inGroceryMode =
+					savedInstanceState
+							.getBoolean("inGroceryMode", false);
+		} else {
+			inGroceryMode = false;
+		}
 
 		colorArray = null;
 
 		initializeDrawer();
 		addListeners();
 		checkNotificationScheduled();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		outState.putBoolean("inGroceryMode", inGroceryMode);
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -214,8 +250,19 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		});
 	}
 
-	private void changeActionBarTitle(String title) {
-		toolbar.setTitle(title);
+	public void changeActionBarTitle(String title) {
+		// TODO the way the title is changed right now is not very integrated; whoever changes the inventory is responsible for changing the toolbar title. This needs to be overhauled so that any time the inventory is changed, the title is guaranteed to be changed to the correct thing
+		if (title == null) {
+			title = "Inventory";
+		}
+		//TODO does not change typeface on startup for some reason
+		//TODO expiring notification does not change title to "Expiring"
+		SpannableString spannableString =
+				new SpannableString(title);
+		spannableString.setSpan(new TypefaceSpan("sans-serif-condensed"),
+				0, spannableString.length(),
+				Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+		toolbar.setTitle(spannableString);
 	}
 
 	private void newInventoryDialog() {
@@ -227,7 +274,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		title.setPadding(30, 30, 30, 30);
 		title.setTextSize(20);
 		title.setTextColor(getColor(android.R.color.primary_text_light));
-//		title.setTypeface(null, Typeface.BOLD);
 		alertDialog.setCustomTitle(title);
 
 		final EditText input = new EditText(this);
@@ -413,6 +459,15 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		AddItemDialog dialog = new AddItemDialog();
 		dialog.setArguments(args);
 		dialog.show(getSupportFragmentManager(), "dialog");
+	}
+
+	public void changeToCurrentList() {
+		if (isInGroceryMode() &&
+				groceryFragment.isInitFinished()) {
+			changeFragments("1");
+		} else if (inventoryFragment.isInitFinished()) {
+			changeFragments("0");
+		}
 	}
 
 	private void refreshCurrentList() {
@@ -727,6 +782,23 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 					Gravity.START,
 					(int) expirationButton.getX(),
 					(int) expirationButton.getY());
+		}
+
+		/**
+		 * Scales the popup dimensions based on the device's
+		 * screen resolution.
+		 * @return an integer array of size 2, with the
+		 * width in pixels at indice 0 and height at indice 1
+		 */
+		private int[] getPopupResolution() {
+			DisplayMetrics displayMetrics = new DisplayMetrics();
+			getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+			// TODO http://stackoverflow.com/questions/19610044/popupwindows-size-in-px-or-dip, go to this link to see dp conversion
+
+
+			String msg = "Height: " + displayMetrics.heightPixels +
+					"; Width: " + displayMetrics.widthPixels;
+			Log.d(TAG, msg);
 		}
 	}
 
