@@ -24,7 +24,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_inventory, container, false);
+		View view = inflater.inflate(R.layout.fragment_grocery, container, false);
 		inventoryListView = (ListView) view.findViewById(R.id.inventory_listview);
 		return view;
 	}
