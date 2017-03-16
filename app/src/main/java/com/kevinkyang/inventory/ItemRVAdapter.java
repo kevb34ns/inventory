@@ -1,14 +1,19 @@
 package com.kevinkyang.inventory;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 
 /**
@@ -22,50 +27,7 @@ public class ItemRVAdapter
 	private DBManager dbManager;
 	private int defaultColor;
 
-	public static class ViewHolder extends RecyclerView.ViewHolder
-			implements View.OnClickListener {
-		public View itemView;
-
-		public TextView name;
-		public LinearLayout expiresContainer;
-		public TextView expiresNum;
-		public TextView expiresUnit;
-		public TextView quantity;
-		public TextView quantityUnit;
-		public ImageButton decQuantityButton;
-		public ImageButton incQuantityButton;
-
-		public ViewHolderClickListener listener;
-
-		public ViewHolder(View itemView, TextView name,
-						  LinearLayout expiresContainer,
-						  TextView expiresNum, TextView expiresUnit,
-						  TextView quantity, TextView quantityUnit,
-						  ImageButton decQuantityButton,
-						  ImageButton incQuantityButton,
-						  ViewHolderClickListener listener) {
-			super(itemView);
-			this.itemView = itemView;
-			this.name = name;
-			this.expiresContainer = expiresContainer;
-			this.expiresNum = expiresNum;
-			this.expiresUnit = expiresUnit;
-			this.quantity = quantity;
-			this.quantityUnit = quantityUnit;
-			this.decQuantityButton = decQuantityButton;
-			this.incQuantityButton = incQuantityButton;
-			this.listener = listener;
-		}
-
-		@Override
-		public void onClick(View v) {
-			listener.onClick(getAdapterPosition());
-		}
-
-		public static interface ViewHolderClickListener {
-			public void onClick(int position);
-		}
-	}
+	private int contextMenuPosition;
 
 	public ItemRVAdapter(ArrayList<Item> items, InventoryFragment parent) {
 		this.items = items;
@@ -88,7 +50,9 @@ public class ItemRVAdapter
 		TextView quantity = (TextView) view.findViewById(R.id.quantity);
 		TextView quantityUnit = (TextView) view.findViewById(R.id.quantity_unit);
 		ImageButton decQuantityButton = (ImageButton) view.findViewById(R.id.decrease_quantity);
+		decQuantityButton.setFocusable(false);
 		ImageButton incQuantityButton = (ImageButton) view.findViewById(R.id.increase_quantity);
+		incQuantityButton.setFocusable(false);
 
 		ViewHolder.ViewHolderClickListener listener =
 				new ViewHolder.ViewHolderClickListener() {
@@ -99,13 +63,18 @@ public class ItemRVAdapter
 								.parent.getParent()
 								.showEditDialog(item);
 					}
+
+					@Override
+					public void onLongClick(int position, View itemView) {
+						setContextMenuPosition(position);
+					}
 				};
 
 		ViewHolder holder =
 				new ViewHolder(view, name, expiresContainer, expiresNum,
 						expiresUnit, quantity, quantityUnit,
-						decQuantityButton, incQuantityButton,
-						listener);
+						decQuantityButton, incQuantityButton, listener,
+						ItemRVAdapter.this.parent.getParent());
 		return holder;
 	}
 
@@ -173,10 +142,7 @@ public class ItemRVAdapter
 			}
 		};
 
-		holder.decQuantityButton.setFocusable(false);
 		holder.decQuantityButton.setOnClickListener(quantityListener);
-
-		holder.incQuantityButton.setFocusable(false);
 		holder.incQuantityButton.setOnClickListener(quantityListener);
 	}
 
@@ -188,9 +154,35 @@ public class ItemRVAdapter
 	public void setItemsList(final ArrayList<Item> newItems) {
 		int oldSize = items.size();
 		items.clear();
-		notifyItemRangeRemoved(0, oldSize);
+		if(oldSize > 0) {
+			notifyItemRangeRemoved(0, oldSize);
+		}
 		items.addAll(newItems);
-		notifyItemRangeInserted(0, items.size());
+		if (items.size() > 0) {
+			notifyItemRangeInserted(0, items.size());
+		}
+	}
+
+	public void removeItem(int position) {
+		items.remove(position);
+		notifyItemRemoved(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return items.get(position).getRowID();
+	}
+
+	public Item getItem(int position) {
+		return items.get(position);
+	}
+
+	public int getContextMenuPosition() {
+		return contextMenuPosition;
+	}
+
+	public void setContextMenuPosition(int contextMenuPosition) {
+		this.contextMenuPosition = contextMenuPosition;
 	}
 
 	private void setExpirationVisibility(ViewHolder holder, int visibility) {
@@ -203,5 +195,86 @@ public class ItemRVAdapter
 		holder.name.setTextColor(color);
 		holder.expiresNum.setTextColor(color);
 		holder.expiresUnit.setTextColor(color);
+	}
+
+	public static class ViewHolder extends RecyclerView.ViewHolder
+			implements View.OnClickListener,
+			View.OnLongClickListener,
+			View.OnCreateContextMenuListener {
+		public View itemView;
+
+		public TextView name;
+		public LinearLayout expiresContainer;
+		public TextView expiresNum;
+		public TextView expiresUnit;
+		public TextView quantity;
+		public TextView quantityUnit;
+		public ImageButton decQuantityButton;
+		public ImageButton incQuantityButton;
+
+		public ViewHolderClickListener listener;
+		private MainActivity parent;
+
+		public ViewHolder(View itemView, TextView name,
+						  LinearLayout expiresContainer,
+						  TextView expiresNum, TextView expiresUnit,
+						  TextView quantity, TextView quantityUnit,
+						  ImageButton decQuantityButton,
+						  ImageButton incQuantityButton,
+						  ViewHolderClickListener listener,
+						  MainActivity parent) {
+			super(itemView);
+			this.itemView = itemView;
+			this.name = name;
+			this.expiresContainer = expiresContainer;
+			this.expiresNum = expiresNum;
+			this.expiresUnit = expiresUnit;
+			this.quantity = quantity;
+			this.quantityUnit = quantityUnit;
+			this.decQuantityButton = decQuantityButton;
+			this.incQuantityButton = incQuantityButton;
+			this.listener = listener;
+			this.parent = parent;
+
+			itemView.setOnClickListener(this);
+			itemView.setOnLongClickListener(this);
+			itemView.setOnCreateContextMenuListener(this);
+		}
+
+		@Override
+		public void onClick(View v) {
+			listener.onClick(getAdapterPosition());
+		}
+
+		@Override
+		public boolean onLongClick(View v) {
+			Log.d(MainActivity.TAG, "ViewHolder onLongClick entered"); //TODO
+			listener.onLongClick(getAdapterPosition(),
+					itemView);
+			return false;
+		}
+
+		/**
+		 * Workaround to implement context menu in
+		 * RecyclerView.
+		 * @param menu
+		 * @param v
+		 * @param menuInfo
+		 */
+		@Override
+		public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+			if (parent == null) {
+				return;
+			}
+			MenuInflater inflater = parent.getMenuInflater();
+			inflater.inflate(
+					R.menu.list_item_context_menu, menu);
+		}
+
+		public static interface ViewHolderClickListener {
+			public void onClick(int position);
+
+			public void onLongClick(int position, View itemView);
+		}
 	}
 }
