@@ -29,7 +29,8 @@ public class ItemRVAdapter
 
 	private int contextMenuPosition;
 
-	public ItemRVAdapter(ArrayList<Item> items, InventoryFragment parent) {
+	public ItemRVAdapter(ArrayList<Item> items,
+						 InventoryFragment parent) {
 		this.items = items;
 		this.parent = parent;
 		dbManager = DBManager.getInstance();
@@ -164,6 +165,10 @@ public class ItemRVAdapter
 	}
 
 	public void removeItem(int position) {
+		if (position < 0 || position >= getItemCount()) {
+			return;
+		}
+
 		items.remove(position);
 		notifyItemRemoved(position);
 	}

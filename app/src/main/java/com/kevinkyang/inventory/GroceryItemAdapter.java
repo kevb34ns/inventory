@@ -45,9 +45,9 @@ public class GroceryItemAdapter extends ArrayAdapter<Item> {
 			public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
 				if (isChecked) {
 					// remove this item and add it to the inventory
-					Item item = getItem(position);
-					GroceryItemAdapter.this.parent.removeItem(item);
-					showSnackbar(item, parent);
+//					Item item = getItem(position);
+//					GroceryItemAdapter.this.parent.removeItem(item);
+//					showSnackbar(item, parent); TODO
 				}
 			}
 		});
