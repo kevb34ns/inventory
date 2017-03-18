@@ -11,7 +11,7 @@ interface AddItemDialogListener {
 
 	void onSaveItemClicked(String name, int quantity, String unit,
 						   String type, String expiresDate, String inventory,
-						   boolean inGroceryList, Item item);
+						   boolean inGroceryList, Item item, int position);
 
 	boolean isInGroceryMode();
 }

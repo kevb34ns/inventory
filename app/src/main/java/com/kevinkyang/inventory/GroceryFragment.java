@@ -98,8 +98,19 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	}
 
 	@Override
+	public MainActivity getParent() {
+		return parent;
+	}
+
+	@Override
 	public void itemAdded(Item item) {
 		itemRVAdapter.addItem(item, itemRVAdapter.getItemCount());
+		layoutManager.scrollToPosition(itemRVAdapter.getItemCount() - 1);
+	}
+
+	@Override
+	public void itemSaved(int position) {
+		itemRVAdapter.changeItem(position);
 	}
 
 	/**

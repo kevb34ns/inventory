@@ -62,7 +62,7 @@ public class ItemRVAdapter
 						Item item = items.get(position);
 						ItemRVAdapter.this
 								.parent.getParent()
-								.showEditDialog(item);
+								.showEditDialog(item, position);
 					}
 
 					@Override
@@ -165,12 +165,20 @@ public class ItemRVAdapter
 	}
 
 	public void addItem(Item item, int position) {
-		if (position < 0 || position > getItemCount()) {
+		if (position < 0 || position > items.size()) {
 			return;
 		}
 
 		items.add(position, item);
 		notifyItemInserted(position);
+	}
+
+	public void changeItem(int position) {
+		if (position < 0 || position >= items.size()) {
+			return;
+		}
+
+		notifyItemChanged(position);
 	}
 
 	public void removeItem(int position) {

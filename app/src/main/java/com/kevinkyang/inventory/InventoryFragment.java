@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -116,6 +117,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		return inventory;
 	}
 
+	@Override
 	public MainActivity getParent() {
 		return parent;
 	}
@@ -133,6 +135,12 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	@Override
 	public void itemAdded(Item item) {
 		itemRVAdapter.addItem(item, itemRVAdapter.getItemCount());
+		layoutManager.scrollToPosition(itemRVAdapter.getItemCount() - 1);
+	}
+
+	@Override
+	public void itemSaved(int position) {
+		itemRVAdapter.changeItem(position);
 	}
 
 	public void setInventory(String inventory) {

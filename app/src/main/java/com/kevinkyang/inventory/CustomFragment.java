@@ -5,7 +5,11 @@ package com.kevinkyang.inventory;
  */
 
 public interface CustomFragment {
+	public MainActivity getParent();
+
 	public void refresh();
 
 	public void itemAdded(Item item);
+
+	public void itemSaved(int position);
 }

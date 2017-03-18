@@ -431,7 +431,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	public void onSaveItemClicked(String name, int quantity, String unit,
 								  String type, String expiresDate,
 								  String inventory,
-								  boolean inGroceryList, Item item) {
+								  boolean inGroceryList, Item item,
+								  int position) {
 		item.setName(name);
 		item.setQuantity(quantity);
 		item.setExpiresDate(expiresDate);
@@ -441,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		item.setInGroceryList(inGroceryList); // TODO is this needed
 
 		dbManager.updateItem(item);
-		refreshCurrentList();
+		saveToCurrentList(position);
 	}
 
 	@Override
@@ -449,10 +450,17 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		return inGroceryMode;
 	}
 
-	public void showEditDialog(Item item) {
+	/**
+	 *
+	 * @param item
+	 * @param position position of the item in the current
+	 *                 adapter.
+	 */
+	public void showEditDialog(Item item, int position) {
 		Bundle args = new Bundle();
 		args.putBoolean("InEditMode", true);
 		args.putParcelable("ItemParcel", item);
+		args.putInt("Position", position);
 
 		AddItemDialog dialog = new AddItemDialog();
 		dialog.setArguments(args);
@@ -481,6 +489,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			groceryFragment.itemAdded(item);
 		} else {
 			inventoryFragment.itemAdded(item);
+		}
+	}
+
+	private void saveToCurrentList(int position) {
+		if (isInGroceryMode()) {
+			groceryFragment.itemSaved(position);
+		} else {
+			inventoryFragment.itemSaved(position);
 		}
 	}
 
@@ -531,6 +547,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		private String currentInventory;
 		private boolean inEditMode;
 		private Item itemToEdit;
+		private int position;
 
 		private boolean dateSet;
 
@@ -546,6 +563,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				inEditMode = args.getBoolean("InEditMode");
 				itemToEdit = args.getParcelable("ItemParcel");
 				currentInventory = args.getString("Inventory");
+				position = args.getInt("Position");
 			}
 
 			dateSet = false;
@@ -622,7 +640,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 							activity.onSaveItemClicked(name, quantity,
 									unitString, typeString, expiresString,
 									invString, activity.isInGroceryMode(),
-									itemToEdit);
+									itemToEdit, position);
 						} else {
 							activity.onAddItemClicked(name, quantity,
 									unitString, typeString, expiresString,

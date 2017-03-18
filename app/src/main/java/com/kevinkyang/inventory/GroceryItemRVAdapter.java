@@ -50,7 +50,10 @@ public class GroceryItemRVAdapter
 		ViewHolder.ViewHolderClickListener listener = new ViewHolder.ViewHolderClickListener() {
 			@Override
 			public void onClick(int position) {
-				// TODO pop edit dialog
+				Item item = items.get(position);
+				GroceryItemRVAdapter.this
+						.parent.getParent()
+						.showEditDialog(item, position);
 			}
 		};
 
@@ -130,6 +133,14 @@ public class GroceryItemRVAdapter
 
 		items.add(position, item);
 		notifyItemInserted(position);
+	}
+
+	public void changeItem(int position) {
+		if (position < 0 || position >= items.size()) {
+			return;
+		}
+
+		notifyItemChanged(position);
 	}
 
 	public void removeItem(int position) {
