@@ -6,4 +6,6 @@ package com.kevinkyang.inventory;
 
 public interface CustomFragment {
 	public void refresh();
+
+	public void itemAdded(Item item);
 }

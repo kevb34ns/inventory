@@ -19,8 +19,6 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	private MainActivity parent;
 
 	private ItemData itemData = null;
-	private ListView inventoryListView;
-	private GroceryItemAdapter itemAdapter;
 
 	private RecyclerView itemRecyclerView;
 	private GroceryItemRVAdapter itemRVAdapter;
@@ -44,9 +42,6 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 		parent = (MainActivity) getActivity();
 
 		itemData = ItemData.getInstance();
-//		itemAdapter = new GroceryItemAdapter(parent, itemData.getGroceryListItems(), this);
-//		inventoryListView.setAdapter(itemAdapter);
-//		registerForContextMenu(inventoryListView); TODO
 
 		itemRVAdapter =
 				new GroceryItemRVAdapter(
@@ -99,11 +94,12 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	 */
 	@Override
 	public void refresh() {
-//		itemAdapter.notifyDataSetInvalidated();
-//		itemAdapter = new GroceryItemAdapter(parent,
-//				itemData.getGroceryListItems(), this);
-//		inventoryListView.setAdapter(itemAdapter); TODO
 		itemRVAdapter.setItemsList(itemData.getGroceryListItems());
+	}
+
+	@Override
+	public void itemAdded(Item item) {
+		itemRVAdapter.addItem(item, itemRVAdapter.getItemCount());
 	}
 
 	/**

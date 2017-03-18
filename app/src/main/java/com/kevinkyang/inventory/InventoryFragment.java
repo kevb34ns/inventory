@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -127,6 +128,11 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	public void refresh() {
 		itemRVAdapter.setItemsList(
 				itemData.getItemsByInventory(inventory));
+	}
+
+	@Override
+	public void itemAdded(Item item) {
+		itemRVAdapter.addItem(item, itemRVAdapter.getItemCount());
 	}
 
 	public void setInventory(String inventory) {

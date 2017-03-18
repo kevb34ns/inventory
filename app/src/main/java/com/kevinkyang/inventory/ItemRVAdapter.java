@@ -164,6 +164,15 @@ public class ItemRVAdapter
 		}
 	}
 
+	public void addItem(Item item, int position) {
+		if (position < 0 || position > getItemCount()) {
+			return;
+		}
+
+		items.add(position, item);
+		notifyItemInserted(position);
+	}
+
 	public void removeItem(int position) {
 		if (position < 0 || position >= getItemCount()) {
 			return;

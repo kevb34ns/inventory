@@ -420,13 +420,11 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 //			case 6: daysToAdd = 90; break;
 //			default: break;
 //		}
-
-		itemData.addItem(new Item(-1, name,
-				TimeManager.getDateTimeLocal(),
-				expiresDate, quantity, unit, type,
-				inventory, inGroceryList));
-
-		refreshCurrentList();
+		Item item = new Item(-1, name, TimeManager.getDateTimeLocal(),
+				expiresDate, quantity, unit, type, inventory,
+				inGroceryList);
+		itemData.addItem(item);
+		addToCurrentList(item);
 	}
 
 	@Override
@@ -475,6 +473,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			groceryFragment.refresh();
 		} else {
 			inventoryFragment.refresh();
+		}
+	}
+
+	private void addToCurrentList(Item item) {
+		if (isInGroceryMode()) {
+			groceryFragment.itemAdded(item);
+		} else {
+			inventoryFragment.itemAdded(item);
 		}
 	}
 

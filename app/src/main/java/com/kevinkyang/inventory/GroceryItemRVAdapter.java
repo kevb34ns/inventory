@@ -27,6 +27,8 @@ public class GroceryItemRVAdapter
 		this.items = items;
 		this.parent = parent;
 		dbManager = DBManager.getInstance();
+
+		setHasStableIds(true);
 	}
 
 	@Override
@@ -59,15 +61,20 @@ public class GroceryItemRVAdapter
 	public void onBindViewHolder(final GroceryItemRVAdapter.ViewHolder holder, int position) {
 		Item item = items.get(position);
 
-		holder.checkBox.setSelected(false);
+		holder.checkBox.setChecked(false);
 		holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				Item item = items.get(holder.getAdapterPosition());
+				if (!isChecked) {
+					return;
+				}
+
+				int position = holder.getAdapterPosition();
+				Item item = items.get(position);
 				GroceryItemRVAdapter.this.parent
-						.removeItem(item, holder.getAdapterPosition());
+						.removeItem(item, position);
 				showSnackbar(item, parent.getView(),
-						holder.getAdapterPosition());
+						position);
 			}
 		});
 
