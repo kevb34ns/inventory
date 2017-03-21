@@ -17,11 +17,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <android.support.design.widget.TextInputEditText
+            <AutoCompleteTextView
                 android:id="@+id/input_name"
+                android:inputType="textCapWords"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:inputType="textCapWords"
+                android:completionThreshold="1"
                 android:hint="@string/name"/>
         </android.support.design.widget.TextInputLayout>
 

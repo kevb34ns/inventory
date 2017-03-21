@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.JsonReader;
+import android.util.Log;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,6 +25,8 @@ import java.util.ArrayList;
  */
 
 public class SuggestionManager {
+	public static final String TAG = "inventory-preset";
+
 	public static final String PREFS_NAME = "SuggestionPrefs";
 	public static final String DATE_PREF = "lastCheckDate";
 	public static final String LOCAL_VERSION_PREF = "localVersion";
@@ -76,6 +79,7 @@ public class SuggestionManager {
 	 * suggestion database online, and downloads it.
 	 */
 	private void checkSuggestionDb() {
+		Log.d(TAG, "Begin online check");
 		double latestVersion = -1.0;
 		double localVersion = -1.0;
 
@@ -104,6 +108,9 @@ public class SuggestionManager {
 			e.printStackTrace();
 			return;
 		}
+
+		Log.d(TAG, "localVersion: " + localVersion +
+				"; latestVersion: " + latestVersion);
 
 		if (latestVersion > localVersion) {
 			// download a newer version online
@@ -303,6 +310,7 @@ public class SuggestionManager {
 		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
 		String date = TimeManager.getDateTimeLocal();
 		String prefDate = prefs.getString(DATE_PREF, "none");
+		Log.d(TAG, "date: " + date + "; prefDate: " + prefDate);
 		return date.equals(prefDate);
 	}
 
@@ -342,12 +350,15 @@ public class SuggestionManager {
 
 		@Override
 		protected Void doInBackground(Void... voids) {
+			Log.d(TAG, "Begin asynchronous task");
 			readConfig();
 
 			if (!hasCheckedOnlineToday()) {
+				Log.d(TAG, "No online check today yet");
 				checkSuggestionDb();
 				// TODO ensure that all cases are handled, such as first time opening the app (no internal storage db), app has been updated (new assets/ db), local file gets corrupted but the prefs tell the app to use it, causing the app to crash when it tries to parse the file
 			} else {
+				Log.d(TAG, "Checked online today already");
 				readDatabase();
 			}
 

@@ -54,4 +54,9 @@ public class SuggestionItem {
 	public void setDefaultUnit(String defaultUnit) {
 		this.defaultUnit = defaultUnit;
 	}
+
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

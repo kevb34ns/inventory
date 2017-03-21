@@ -49,8 +49,6 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 		itemRecyclerView.setAdapter(itemRVAdapter);
 		layoutManager = new LinearLayoutManager(parent);
 		itemRecyclerView.setLayoutManager(layoutManager);
-		DividerItemDecoration divider = new DividerItemDecoration(parent, DividerItemDecoration.VERTICAL);
-		itemRecyclerView.addItemDecoration(divider);
 		itemRecyclerView.setHasFixedSize(false); // TODO enable this when you restrict item height later, right now long titles elongate an item
 
 		initFinished = true;

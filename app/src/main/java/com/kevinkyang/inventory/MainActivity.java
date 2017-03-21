@@ -162,13 +162,16 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		ExpirationManager manager = null; //TODO fix this
-//		SuggestionManager suggestionManager = null; TODO
 		switch (item.getItemId()) {
 			// TODO some options for testing only; get rid of it
-//			case R.id.options_item_suggestions:
-//				SuggestionAdapter suggestionAdapter = new SuggestionAdapter(this, suggestionManager.getItemSuggestions());
-//				itemListView.setAdapter(suggestionAdapter);
-//				return true; //TODO to test this, must show in a fragment now
+			case R.id.options_item_suggestions:
+				ArrayList<SuggestionItem> sItems = suggestionManager.getItemSuggestions();
+				String msg = "Suggestions:\n";
+				for (SuggestionItem sItem : sItems) {
+					msg += sItem.getName() + "\n";
+				}
+				Log.d(TAG, msg);
+				return true;
 			case R.id.options_item_clear:
 				suggestionManager.clearData();
 				return true;
@@ -321,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 		AlertDialog dialog = alertDialog.create();
 		dialog.show();
-		dialog.getWindow().setLayout(800, 500);
+		dialog.getWindow().setLayout(800, 500); //TODO need to dpi scale
 	}
 
 	private HashMap<String, ArrayList<String>> getInventoryMap() {
@@ -535,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	public static class AddItemDialog extends DialogFragment {
-		private EditText nameEditText;
+		private AutoCompleteTextView nameEditText;
 		private EditText quantityEditText;
 		private AutoCompleteTextView unitEditText;
 		private AutoCompleteTextView typeEditText;
@@ -581,7 +584,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			}
 
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);
-			nameEditText = (EditText) view.findViewById(R.id.input_name);
+			nameEditText = (AutoCompleteTextView) view.findViewById(R.id.input_name);
 			quantityEditText = (EditText) view.findViewById(R.id.input_quantity);
 			unitEditText = (AutoCompleteTextView)
 					view.findViewById(R.id.input_unit);
@@ -697,15 +700,21 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						((MainActivity) getActivity())
 						.getSuggestionManager();
 
+				ArrayAdapter<SuggestionItem> nameAdapter =
+						new ArrayAdapter<SuggestionItem>(getContext(),
+								R.layout.simple_dropdown_item_1line,
+								suggestionManager.getItemSuggestions());
+				nameEditText.setAdapter(nameAdapter);
+
 				ArrayAdapter<String> typeAdapter =
 						new ArrayAdapter<String>(getContext(),
-								android.R.layout.simple_dropdown_item_1line,
+								R.layout.simple_dropdown_item_1line,
 								suggestionManager.getTypeSuggestions());
 				typeEditText.setAdapter(typeAdapter);
 
 				ArrayAdapter<String> unitAdapter =
 						new ArrayAdapter<String>(getContext(),
-								android.R.layout.simple_dropdown_item_1line,
+								R.layout.simple_dropdown_item_1line,
 								suggestionManager.getUnitSuggestions());
 				unitEditText.setAdapter(unitAdapter);
 			}
