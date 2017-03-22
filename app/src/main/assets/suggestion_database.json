@@ -1,8 +1,67 @@
 {
   "database": {
-    "version": 0.0,
+    "version": 0.5,
     "items": [
-
+      {
+        "name": "Milk",
+        "type": "Dairy",
+        "def_expr": "2w",
+        "def_unit": "gal"
+      },
+      {
+        "name": "Apple",
+        "type": "Fruit",
+        "def_expr": "1w",
+        "def_unit": "none"
+      },
+      {
+        "name": "Orange Juice",
+        "type": "Beverage",
+        "def_expr": "2w",
+        "def_unit": "qt"
+      },
+      {
+        "name": "Salami",
+        "type": "Meat",
+        "def_expr": "1w",
+        "def_unit": "lb"
+      },
+      {
+        "name": "Kimchi",
+        "type": "Vegetable",
+        "def_expr": "1y",
+        "def_unit": "none"
+      },
+      {
+        "name": "Orange",
+        "type": "Fruit",
+        "def_expr": "1w",
+        "def_unit": "none"
+      },
+      {
+        "name": "Pesto",
+        "type": "Sauce",
+        "def_expr": "3d",
+        "def_unit": "oz"
+      },
+      {
+        "name": "Salad",
+        "type": "Vegetable",
+        "def_expr": "3d",
+        "def_unit": "none"
+      },
+      {
+        "name": "Ketchup",
+        "type": "Sauce",
+        "def_expr": "3m",
+        "def_unit": "fl oz"
+      },
+      {
+        "name": "Nerds",
+        "type": "Candy",
+        "def_expr": "6m",
+        "def_unit": "none"
+      }
     ]
   }
 }

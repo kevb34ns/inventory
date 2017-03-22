@@ -160,7 +160,7 @@ public class GroceryItemRVAdapter
 			inventory = "Inventory";
 		}
 		final String msg = "Item added to " +
-				item.getInventory() + ".";
+				inventory + ".";
 		View.OnClickListener listener =
 				new View.OnClickListener() {
 					@Override
@@ -174,7 +174,7 @@ public class GroceryItemRVAdapter
 					}
 				};
 
-		Snackbar.make(view, msg, Snackbar.LENGTH_SHORT)
+		Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
 				.setAction("Undo", listener)
 				.show();
 	}

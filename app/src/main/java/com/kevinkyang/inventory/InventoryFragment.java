@@ -8,6 +8,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -32,6 +33,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	private RecyclerView itemRecyclerView;
 	private ItemRVAdapter itemRVAdapter;
 	private RecyclerView.LayoutManager layoutManager;
+	private ItemTouchHelper itemTouchHelper;
 
 	private String inventory = null;
 	private boolean initFinished = false;
@@ -58,7 +60,12 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		itemRecyclerView.setLayoutManager(layoutManager);
 		DividerItemDecoration divider = new DividerItemDecoration(parent, DividerItemDecoration.VERTICAL);
 		itemRecyclerView.addItemDecoration(divider);
-		itemRecyclerView.setHasFixedSize(false); // TODO enable this when you restrict item height later, right now long titles elongate an item
+		itemRecyclerView.setHasFixedSize(false);
+		itemTouchHelper = new ItemTouchHelper(
+						new ListItemTouchHelperCallback(
+								getContext(),
+								itemRVAdapter));
+		itemTouchHelper.attachToRecyclerView(itemRecyclerView);
 
 		initFinished = true;
 
@@ -87,11 +94,8 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		Item it = itemRVAdapter.getItem(position);
 		switch (item.getItemId()) {
 			case R.id.list_item_delete:
-				if (itemData.removeItem(it)) {
-					itemRVAdapter.removeItem(position);
-					return true;
-				}
-				else return false;
+				removeItem(it, position);
+				return true;
 			case R.id.list_item_add_to_grocery:
 				swapToGroceryList(it, position);
 				return true;
@@ -151,13 +155,19 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		return initFinished;
 	}
 
+	public void removeItem(Item item, int position) {
+		if (itemData.removeItem(item)) {
+			itemRVAdapter.removeItem(position);
+		}
+	}
+
 	/**
 	 *
 	 * @param item
 	 * @param position the position of the item in itemRVAdapter's
 	 *                 internal data structure
 	 */
-	private void swapToGroceryList(Item item, int position) {
+	public void swapToGroceryList(Item item, int position) {
 		//TODO might be able to do this by calling DbManager.updateItemColumn
 		itemData.removeItem(item);
 		item.setInGroceryList(true);

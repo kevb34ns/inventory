@@ -1,5 +1,6 @@
 package com.kevinkyang.inventory;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.PorterDuff;
@@ -9,6 +10,7 @@ import android.graphics.drawable.ScaleDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
@@ -103,10 +105,8 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
 				public void onClick(View view) {
 					if (parentListView.isGroupExpanded(groupPosition)) {
 						parentListView.collapseGroup(groupPosition);
-						button.setImageDrawable(context.getDrawable(R.drawable.ic_expand_more));
 					} else {
 						parentListView.expandGroup(groupPosition);
-						button.setImageDrawable(context.getDrawable(R.drawable.ic_expand_less));
 					}
 				}
 			});

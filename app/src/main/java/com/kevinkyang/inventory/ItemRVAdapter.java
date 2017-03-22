@@ -2,6 +2,7 @@ package com.kevinkyang.inventory;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -21,7 +22,8 @@ import java.util.ArrayList;
  */
 
 public class ItemRVAdapter
-		extends RecyclerView.Adapter<ItemRVAdapter.ViewHolder> {
+		extends RecyclerView.Adapter<ItemRVAdapter.ViewHolder>
+		implements ListItemTouchHelperCallback.ListItemTouchHelperListener {
 	private ArrayList<Item> items;
 	private InventoryFragment parent;
 	private DBManager dbManager;
@@ -193,6 +195,16 @@ public class ItemRVAdapter
 	@Override
 	public long getItemId(int position) {
 		return items.get(position).getRowID();
+	}
+
+	@Override
+	public void onDelete(int position) {
+		parent.removeItem(items.get(position), position);
+	}
+
+	@Override
+	public void onAddToGroceryList(int position) {
+		parent.swapToGroceryList(items.get(position), position);
 	}
 
 	public Item getItem(int position) {
