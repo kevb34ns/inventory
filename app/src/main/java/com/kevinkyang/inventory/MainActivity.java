@@ -1,6 +1,5 @@
 package com.kevinkyang.inventory;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,11 +9,10 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,9 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -535,6 +531,32 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	public SuggestionManager getSuggestionManager() {
 		return suggestionManager;
+	}
+
+	public void showSnackbar(final Item item,
+							 View view,
+							 final int position,
+							 String msg,
+							 final BiConsumer<Item, Integer>
+									 clickMethod) {
+//		View.OnClickListener listener = v -> {
+//			clickMethod.accept(item, position);
+//		}; TODO Java 8
+		View.OnClickListener listener =
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						clickMethod.accept(item, position);
+					}
+				};
+		Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+				.setAction("Undo", listener)
+				.show();
+	}
+
+	//TODO mimics Java 8 functional interface. replace when Java 8 support releases
+	public static interface BiConsumer<T, U> {
+		public void accept(T t, U u);
 	}
 
 	public static class AddItemDialog extends DialogFragment {

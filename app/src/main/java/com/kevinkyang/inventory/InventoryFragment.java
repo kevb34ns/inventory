@@ -168,10 +168,19 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	 *                 internal data structure
 	 */
 	public void swapToGroceryList(Item item, int position) {
-		//TODO might be able to do this by calling DbManager.updateItemColumn
-		itemData.removeItem(item);
 		item.setInGroceryList(true);
-		itemData.addItem(item);
+		itemData.updateItem(item);
 		itemRVAdapter.removeItem(position);
+	}
+
+	public void undoDelete(Item item, Integer position) {
+		itemData.addItem(item);
+		itemRVAdapter.addItem(item, position);
+	}
+
+	public void undoAddToGroceryList(Item item, Integer position) {
+		item.setInGroceryList(false);
+		itemData.updateItem(item);
+		itemRVAdapter.addItem(item, position);
 	}
 }

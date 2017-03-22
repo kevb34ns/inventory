@@ -28,6 +28,10 @@ public class ItemData {
 		dbManager.addItem(item);
 	}
 
+	public void updateItem(Item item) {
+		dbManager.updateItem(item);
+	}
+
 	public boolean removeItem(Item item) {
 		if (dbManager.removeItem(item) == 1) {
 			items.remove(item);

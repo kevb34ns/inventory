@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import java.lang.annotation.Target;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Created by Kevin on 3/13/2017.
@@ -199,12 +201,43 @@ public class ItemRVAdapter
 
 	@Override
 	public void onDelete(int position) {
-		parent.removeItem(items.get(position), position);
+		Item item = items.get(position);
+		parent.removeItem(item, position);
+		String inventory = (item.getInventory().isEmpty()) ?
+				"inventory" : item.getInventory();
+		String msg = "Deleted " + item.getName() + " from " +
+				inventory + ".";
+//		parent.getParent()
+//				.showSnackbar(item, parent.getView(), position,
+//				msg, parent::undoDelete); TODO swap to this when native Java 8 support released
+		parent.getParent()
+				.showSnackbar(item, parent.getView(), position,
+						msg, new MainActivity.BiConsumer<Item, Integer>() {
+							@Override
+							public void accept(Item item, Integer integer) {
+								parent.undoDelete(item, integer);
+							}
+						});
 	}
 
 	@Override
 	public void onAddToGroceryList(int position) {
-		parent.swapToGroceryList(items.get(position), position);
+		Item item = items.get(position);
+		parent.swapToGroceryList(item, position);
+		String inventory = (item.getInventory().isEmpty()) ?
+				"inventory" : item.getInventory();
+		String msg = "Moved " + item.getName() + " to the Grocery List.";
+//		parent.getParent()
+//				.showSnackbar(item, parent.getView(), position,
+//				msg, parent::undoAddToGroceryList); TODO swap to this when native Java 8 support released
+		parent.getParent()
+				.showSnackbar(item, parent.getView(), position,
+						msg, new MainActivity.BiConsumer<Item, Integer>() {
+							@Override
+							public void accept(Item item, Integer integer) {
+								parent.undoAddToGroceryList(item, integer);
+							}
+						});
 	}
 
 	public Item getItem(int position) {

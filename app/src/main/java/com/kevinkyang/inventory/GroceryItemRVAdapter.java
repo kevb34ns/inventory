@@ -72,12 +72,7 @@ public class GroceryItemRVAdapter
 					return;
 				}
 
-				int position = holder.getAdapterPosition();
-				Item item = items.get(position);
-				GroceryItemRVAdapter.this.parent
-						.removeItem(item, position);
-				showSnackbar(item, parent.getView(),
-						position);
+				onSwapToInventory(holder.getAdapterPosition());
 			}
 		});
 
@@ -152,31 +147,24 @@ public class GroceryItemRVAdapter
 		notifyItemRemoved(position);
 	}
 
-	public void showSnackbar(final Item item,
-							 View view,
-							 final int position) {
-		String inventory = item.getInventory();
-		if (inventory.isEmpty()) {
-			inventory = "Inventory";
-		}
-		final String msg = "Item added to " +
-				inventory + ".";
-		View.OnClickListener listener =
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						ItemData itemData =
-								ItemData.getInstance();
-						itemData.removeItem(item);
-						item.setInGroceryList(true);
-						itemData.addItem(item);
-						addItem(item, position);
-					}
-				};
+	public void onSwapToInventory(int position) {
+		Item item = items.get(position);
+		parent.removeItem(item, position);
+		String inventory = (item.getInventory().isEmpty()) ?
+				"inventory" : item.getInventory();
+		String msg = item.getName() + " added to " + inventory + ".";
+//		parent.getParent()
+//				.showSnackbar(item, parent.getView(), position,
+//						msg, parent::undoSwapToInventory); // TODO switch to this when Android Studio adds native Java 8 support
+		parent.getParent()
+				.showSnackbar(item, parent.getView(), position,
+						msg, new MainActivity.BiConsumer<Item, Integer>() {
+							@Override
+							public void accept(Item item, Integer integer) {
+								parent.undoSwapToInventory(item, integer);
+							}
+						});
 
-		Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
-				.setAction("Undo", listener)
-				.show();
 	}
 
 	public static class ViewHolder extends RecyclerView.ViewHolder

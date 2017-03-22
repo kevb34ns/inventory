@@ -117,11 +117,15 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	 * @param item the item to be removed.
 	 */
 	public void removeItem(Item item, int position) {
-		//TODO might be able to do this by calling DbManager.updateItemColumn
-		itemData.removeItem(item);
 		item.setInGroceryList(false);
-		itemData.addItem(item);
+		itemData.updateItem(item);
 		itemRVAdapter.removeItem(position);
+	}
+
+	public void undoSwapToInventory(Item item, int position) {
+		item.setInGroceryList(true);
+		itemData.updateItem(item);
+		itemRVAdapter.addItem(item, position);
 	}
 
 	public boolean isInitFinished() {
