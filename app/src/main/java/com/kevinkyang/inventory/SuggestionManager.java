@@ -122,13 +122,7 @@ public class SuggestionManager {
 					.addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
 						@Override
 						public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-							SharedPreferences.Editor prefsEditor =
-									context.getSharedPreferences(PREFS_NAME, 0)
-											.edit();
-							updatePrefs(prefsEditor);
-							String date = TimeManager.getDateTimeLocal();
-							prefsEditor.putString(DATE_PREF, date);
-							prefsEditor.apply();
+							updatePrefs();
 							readDatabase();
 						}
 					}).addOnFailureListener(new OnFailureListener() {
@@ -140,6 +134,7 @@ public class SuggestionManager {
 			});
 		}
 
+		updateCheckDate();
 	}
 
 	private void readConfig() {
@@ -259,8 +254,11 @@ public class SuggestionManager {
 		return item;
 	}
 
-	private void updatePrefs(SharedPreferences.Editor editor) {
+	private void updatePrefs() {
 		try {
+			SharedPreferences.Editor editor =
+					context.getSharedPreferences(PREFS_NAME, 0).edit();
+
 			JsonReader assetReader = new JsonReader(
 					new InputStreamReader(
 							context.getAssets().open("suggestion_database.json")));
@@ -280,9 +278,19 @@ public class SuggestionManager {
 				}
 				localReader.close();
 			}
+
+			editor.apply();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void updateCheckDate() {
+		SharedPreferences.Editor editor =
+				context.getSharedPreferences(PREFS_NAME, 0).edit();
+		String date = TimeManager.getDateTimeLocal();
+		editor.putString(DATE_PREF, date);
+		editor.apply();
 	}
 
 	private double getVersionFromFile(JsonReader reader) throws IOException {

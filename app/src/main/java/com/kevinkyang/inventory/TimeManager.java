@@ -129,4 +129,27 @@ public class TimeManager {
 			return convertTime(num, ++unit);
 		}
 	}
+
+	/**
+	 * TODO better method name, same issue where you arbitrarily decide that 1 month = 30 days, and it's not the best solution
+	 * @param suggestion
+	 * @return
+	 */
+	public static String getDateFromSuggestion(String suggestion) {
+		int amount = Integer.parseInt(
+				suggestion.substring(0, suggestion.length() - 1));
+		String unit = suggestion.substring(suggestion.length() - 1);
+		int multiplier = 0;
+		if (unit.equals("d")) {
+			multiplier = 1;
+		} else if (unit.equals("w")) {
+			multiplier = 7;
+		} else if (unit.equals("m")) {
+			multiplier = 30;
+		} else if (unit.equals("y")) {
+			multiplier = 365;
+		}
+
+		return addDaysToDate(getDateTimeLocal(), amount * multiplier);
+	}
 }

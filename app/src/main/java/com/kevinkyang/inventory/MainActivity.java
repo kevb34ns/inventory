@@ -34,6 +34,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -722,11 +723,31 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						((MainActivity) getActivity())
 						.getSuggestionManager();
 
+				final ArrayList<SuggestionItem> items =
+						suggestionManager.getItemSuggestions();
 				ArrayAdapter<SuggestionItem> nameAdapter =
 						new ArrayAdapter<SuggestionItem>(getContext(),
 								R.layout.simple_dropdown_item_1line,
-								suggestionManager.getItemSuggestions());
+								items);
 				nameEditText.setAdapter(nameAdapter);
+				nameEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+					@Override
+					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+						SuggestionItem item = items.get(position);
+						if (!item.getDefaultUnit().equals("none")) {
+							unitEditText.setText(item.getDefaultUnit());
+						}
+						if (!item.getType().equals("none")) {
+							typeEditText.setText(item.getType());
+						}
+						if (!item.getDefaultExpiration().equals("none")) {
+							expirationButton.setText(
+									TimeManager.getDateFromSuggestion(
+											item.getDefaultExpiration()));
+							dateSet = true;
+						}
+					}
+				});
 
 				ArrayAdapter<String> typeAdapter =
 						new ArrayAdapter<String>(getContext(),
