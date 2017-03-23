@@ -1,8 +1,6 @@
 package com.kevinkyang.inventory;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -14,10 +12,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 /**
  * Created by Kevin on 3/13/2017.

@@ -1,20 +1,20 @@
 {
 	"config": {
 		"types": [
-			"fruit",
-			"vegetable",
-			"protein",
-			"dairy",
-			"grain",
-			"oil",
-			"leftovers",
-			"canned",
-			"candy",
-			"snack",
-			"frozen",
-			"pastry",
-			"juice",
-			"liquor"
+			"Fruit",
+			"Vegetable",
+			"Protein",
+			"Dairy",
+			"Grain",
+			"Oil",
+			"Leftovers",
+			"Canned",
+			"Candy",
+			"Snack",
+			"Frozen",
+			"Pastry",
+			"Juice",
+			"Liquor"
 		],
 		"times": [
 			"d",

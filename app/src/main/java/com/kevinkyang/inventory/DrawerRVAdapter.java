@@ -2,14 +2,19 @@ package com.kevinkyang.inventory;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Map;
+
+import static com.kevinkyang.inventory.R.layout.item;
 
 /**
  * Created by Kevin on 3/20/2017.
@@ -52,16 +57,64 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 	}
 
 	public GroupViewHolder createGroupViewHolder(ViewGroup parent) {
-		return null;
+		LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View view = inflater.inflate(R.layout.drawer_list_group, parent);
+
+		TextView groupTitle =
+				(TextView) view.findViewById(R.id.drawer_group_textview);
+		ImageButton button =
+				(ImageButton) view.findViewById(R.id.button_expand_collapse);
+		button.setFocusable(false);
+
+		return new GroupViewHolder(view, groupTitle, button);
 	}
 
 	public ChildViewHolder createChildViewHolder(ViewGroup parent) {
-		return null;
+		LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View view = inflater.inflate(R.layout.drawer_list_child, parent);
+
+		TextView childTitle =
+				(TextView) view.findViewById(R.id.drawer_child_textview);
+		ImageView colorTag =
+				(ImageView) view.findViewById(R.id.drawer_child_color_tag);
+		TextView itemCountLabel =
+				(TextView) view.findViewById(R.id.label_item_count);
+
+		return new ChildViewHolder(view, childTitle, colorTag, itemCountLabel);
 	}
 
 	@Override
 	public void onBindViewHolder(RecyclerView.ViewHolder holder,
 								 int position) {
+		if (holder instanceof GroupViewHolder) {
+			bindGroupViewHolder((GroupViewHolder)holder, position);
+		} else if (holder instanceof ChildViewHolder) {
+			bindChildViewHolder((ChildViewHolder) holder, position);
+		}
+	}
+
+	public void bindGroupViewHolder(GroupViewHolder holder, final int listPosition) {
+		GroupItem item = (GroupItem) internalList.get(listPosition);
+
+		holder.groupTitle.setText(item.getName());
+		if (groupToChildrenMap.get(item.getName()).isEmpty()) {
+			holder.button.setVisibility(View.INVISIBLE);
+		} else {
+			holder.button.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					DrawerRVAdapter adapter = DrawerRVAdapter.this;
+					if (adapter.isGroupExpanded(listPosition)) {
+						adapter.collapseGroup(listPosition);
+					} else {
+						adapter.expandGroup(listPosition);
+					}
+				}
+			});
+		}
+	}
+
+	public void bindChildViewHolder(ChildViewHolder holder, int listPosition) {
 
 	}
 
@@ -82,20 +135,34 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		}
 	}
 
-	public boolean isGroupExpanded(int groupPosition) {
-		return false;
-	}
+	public boolean isGroupExpanded(int listPosition) {
+		if (listPosition < 0 || listPosition >= internalList.size()) {
+			throw new IndexOutOfBoundsException();
+		}
 
-	public void expandGroup(int groupPosition) {
-		if (groupPosition < 0 || groupPosition >= groups.size()) {
-			return;
+		DrawerItem item = internalList.get(listPosition);
+		if (groupToChildrenMap.get(item.getName()) != null &&
+				!groupToChildrenMap.get(item.getName()).isEmpty() &&
+				listPosition < internalList.size() - 1 &&
+				internalList.get(listPosition + 1) instanceof ChildItem) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 
-	public void collapseGroup(int groupPosition) {
-		if (groupPosition < 0 || groupPosition >= groups.size()) {
-			return;
+	public void expandGroup(int listPosition) {
+		if (listPosition < 0 || listPosition >= groups.size()) {
+			throw new IndexOutOfBoundsException();
 		}
+		//TODO do this shit!!!
+	}
+
+	public void collapseGroup(int listPosition) {
+		if (listPosition < 0 || listPosition >= groups.size()) {
+			throw new IndexOutOfBoundsException();
+		}
+		//TODO do this shit!!!
 	}
 
 	public class GroupViewHolder extends RecyclerView.ViewHolder
