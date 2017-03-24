@@ -135,7 +135,7 @@ public class DrawerAdapter extends BaseExpandableListAdapter {
 				itemCountLabel.setText("99+");
 			}
 		} else {
-			Drawable addIcon = context.getResources().getDrawable(R.drawable.ic_action_add, null);
+			Drawable addIcon = context.getResources().getDrawable(R.drawable.ic_add, null);
 			addIcon = addIcon.getConstantState().newDrawable().mutate();
 			addIcon.setColorFilter(new PorterDuffColorFilter(context.getColor(android.R.color.primary_text_light), PorterDuff.Mode.MULTIPLY));
 			colorTag.getLayoutParams().width = 40;

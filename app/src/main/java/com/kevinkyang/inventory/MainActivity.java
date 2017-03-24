@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		String intentInventory = intent.getStringExtra("inventory");
 		if (intentInventory != null) {
 			inventoryFragment.setInventory(intentInventory);
+			changeActionBarTitle(intentInventory);
 		}
 
 		if (savedInstanceState != null) {
@@ -255,14 +256,16 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		if (title == null) {
 			title = "Inventory";
 		}
-		//TODO does not change typeface on startup for some reason
-		//TODO expiring notification does not change title to "Expiring"
+
 		SpannableString spannableString =
 				new SpannableString(title);
 		spannableString.setSpan(new TypefaceSpan("sans-serif-condensed"),
 				0, spannableString.length(),
 				Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-		toolbar.setTitle(spannableString);
+
+		if (getSupportActionBar() != null) {
+			getSupportActionBar().setTitle(spannableString);
+		}
 	}
 
 	private void newInventoryDialog() {

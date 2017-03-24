@@ -200,7 +200,7 @@ public class ItemRVAdapter
 		parent.removeItem(item, position);
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
-		String msg = "Deleted " + item.getName() + " from " +
+		String msg = "Removed " + item.getName() + " from " +
 				inventory + ".";
 //		parent.getParent()
 //				.showSnackbar(item, parent.getView(), position,
@@ -216,21 +216,21 @@ public class ItemRVAdapter
 	}
 
 	@Override
-	public void onAddToGroceryList(int position) {
+	public void onSwapList(int position) {
 		Item item = items.get(position);
-		parent.swapToGroceryList(item, position);
+		parent.swapList(item, position);
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
 		String msg = "Moved " + item.getName() + " to the Grocery List.";
 //		parent.getParent()
 //				.showSnackbar(item, parent.getView(), position,
-//				msg, parent::undoAddToGroceryList); TODO swap to this when native Java 8 support released
+//				msg, parent::undoSwapList); TODO swap to this when native Java 8 support released
 		parent.getParent()
 				.showSnackbar(item, parent.getView(), position,
 						msg, new MainActivity.BiConsumer<Item, Integer>() {
 							@Override
 							public void accept(Item item, Integer integer) {
-								parent.undoAddToGroceryList(item, integer);
+								parent.undoSwapList(item, integer);
 							}
 						});
 	}

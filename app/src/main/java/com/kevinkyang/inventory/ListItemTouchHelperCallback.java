@@ -18,10 +18,14 @@ import android.view.View;
 public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 	private Context context;
 	private ListItemTouchHelperListener listener;
+	private boolean groceryMode;
 
-	public ListItemTouchHelperCallback(Context context, ListItemTouchHelperListener listener) {
+	public ListItemTouchHelperCallback(Context context,
+									   ListItemTouchHelperListener listener,
+									   boolean groceryMode) {
 		this.context = context;
 		this.listener = listener;
+		this.groceryMode = groceryMode;
 	}
 
 	@Override
@@ -40,7 +44,7 @@ public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 	public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
 		int position = viewHolder.getAdapterPosition();
 		if (direction == ItemTouchHelper.START) {
-			listener.onAddToGroceryList(position);
+			listener.onSwapList(position);
 		} else if (direction == ItemTouchHelper.END) {
 			listener.onDelete(position);
 		}
@@ -75,9 +79,13 @@ public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 			} else if (dX < 0){
 				Paint paint = new Paint();
 				paint.setColor(context.getColor(R.color.colorGreen));
+
+				int drawableResource = groceryMode ?
+						R.drawable.ic_playlist_add :
+						R.drawable.ic_local_grocery_store;
 				Bitmap icon = BitmapFactory.decodeResource(
 						context.getResources(),
-						R.drawable.ic_local_grocery_store);
+						drawableResource);
 
 				RectF background =
 						new RectF((float)itemView.getRight() + dX,
@@ -86,6 +94,7 @@ public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 								itemView.getBottom());
 				c.drawRect(background, paint);
 
+				// TODO can make this rectf slightly bigger if groceryMode to make add icon look same size as the other icons
 				RectF icon_loc =
 						new RectF((float) itemView.getRight() - 2 *	 width,
 								(float) itemView.getTop() + width,
@@ -110,7 +119,7 @@ public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 	public static interface ListItemTouchHelperListener {
 		public void onDelete(int position);
 
-		public void onAddToGroceryList(int position);
+		public void onSwapList(int position);
 	}
 
 }

@@ -1,6 +1,5 @@
 package com.kevinkyang.inventory;
 
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +16,8 @@ import java.util.ArrayList;
  */
 
 public class GroceryItemRVAdapter
-		extends RecyclerView.Adapter<GroceryItemRVAdapter.ViewHolder> {
+		extends RecyclerView.Adapter<GroceryItemRVAdapter.ViewHolder>
+		implements ListItemTouchHelperCallback.ListItemTouchHelperListener {
 	private ArrayList<Item> items;
 	private GroceryFragment parent;
 	private DBManager dbManager;
@@ -72,7 +72,7 @@ public class GroceryItemRVAdapter
 					return;
 				}
 
-				onSwapToInventory(holder.getAdapterPosition());
+				onSwapList(holder.getAdapterPosition());
 			}
 		});
 
@@ -147,24 +147,44 @@ public class GroceryItemRVAdapter
 		notifyItemRemoved(position);
 	}
 
-	public void onSwapToInventory(int position) {
+	@Override
+	public void onDelete(int position) {
 		Item item = items.get(position);
-		parent.removeItem(item, position);
+		parent.swapList(item, position);
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
-		String msg = item.getName() + " added to " + inventory + ".";
+		String msg = "Removed " + item.getName() + " from grocery list.";
 //		parent.getParent()
 //				.showSnackbar(item, parent.getView(), position,
-//						msg, parent::undoSwapToInventory); // TODO switch to this when Android Studio adds native Java 8 support
+//				msg, parent::undoDelete); TODO swap to this when native Java 8 support released
 		parent.getParent()
 				.showSnackbar(item, parent.getView(), position,
 						msg, new MainActivity.BiConsumer<Item, Integer>() {
 							@Override
 							public void accept(Item item, Integer integer) {
-								parent.undoSwapToInventory(item, integer);
+								parent.undoDelete(item, integer);
 							}
 						});
+	}
 
+	@Override
+	public void onSwapList(int position) {
+		Item item = items.get(position);
+		parent.swapList(item, position);
+		String inventory = (item.getInventory().isEmpty()) ?
+				"inventory" : item.getInventory();
+		String msg = item.getName() + " added to " + inventory + ".";
+//		parent.getParent()
+//				.showSnackbar(item, parent.getView(), position,
+//						msg, parent::undoSwapList); // TODO switch to this when Android Studio adds native Java 8 support
+		parent.getParent()
+				.showSnackbar(item, parent.getView(), position,
+						msg, new MainActivity.BiConsumer<Item, Integer>() {
+							@Override
+							public void accept(Item item, Integer integer) {
+								parent.undoSwapList(item, integer);
+							}
+						});
 	}
 
 	public static class ViewHolder extends RecyclerView.ViewHolder

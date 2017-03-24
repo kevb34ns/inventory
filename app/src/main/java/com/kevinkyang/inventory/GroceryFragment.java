@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	private RecyclerView itemRecyclerView;
 	private GroceryItemRVAdapter itemRVAdapter;
 	private LinearLayoutManager layoutManager;
+	private ItemTouchHelper itemTouchHelper;
 
 	private boolean initFinished = false;
 
@@ -49,7 +51,13 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 		itemRecyclerView.setAdapter(itemRVAdapter);
 		layoutManager = new LinearLayoutManager(parent);
 		itemRecyclerView.setLayoutManager(layoutManager);
-		itemRecyclerView.setHasFixedSize(false); // TODO enable this when you restrict item height later, right now long titles elongate an item
+		DividerItemDecoration divider = new DividerItemDecoration(parent, DividerItemDecoration.VERTICAL);
+		itemRecyclerView.addItemDecoration(divider);
+		itemRecyclerView.setHasFixedSize(false);
+		itemTouchHelper = new ItemTouchHelper(
+				new ListItemTouchHelperCallback(
+						getContext(), itemRVAdapter, true));
+		itemTouchHelper.attachToRecyclerView(itemRecyclerView);
 
 		initFinished = true;
 		if (savedInstanceState != null) {
@@ -75,7 +83,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 //		switch (item.getItemId()) {
 //			case R.id.list_item_delete:
 //				Item it = itemAdapter.getItem(menuInfo.position);
-//				if (itemData.removeItem(it)) {
+//				if (itemData.swapList(it)) {
 //					itemAdapter.notifyDataSetChanged();
 //					return true;
 //				}
@@ -116,13 +124,21 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	 * adds it to the inventory it belongs to.
 	 * @param item the item to be removed.
 	 */
-	public void removeItem(Item item, int position) {
+	@Override
+	public void swapList(Item item, int position) {
 		item.setInGroceryList(false);
 		itemData.updateItem(item);
 		itemRVAdapter.removeItem(position);
 	}
 
-	public void undoSwapToInventory(Item item, int position) {
+	@Override
+	public void undoDelete(Item item, Integer position) {
+		itemData.addItem(item);
+		itemRVAdapter.addItem(item, position);
+	}
+
+	@Override
+	public void undoSwapList(Item item, Integer position) {
 		item.setInGroceryList(true);
 		itemData.updateItem(item);
 		itemRVAdapter.addItem(item, position);

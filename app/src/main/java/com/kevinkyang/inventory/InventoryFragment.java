@@ -1,23 +1,17 @@
 package com.kevinkyang.inventory;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListView;
 
 import java.util.ArrayList;
 
@@ -63,8 +57,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		itemRecyclerView.setHasFixedSize(false);
 		itemTouchHelper = new ItemTouchHelper(
 						new ListItemTouchHelperCallback(
-								getContext(),
-								itemRVAdapter));
+								getContext(), itemRVAdapter, false));
 		itemTouchHelper.attachToRecyclerView(itemRecyclerView);
 
 		initFinished = true;
@@ -97,7 +90,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 				removeItem(it, position);
 				return true;
 			case R.id.list_item_add_to_grocery:
-				swapToGroceryList(it, position);
+				swapList(it, position);
 				return true;
 			default:
 				return super.onContextItemSelected(item);
@@ -167,18 +160,21 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	 * @param position the position of the item in itemRVAdapter's
 	 *                 internal data structure
 	 */
-	public void swapToGroceryList(Item item, int position) {
+	@Override
+	public void swapList(Item item, int position) {
 		item.setInGroceryList(true);
 		itemData.updateItem(item);
 		itemRVAdapter.removeItem(position);
 	}
 
+	@Override
 	public void undoDelete(Item item, Integer position) {
 		itemData.addItem(item);
 		itemRVAdapter.addItem(item, position);
 	}
 
-	public void undoAddToGroceryList(Item item, Integer position) {
+	@Override
+	public void undoSwapList(Item item, Integer position) {
 		item.setInGroceryList(false);
 		itemData.updateItem(item);
 		itemRVAdapter.addItem(item, position);
