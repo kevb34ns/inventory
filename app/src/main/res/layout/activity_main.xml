@@ -60,10 +60,17 @@
         <ExpandableListView
             android:id="@+id/navigation_drawer_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:indicatorRight="?android:attr/expandableListPreferredItemIndicatorLeft"
             android:divider="@android:color/transparent"
             android:dividerHeight="0dp"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/drawer_rv_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
     </LinearLayout>
 
     

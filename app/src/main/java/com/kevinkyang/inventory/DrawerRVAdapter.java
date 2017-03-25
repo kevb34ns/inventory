@@ -1,10 +1,18 @@
 package com.kevinkyang.inventory;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,12 +44,25 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 	private DrawerOnClickListener drawerOnClickListener;
 
+	private TypedArray colorArray;
+
 	public DrawerRVAdapter(Context context, ArrayList<String> groups,
 						   Map<String, ArrayList<String>> groupToChildrenMap) {
 		this.context = context;
 		this.groups = groups;
 		this.groupToChildrenMap = groupToChildrenMap;
+		initInternalList(groups);
 		drawerOnClickListener = null;
+		colorArray = context.getResources()
+				.obtainTypedArray(R.array.array_inventory_colors);
+	}
+
+	private void initInternalList(ArrayList<String> groups) {
+		internalList = new ArrayList<>();
+
+		for (int pos = 0; pos < groups.size(); pos++) {
+			internalList.add(new GroupItem(groups.get(pos), pos));
+		}
 	}
 
 	@Override
@@ -58,7 +79,8 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 	public GroupViewHolder createGroupViewHolder(ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.drawer_list_group, parent);
+		View view = inflater.inflate(
+				R.layout.drawer_list_group, parent, false);
 
 		TextView groupTitle =
 				(TextView) view.findViewById(R.id.drawer_group_textview);
@@ -71,7 +93,8 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 	public ChildViewHolder createChildViewHolder(ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(R.layout.drawer_list_child, parent);
+		View view = inflater.inflate(
+				R.layout.drawer_list_child, parent, false);
 
 		TextView childTitle =
 				(TextView) view.findViewById(R.id.drawer_child_textview);
@@ -93,7 +116,7 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		}
 	}
 
-	public void bindGroupViewHolder(GroupViewHolder holder, final int listPosition) {
+	public void bindGroupViewHolder(final GroupViewHolder holder, final int listPosition) {
 		GroupItem item = (GroupItem) internalList.get(listPosition);
 
 		holder.groupTitle.setText(item.getName());
@@ -105,8 +128,10 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 				public void onClick(View v) {
 					DrawerRVAdapter adapter = DrawerRVAdapter.this;
 					if (adapter.isGroupExpanded(listPosition)) {
+						collapseAnimation(holder.button);
 						adapter.collapseGroup(listPosition);
 					} else {
+						expandAnimation(holder.button);
 						adapter.expandGroup(listPosition);
 					}
 				}
@@ -115,7 +140,46 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 	}
 
 	public void bindChildViewHolder(ChildViewHolder holder, int listPosition) {
+		ChildItem item = (ChildItem) internalList.get(listPosition);
 
+		holder.childTitle.setText(item.getName());
+		if (item.getGroupPosition() == 0) {
+			bindSubInventories(holder, item);
+		}
+	}
+
+	private void bindSubInventories(ChildViewHolder holder, ChildItem item) {
+		ArrayList<String> children =
+				groupToChildrenMap.get(groups.get(item.getGroupPosition()));
+		if (item.getChildPosition() != children.size() - 1) {
+			holder.colorTag.setImageDrawable(null);
+			holder.colorTag.getLayoutParams().width = 6;
+			holder.colorTag.setBackgroundColor(
+					colorArray.getColor(item.getChildPosition(), 0));
+			int count = ItemData.getInstance()
+					.getInventoryItemCount(item.getName());
+			holder.itemCountLabel.setVisibility(View.VISIBLE);
+			if (count < 100) {
+				holder.itemCountLabel.setText(Integer.toString(count));
+			} else {
+				holder.itemCountLabel.setText("99+");
+			}
+
+		} else {
+			Drawable addIcon = context.getResources()
+					.getDrawable(R.drawable.ic_add, null);
+			addIcon = addIcon.getConstantState().newDrawable().mutate();
+			addIcon.setColorFilter(
+					new PorterDuffColorFilter(
+							context.getColor(
+									android.R.color.primary_text_light),
+									PorterDuff.Mode.MULTIPLY));
+			holder.colorTag.setBackgroundColor(Color.TRANSPARENT);
+			holder.colorTag.getLayoutParams().width = 40;
+			holder.colorTag.setImageDrawable(addIcon);
+
+			holder.itemCountLabel.setVisibility(View.INVISIBLE);
+		}
 	}
 
 	@Override
@@ -140,7 +204,7 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 			throw new IndexOutOfBoundsException();
 		}
 
-		DrawerItem item = internalList.get(listPosition);
+		GroupItem item = (GroupItem) internalList.get(listPosition);
 		if (groupToChildrenMap.get(item.getName()) != null &&
 				!groupToChildrenMap.get(item.getName()).isEmpty() &&
 				listPosition < internalList.size() - 1 &&
@@ -155,14 +219,37 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		if (listPosition < 0 || listPosition >= groups.size()) {
 			throw new IndexOutOfBoundsException();
 		}
-		//TODO do this shit!!!
+
+		if (isGroupExpanded(listPosition)) {
+			return;
+		}
+
+		GroupItem groupItem = (GroupItem) internalList.get(listPosition);
+		ArrayList<String> children =
+				groupToChildrenMap.get(groupItem.getName());
+		for (int pos = 0; pos < children.size(); pos++) {
+			internalList.add(listPosition + pos + 1,
+					new ChildItem(children.get(pos), groupItem.getGroupPosition(), pos));
+			notifyItemInserted(listPosition + 1);
+		}
 	}
 
 	public void collapseGroup(int listPosition) {
 		if (listPosition < 0 || listPosition >= groups.size()) {
 			throw new IndexOutOfBoundsException();
 		}
-		//TODO do this shit!!!
+
+		if (!isGroupExpanded(listPosition)) {
+			return;
+		}
+
+		GroupItem groupItem = (GroupItem) internalList.get(listPosition);
+		ArrayList<String> children =
+				groupToChildrenMap.get(groupItem.getName());
+		for (int i = 0; i < children.size(); i++) {
+			internalList.remove(listPosition + 1);
+			notifyItemRemoved(listPosition + 1);
+		}
 	}
 
 	public class GroupViewHolder extends RecyclerView.ViewHolder
@@ -223,27 +310,57 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 	private class GroupItem implements DrawerItem {
 		private String name;
+		private int groupPosition;
 
-		public GroupItem(String name) {
+		public GroupItem(String name, int groupPosition) {
 			this.name = name;
+			this.groupPosition = groupPosition;
 		}
 
 		@Override
 		public String getName() {
 			return name;
+		}
+
+		public int getGroupPosition() {
+			return groupPosition;
+		}
+
+		public void setGroupPosition(int groupPosition) {
+			this.groupPosition = groupPosition;
 		}
 	}
 
 	private class ChildItem implements DrawerItem {
 		private String name;
+		private int groupPosition;
+		private int childPosition;
 
-		public ChildItem(String name) {
+		public ChildItem(String name, int groupPosition, int childPosition) {
 			this.name = name;
+			this.groupPosition = groupPosition;
+			this.childPosition = childPosition;
 		}
 
 		@Override
 		public String getName() {
 			return name;
+		}
+
+		public int getGroupPosition() {
+			return groupPosition;
+		}
+
+		public void setGroupPosition(int groupPosition) {
+			this.groupPosition = groupPosition;
+		}
+
+		public int getChildPosition() {
+			return childPosition;
+		}
+
+		public void setChildPosition(int childPosition) {
+			this.childPosition = childPosition;
 		}
 	}
 
@@ -260,5 +377,21 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 	public void setDrawerOnClickListener(DrawerOnClickListener drawerOnClickListener) {
 		this.drawerOnClickListener = drawerOnClickListener;
+	}
+
+	private void expandAnimation(View view) {
+		Animation expandAnimation =
+				AnimationUtils.loadAnimation(context,
+						R.anim.expand_rotation);
+		expandAnimation.setFillAfter(true);
+		view.startAnimation(expandAnimation);
+	}
+
+	private void collapseAnimation(View view) {
+		Animation collapseAnimation =
+				AnimationUtils.loadAnimation(context,
+						R.anim.collapse_rotation);
+		collapseAnimation.setFillAfter(true);
+		view.startAnimation(collapseAnimation);
 	}
 }

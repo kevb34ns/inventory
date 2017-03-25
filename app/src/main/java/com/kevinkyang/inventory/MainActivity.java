@@ -19,6 +19,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.SpannableString;
@@ -65,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private DrawerLayout drawerLayout;
 	private ExpandableListView drawerList;
 	private DrawerAdapter drawerAdapter;
+	private RecyclerView drawerRV;
+	private DrawerRVAdapter drawerRVAdapter;
+	private LinearLayoutManager drawerLayoutManager;
 
 	private Toolbar toolbar;
 
@@ -203,6 +208,12 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		drawerList = (ExpandableListView) findViewById(R.id.navigation_drawer_list);
 		drawerAdapter = new DrawerAdapter(this, titles, childrenMap, drawerList);
 		drawerList.setAdapter(drawerAdapter);
+
+		drawerRV = (RecyclerView) findViewById(R.id.drawer_rv_list);
+		drawerRVAdapter = new DrawerRVAdapter(this, titles, childrenMap);
+		drawerRV.setAdapter(drawerRVAdapter);
+		drawerLayoutManager = new LinearLayoutManager(this);
+		drawerRV.setLayoutManager(drawerLayoutManager);
 
 		drawerList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
 			@Override
