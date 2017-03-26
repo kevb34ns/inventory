@@ -8,6 +8,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.IOException;
+import java.lang.reflect.Array;
 import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Map;
-
-import static com.kevinkyang.inventory.R.layout.item;
 
 /**
  * Created by Kevin on 3/20/2017.
@@ -38,21 +37,22 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 	private Map<String, ArrayList<String>> groupToChildrenMap;
 	/**
 	 * List that represents currently visible drawer items.
-	 * Completely inaccessible to clients.
 	 */
 	private ArrayList<DrawerItem> internalList;
 
-	private DrawerOnClickListener drawerOnClickListener;
+	private OnDrawerClickListener onDrawerClickListener;
 
 	private TypedArray colorArray;
 
-	public DrawerRVAdapter(Context context, ArrayList<String> groups,
-						   Map<String, ArrayList<String>> groupToChildrenMap) {
+	public DrawerRVAdapter(@NonNull Context context,
+						   @NonNull ArrayList<String> groups,
+						   @NonNull Map<String, ArrayList<String>>
+								   groupToChildrenMap) {
 		this.context = context;
 		this.groups = groups;
 		this.groupToChildrenMap = groupToChildrenMap;
 		initInternalList(groups);
-		drawerOnClickListener = null;
+		onDrawerClickListener = null;
 		colorArray = context.getResources()
 				.obtainTypedArray(R.array.array_inventory_colors);
 	}
@@ -88,7 +88,7 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 				(ImageButton) view.findViewById(R.id.button_expand_collapse);
 		button.setFocusable(false);
 
-		return new GroupViewHolder(view, groupTitle, button);
+		return new GroupViewHolder(view, groupTitle, button, this);
 	}
 
 	public ChildViewHolder createChildViewHolder(ViewGroup parent) {
@@ -103,7 +103,8 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		TextView itemCountLabel =
 				(TextView) view.findViewById(R.id.label_item_count);
 
-		return new ChildViewHolder(view, childTitle, colorTag, itemCountLabel);
+		return new ChildViewHolder(view, childTitle, colorTag,
+				itemCountLabel, this);
 	}
 
 	@Override
@@ -187,6 +188,20 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		return internalList.size();
 	}
 
+	public int getGroupCount() {
+		return groups.size();
+	}
+
+	public int getChildrenCount(int groupPosition) {
+		if (groupPosition < 0 || groupPosition >= groups.size()) {
+			throw new IndexOutOfBoundsException();
+		}
+
+		ArrayList<String> children =
+				groupToChildrenMap.get(groups.get(groupPosition));
+		return children.size();
+	}
+
 	@Override
 	public int getItemViewType(int position) {
 		DrawerItem item = internalList.get(position);
@@ -197,6 +212,31 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		} else {
 			return -1;
 		}
+	}
+
+	public DrawerItem getInternalListItem(int listPosition) {
+		return internalList.get(listPosition);
+	}
+
+	public String getGroup(int groupPosition) {
+		if (groupPosition < 0 || groupPosition >= groups.size()) {
+			throw new IndexOutOfBoundsException();
+		}
+		return groups.get(groupPosition);
+	}
+
+	public String getChild(int groupPosition, int childPosition) {
+		if (groupPosition < 0 || groupPosition >= groups.size()) {
+			throw new IndexOutOfBoundsException();
+		}
+
+		ArrayList<String> children =
+				groupToChildrenMap.get(groups.get(groupPosition));
+		if (childPosition < 0 || childPosition >= children.size()) {
+			throw new IndexOutOfBoundsException();
+		}
+
+		return children.get(childPosition);
 	}
 
 	public boolean isGroupExpanded(int listPosition) {
@@ -252,54 +292,69 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		}
 	}
 
-	public class GroupViewHolder extends RecyclerView.ViewHolder
+	public static class GroupViewHolder extends RecyclerView.ViewHolder
 			implements View.OnClickListener{
-		private DrawerOnClickListener listener;
+		private DrawerRVAdapter parent;
 
 		public View itemView;
 		public TextView groupTitle;
 		public ImageButton button;
 
-		public GroupViewHolder(View itemView, TextView groupTitle, ImageButton button) {
+		public GroupViewHolder(View itemView, TextView groupTitle,
+							   ImageButton button,
+							   @NonNull DrawerRVAdapter parent) {
 			super(itemView);
 			this.itemView = itemView;
 			this.groupTitle = groupTitle;
 			this.button = button;
 
-			listener = DrawerRVAdapter.this.getDrawerOnClickListener();
+			this.parent = parent;
+			this.itemView.setOnClickListener(this);
 		}
 
 		@Override
 		public void onClick(View v) {
+			OnDrawerClickListener listener =
+					parent.getOnDrawerClickListener();
 			if (listener != null) {
-				listener.onGroupClick();
+				GroupItem item = (GroupItem) parent
+						.getInternalListItem(getAdapterPosition());
+				listener.onGroupClick(item.getGroupPosition());
 			}
 		}
 	}
 
-	public class ChildViewHolder extends RecyclerView.ViewHolder
+	public static class ChildViewHolder extends RecyclerView.ViewHolder
 			implements View.OnClickListener{
-		private DrawerOnClickListener listener;
+		private DrawerRVAdapter parent;
 
 		public View itemView;
 		public TextView childTitle;
 		public ImageView colorTag;
 		public TextView itemCountLabel;
 
-		public ChildViewHolder(View itemView, TextView childTitle, ImageView colorTag, TextView itemCountLabel) {
+		public ChildViewHolder(View itemView, TextView childTitle,
+							   ImageView colorTag, TextView itemCountLabel,
+							   @NonNull DrawerRVAdapter parent) {
 			super(itemView);
 			this.itemView = itemView;
 			this.childTitle = childTitle;
 			this.colorTag = colorTag;
 			this.itemCountLabel = itemCountLabel;
 
-			listener = DrawerRVAdapter.this.getDrawerOnClickListener();
+			this.parent = parent;
+			this.itemView.setOnClickListener(this);
 		}
 
 		@Override
 		public void onClick(View v) {
+			OnDrawerClickListener listener =
+					parent.getOnDrawerClickListener();
 			if (listener != null) {
-				listener.onChildClick();
+				ChildItem item = (ChildItem) parent
+						.getInternalListItem(getAdapterPosition());
+				listener.onChildClick(item.getGroupPosition(),
+						item.getChildPosition());
 			}
 		}
 	}
@@ -364,19 +419,28 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		}
 	}
 
-	public interface DrawerOnClickListener {
+	public interface OnDrawerClickListener {
 		//TODO these methods need useful parameters like position, itemView
-		public boolean onGroupClick();
+		public boolean onGroupClick(int groupPosition);
 
-		public boolean onChildClick();
+		public boolean onChildClick(int groupPosition, int childPosition);
 	}
 
-	public DrawerOnClickListener getDrawerOnClickListener() {
-		return drawerOnClickListener;
+	public OnDrawerClickListener getOnDrawerClickListener() {
+		return onDrawerClickListener;
 	}
 
-	public void setDrawerOnClickListener(DrawerOnClickListener drawerOnClickListener) {
-		this.drawerOnClickListener = drawerOnClickListener;
+	public void setOnDrawerClickListener(
+			OnDrawerClickListener onDrawerClickListener) {
+		this.onDrawerClickListener = onDrawerClickListener;
+	}
+
+	public void addChild(String group, String child) {
+		//TODO
+	}
+
+	public void removeChild(String group, String child) {
+		//TODO
 	}
 
 	private void expandAnimation(View view) {

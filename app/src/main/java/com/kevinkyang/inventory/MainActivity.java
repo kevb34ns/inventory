@@ -65,8 +65,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private FloatingActionButton addItemButton;
 
 	private DrawerLayout drawerLayout;
-	private ExpandableListView drawerList;
-	private DrawerAdapter drawerAdapter;
 	private RecyclerView drawerRV;
 	private DrawerRVAdapter drawerRVAdapter;
 	private LinearLayoutManager drawerLayoutManager;
@@ -205,20 +203,16 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		titles.add("Expiring");
 		titles.add("Grocery List");
 
-		drawerList = (ExpandableListView) findViewById(R.id.navigation_drawer_list);
-		drawerAdapter = new DrawerAdapter(this, titles, childrenMap, drawerList);
-		drawerList.setAdapter(drawerAdapter);
-
 		drawerRV = (RecyclerView) findViewById(R.id.drawer_rv_list);
 		drawerRVAdapter = new DrawerRVAdapter(this, titles, childrenMap);
 		drawerRV.setAdapter(drawerRVAdapter);
 		drawerLayoutManager = new LinearLayoutManager(this);
 		drawerRV.setLayoutManager(drawerLayoutManager);
 
-		drawerList.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+		drawerRVAdapter.setOnDrawerClickListener(new DrawerRVAdapter.OnDrawerClickListener() {
 			@Override
-			public boolean onGroupClick(ExpandableListView parent, View view, int groupPosition, long id) {
-				String title = (String) drawerAdapter
+			public boolean onGroupClick(int groupPosition) {
+				String title = (String) drawerRVAdapter
 						.getGroup(groupPosition);
 				if (title.equals("Inventory")) {
 					inventoryFragment.showInventory(null);
@@ -236,16 +230,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 				return true;
 			}
-		});
 
-		drawerList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
 			@Override
-			public boolean onChildClick(ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
-				String title = (String) drawerAdapter
+			public boolean onChildClick(int groupPosition, int childPosition) {
+				String title = (String) drawerRVAdapter
 						.getGroup(groupPosition);
 				if (title.equals("Inventory")) {
-					if (childPosition != drawerAdapter.getChildrenCount(groupPosition) - 1) {
-						String inventory = (String) drawerAdapter
+					if (childPosition != drawerRVAdapter.getChildrenCount(groupPosition) - 1) {
+						String inventory = (String) drawerRVAdapter
 								.getChild(groupPosition, childPosition);
 						inventoryFragment.showInventory(inventory);
 						changeFragments(Integer.toString(groupPosition));
@@ -320,8 +312,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 							titles.add("Inventory");
 							titles.add("Expiring");
 							titles.add("Grocery List");
-							drawerAdapter = new DrawerAdapter(MainActivity.this, titles, childrenMap, drawerList);
-							drawerList.setAdapter(drawerAdapter);
+//							drawerAdapter = new DrawerAdapter(MainActivity.this, titles, childrenMap, drawerList);
+//							drawerList.setAdapter(drawerAdapter); // TODO redo this when you've added add/remove inventory methods to rvadapter
 						}
 					}
 				});
