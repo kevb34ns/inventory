@@ -435,12 +435,31 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		this.onDrawerClickListener = onDrawerClickListener;
 	}
 
-	public void addChild(String group, String child) {
-		//TODO
+	public void addInventory(String name) {
+		int groupIndex = 0;
+		ArrayList<String> inventories =
+				groupToChildrenMap.get(groups.get(groupIndex));
+		int childCount = inventories.size();
+		inventories.add(childCount - 1, name);
+
+		ChildItem item = new ChildItem(name, groupIndex, childCount - 1);
+		internalList.add(groupIndex + childCount, item);
+		notifyItemInserted(groupIndex + childCount);
 	}
 
-	public void removeChild(String group, String child) {
-		//TODO
+	public void removeInventory(String name) {
+		// TODO method untested
+		int groupIndex = 0;
+		ArrayList<String> inventories =
+				groupToChildrenMap.get(groups.get(groupIndex));
+		int itemIndex = inventories.indexOf(name);
+		if (itemIndex < 0) {
+			return;
+		}
+
+		inventories.remove(itemIndex);
+		internalList.remove(groupIndex + itemIndex + 1);
+		notifyItemRemoved(groupIndex + itemIndex + 1);
 	}
 
 	private void expandAnimation(View view) {

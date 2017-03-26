@@ -299,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						}
 
 						if (newInventory.equals("Expiring")) {
-							// TODO 'Expiring' is a reserved inventory; do not hardcode, make array of reserved inventories and check against it
+							// TODO 'Expiring' is a reserved inventory; do not hardcode, make array of reserved inventories and check against it; also, 'Expiring' shouldn't be reserved so this whole section may be unnecessary
 							String msg = "This inventory is reserved by the app.";
 							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
 						} else if (dbManager.getInventories().contains(newInventory)) {
@@ -307,13 +307,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
 						} else {
 							dbManager.addInventory(newInventory);
-							HashMap<String, ArrayList<String>> childrenMap = getInventoryMap();
-							ArrayList<String> titles = new ArrayList<String>();
-							titles.add("Inventory");
-							titles.add("Expiring");
-							titles.add("Grocery List");
-//							drawerAdapter = new DrawerAdapter(MainActivity.this, titles, childrenMap, drawerList);
-//							drawerList.setAdapter(drawerAdapter); // TODO redo this when you've added add/remove inventory methods to rvadapter
+							drawerRVAdapter.addInventory(newInventory);
 						}
 					}
 				});
