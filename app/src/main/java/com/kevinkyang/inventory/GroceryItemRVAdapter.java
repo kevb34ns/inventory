@@ -150,7 +150,7 @@ public class GroceryItemRVAdapter
 	@Override
 	public void onDelete(int position) {
 		Item item = items.get(position);
-		parent.swapList(item, position);
+		parent.removeItem(item, position);
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
 		String msg = "Removed " + item.getName() + " from grocery list.";

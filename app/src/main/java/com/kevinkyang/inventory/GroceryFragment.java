@@ -119,6 +119,13 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 		itemRVAdapter.changeItem(position);
 	}
 
+	@Override
+	public void removeItem(Item item, int position) {
+		if (itemData.removeItem(item)) {
+			itemRVAdapter.removeItem(position);
+		}
+	}
+
 	/**
 	 * Removes the item from the grocery list and
 	 * adds it to the inventory it belongs to.

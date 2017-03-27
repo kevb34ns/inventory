@@ -13,6 +13,8 @@ public interface CustomFragment {
 
 	public void itemSaved(int position);
 
+	public void removeItem(Item item, int position);
+
 	public void swapList(Item item, int position);
 
 	public void undoDelete(Item item, Integer position);
