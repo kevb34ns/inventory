@@ -82,7 +82,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 //		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 //		switch (item.getItemId()) {
 //			case R.id.list_item_delete:
-//				Item it = itemAdapter.getItem(menuInfo.position);
+//				ItemBase it = itemAdapter.getItem(menuInfo.position);
 //				if (itemData.swapList(it)) {
 //					itemAdapter.notifyDataSetChanged();
 //					return true;

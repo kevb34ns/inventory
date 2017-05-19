@@ -56,6 +56,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import expandableRVAdapter.ExpandableRecyclerViewAdapter;
+
 public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
 	public static final String TAG = "inventory";
 
@@ -227,7 +229,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 				setUIColor(getResources()
 						.getColor(R.color.colorPrimary, null));
-
 				return true;
 			}
 
@@ -401,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 								 String type, String expiresDate,
 								 String inventory,
 								 boolean inGroceryList) {
-		/* Selected Item Positions TODO find better solution for visibility
+		/* Selected GroupItemBaseBase.kt Positions TODO find better solution for visibility
 		   None = 0
 		   1 day = 1
 		   3 days = 2
@@ -599,11 +600,11 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			AddItemDialogListener parent = (AddItemDialogListener) getActivity();
 			if (inEditMode) {
-				getDialog().setTitle("Edit Item");
+				getDialog().setTitle("Edit GroupItemBaseBase.kt");
 			} else if (parent.isInGroceryMode()) {
-				getDialog().setTitle("New Grocery Item");
+				getDialog().setTitle("New Grocery GroupItemBase.kte.kt");
 			} else {
-				getDialog().setTitle("New Item");
+				getDialog().setTitle("New GroupItemBaseBase.kt");
 			}
 
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);

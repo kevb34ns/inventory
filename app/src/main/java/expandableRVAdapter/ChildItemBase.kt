@@ -1,0 +1,3 @@
+package expandableRVAdapter
+
+abstract class ChildItemBase : ExpandableRecyclerViewAdapter.ItemBase
