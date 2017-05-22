@@ -541,22 +541,15 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 							 String msg,
 							 final BiConsumer<Item, Integer>
 									 clickMethod) {
-//		View.OnClickListener listener = v -> {
-//			clickMethod.accept(item, position);
-//		}; TODO Java 8
-		View.OnClickListener listener =
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						clickMethod.accept(item, position);
-					}
-				};
+		View.OnClickListener listener = v -> {
+			clickMethod.accept(item, position);
+		};
 		Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
 				.setAction("Undo", listener)
 				.show();
 	}
 
-	//TODO mimics Java 8 functional interface. replace when Java 8 support releases
+	//TODO mimics Java 8 functional interface. replace when Java 8 support releases, currently also requires minSDK = 24
 	public static interface BiConsumer<T, U> {
 		public void accept(T t, U u);
 	}
@@ -783,6 +776,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		 *                  format defined in TimeManager, or null if
 		 *                  no date has been set yet.
 		 */
+		@SuppressWarnings("ResourceType")
 		private void setUpPopupWindow(String dateToSet) {
 			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View view = inflater.inflate(R.layout.expiration_picker_dialog, null, false);

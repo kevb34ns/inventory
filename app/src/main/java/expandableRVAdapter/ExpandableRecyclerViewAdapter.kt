@@ -6,7 +6,9 @@ import android.view.ViewGroup
 
 abstract class ExpandableRecyclerViewAdapter
         <GroupItem : GroupItemBase,
-        ChildItem : ChildItemBase>
+        ChildItem : ChildItemBase,
+        out GroupViewHolder : ExpandableViewHolder,
+        out ChildViewHolder : ExpandableViewHolder>
         (var groups: ArrayList<GroupItem>,
          var children: ArrayList<ArrayList<ChildItem>>)
         : Adapter<ViewHolder>() {
@@ -14,13 +16,16 @@ abstract class ExpandableRecyclerViewAdapter
     private val VIEWTYPE_GROUP = 0
     private val VIEWTYPE_CHILD = 1
     private var adapterList = ArrayList<ItemBase>()
-    private var listener: OnClickListener? = null
+    var listener: OnItemClickListener? = null
 
     init {
         for (i in groups.indices) {
+            groups[i].groupPosition = i
             adapterList.add(groups[i])
-            if (groups[i].expanded) {
-                for (j in children[i].indices) {
+            for (j in children[i].indices) {
+                children[i][j].groupPosition = i
+                children[i][j].childPosition = j
+                if (groups[i].expanded) {
                     adapterList.add(children[i][j])
                 }
             }
@@ -29,17 +34,41 @@ abstract class ExpandableRecyclerViewAdapter
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder? {
         if (viewType == VIEWTYPE_GROUP) {
-            return createGroupViewHolder(parent)
+            val vh = createGroupViewHolder(parent)
+            vh.viewHolderListener = object : ExpandableViewHolder.ViewHolderListener {
+                override fun onClick(position: Int) {
+                    if (adapterList[position] !is GroupItemBase) {
+                        return
+                    }
+
+                    val item = adapterList[position] as GroupItemBase
+                    listener?.onGroupClick(item.groupPosition)
+                }
+            }
+            return vh
         } else if (viewType == VIEWTYPE_CHILD) {
-            return createChildViewHolder(parent)
+            val vh = createChildViewHolder(parent)
+            vh.viewHolderListener = object : ExpandableViewHolder.ViewHolderListener {
+                override fun onClick(position: Int) {
+                    if (adapterList[position] !is ChildItemBase) {
+                        return
+                    }
+
+                    val item = adapterList[position] as ChildItemBase
+                    listener?.onChildClick(
+                            item.groupPosition,
+                            item.childPosition)
+                }
+            }
+            return vh
         } else {
             return null
         }
     }
 
-    abstract fun createGroupViewHolder(parent: ViewGroup?) : ViewHolder
+    abstract fun createGroupViewHolder(parent: ViewGroup?) : GroupViewHolder
 
-    abstract fun createChildViewHolder(parent: ViewGroup?) : ViewHolder
+    abstract fun createChildViewHolder(parent: ViewGroup?) : ChildViewHolder
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
         if (getItemViewType(position) == VIEWTYPE_GROUP) {
@@ -87,6 +116,68 @@ abstract class ExpandableRecyclerViewAdapter
         return children[groupPosition][childPosition]
     }
 
+    fun addGroup(newGroup: GroupItem, childList: ArrayList<ChildItem>,
+                 position: Int = -1): Boolean {
+
+        if (position < -1 || position > groups.size ||
+                groups.indexOf(newGroup) == -1) {
+            return false
+        }
+
+        var pos = position
+        if (pos == -1) {
+            pos = groups.size
+        }
+
+        newGroup.groupPosition = pos
+        for (i in childList.indices) {
+            childList[i].groupPosition = pos
+            childList[i].childPosition = i
+        }
+
+        groups.add(pos, newGroup)
+        children.add(pos, childList)
+        for (i in pos + 1 until groups.size) {
+            groups[i].groupPosition = i
+        }
+
+        return true
+    }
+
+    fun addChild(newChild: ChildItem, groupPosition: Int,
+                 childPosition: Int = -1): Boolean {
+        if (groupPosition !in groups.indices ||
+                childPosition > children[groupPosition].size ||
+                childPosition < -1) {
+            return false
+        }
+
+        var childPos = childPosition
+        if (childPos == -1) {
+            childPos = children[groupPosition].size
+        }
+
+        newChild.groupPosition = groupPosition
+        newChild.childPosition = childPosition
+
+        children[groupPosition].add(childPos, newChild)
+        for (i in childPos + 1 until children[groupPosition].size) {
+            children[groupPosition][i].childPosition = i
+        }
+
+        return true
+    }
+
+    fun removeGroup(groupItem: GroupItem): Boolean {
+        //TODO
+        return false
+    }
+
+    fun removeChild(groupItem: GroupItem, childItem: ChildItem): Boolean {
+        //TODO
+        return false
+    }
+
     override fun getItemViewType(position: Int): Int {
         if (adapterList[position] is GroupItemBase) {
             return VIEWTYPE_GROUP
@@ -112,7 +203,14 @@ abstract class ExpandableRecyclerViewAdapter
 
         if (!groups[position].expanded) {
             groups[position].expanded = true
-            //TODO
+
+            val index = adapterList.indexOf(groups[position])
+            if (index != -1) {
+                for (i in children[position].indices) {
+                    adapterList.add(index + i + 1, children[position][i])
+                    notifyItemInserted(index + i + 1)
+                }
+            }
         }
     }
 
@@ -123,18 +221,29 @@ abstract class ExpandableRecyclerViewAdapter
 
         if (groups[position].expanded) {
             groups[position].expanded = false
-            //TODO
+
+            val index = adapterList.indexOf(groups[position])
+            if (index != -1) {
+                for (i in children[position].indices) {
+                    if (adapterList[index + i + 1] is ChildItemBase) {
+                        adapterList.removeAt(index + i + 1)
+                        notifyItemRemoved(index + i + 1)
+                    } else {
+                        return
+                    }
+                }
+            }
         }
     }
 
     internal interface ItemBase
 
-    private interface OnClickListener {
+    interface OnItemClickListener {
 
         fun onGroupClick(groupPosition: Int): Boolean
 
         fun onChildClick(groupPosition: Int, childPosition: Int): Boolean
     }
 
-    // TODO get viewholder clicklistener working: have a listener in this class, which is passed to the viewholder, which is called when clicked, and the viewholder passes adapterPosition to this class, which can then call any listeners the user has set; this would require you to once again make GroupViewHolder and ChildViewHolder classes
+    //TODO may need to override parent class notify() methods and others in order to prevent user from calling the parent versions and fucking shit up
 }

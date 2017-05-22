@@ -154,17 +154,9 @@ public class GroceryItemRVAdapter
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
 		String msg = "Removed " + item.getName() + " from grocery list.";
-//		parent.getParent()
-//				.showSnackbar(item, parent.getView(), position,
-//				msg, parent::undoDelete); TODO swap to this when native Java 8 support released
 		parent.getParent()
 				.showSnackbar(item, parent.getView(), position,
-						msg, new MainActivity.BiConsumer<Item, Integer>() {
-							@Override
-							public void accept(Item item, Integer integer) {
-								parent.undoDelete(item, integer);
-							}
-						});
+				msg, parent::undoDelete);
 	}
 
 	@Override
@@ -174,17 +166,9 @@ public class GroceryItemRVAdapter
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
 		String msg = item.getName() + " added to " + inventory + ".";
-//		parent.getParent()
-//				.showSnackbar(item, parent.getView(), position,
-//						msg, parent::undoSwapList); // TODO switch to this when Android Studio adds native Java 8 support
 		parent.getParent()
 				.showSnackbar(item, parent.getView(), position,
-						msg, new MainActivity.BiConsumer<Item, Integer>() {
-							@Override
-							public void accept(Item item, Integer integer) {
-								parent.undoSwapList(item, integer);
-							}
-						});
+						msg, parent::undoSwapList);
 	}
 
 	public static class ViewHolder extends RecyclerView.ViewHolder

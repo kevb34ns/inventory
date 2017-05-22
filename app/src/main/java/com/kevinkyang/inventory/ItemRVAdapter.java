@@ -202,17 +202,9 @@ public class ItemRVAdapter
 				"inventory" : item.getInventory();
 		String msg = "Removed " + item.getName() + " from " +
 				inventory + ".";
-//		parent.getParent()
-//				.showSnackbar(item, parent.getView(), position,
-//				msg, parent::undoDelete); TODO swap to this when native Java 8 support released
 		parent.getParent()
 				.showSnackbar(item, parent.getView(), position,
-						msg, new MainActivity.BiConsumer<Item, Integer>() {
-							@Override
-							public void accept(Item item, Integer integer) {
-								parent.undoDelete(item, integer);
-							}
-						});
+				msg, parent::undoDelete);
 	}
 
 	@Override
@@ -222,17 +214,9 @@ public class ItemRVAdapter
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
 		String msg = "Moved " + item.getName() + " to the Grocery List.";
-//		parent.getParent()
-//				.showSnackbar(item, parent.getView(), position,
-//				msg, parent::undoSwapList); TODO swap to this when native Java 8 support released
 		parent.getParent()
 				.showSnackbar(item, parent.getView(), position,
-						msg, new MainActivity.BiConsumer<Item, Integer>() {
-							@Override
-							public void accept(Item item, Integer integer) {
-								parent.undoSwapList(item, integer);
-							}
-						});
+				msg, parent::undoSwapList);
 	}
 
 	public Item getItem(int position) {

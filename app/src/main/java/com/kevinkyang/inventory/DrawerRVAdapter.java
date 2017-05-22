@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import expandableRVAdapter.ExpandableRecyclerViewAdapter;
+import expandableRVAdapter.ExpandableViewHolder;
 
 /**
  * Created by Kevin on 3/20/2017.
@@ -271,7 +272,7 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 		for (int pos = 0; pos < children.size(); pos++) {
 			internalList.add(listPosition + pos + 1,
 					new ChildItem(children.get(pos), groupItem.getGroupPosition(), pos));
-			notifyItemInserted(listPosition + 1);
+			notifyItemInserted(listPosition + pos + 1);
 		}
 	}
 
