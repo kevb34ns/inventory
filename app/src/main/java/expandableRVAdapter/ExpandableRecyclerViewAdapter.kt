@@ -7,10 +7,10 @@ import android.view.ViewGroup
 abstract class ExpandableRecyclerViewAdapter
         <GroupItem : GroupItemBase,
         ChildItem : ChildItemBase,
-        out GroupViewHolder : ExpandableViewHolder,
-        out ChildViewHolder : ExpandableViewHolder>
-        (var groups: ArrayList<GroupItem>,
-         var children: ArrayList<ArrayList<ChildItem>>)
+        GroupViewHolder : ExpandableViewHolder,
+        ChildViewHolder : ExpandableViewHolder>
+        (private var groups: ArrayList<GroupItem>,
+         private var children: ArrayList<ArrayList<ChildItem>>)
         : Adapter<ViewHolder>() {
 
     private val VIEWTYPE_GROUP = 0
@@ -45,6 +45,7 @@ abstract class ExpandableRecyclerViewAdapter
                     listener?.onGroupClick(item.groupPosition)
                 }
             }
+
             return vh
         } else if (viewType == VIEWTYPE_CHILD) {
             val vh = createChildViewHolder(parent)
@@ -71,16 +72,22 @@ abstract class ExpandableRecyclerViewAdapter
     abstract fun createChildViewHolder(parent: ViewGroup?) : ChildViewHolder
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
+        if (holder == null) {
+            return
+        }
+
         if (getItemViewType(position) == VIEWTYPE_GROUP) {
-            bindGroupViewHolder(holder, adapterList[position] as GroupItem)
+            bindGroupViewHolder(holder as GroupViewHolder,
+                    adapterList[position] as GroupItem)
         } else if (getItemViewType(position) == VIEWTYPE_CHILD) {
-            bindChildViewHolder(holder, adapterList[position] as ChildItem)
+            bindChildViewHolder(holder as ChildViewHolder,
+                    adapterList[position] as ChildItem)
         }
     }
 
-    abstract fun bindGroupViewHolder(holder: ViewHolder?, item: GroupItem)
+    abstract fun bindGroupViewHolder(holder: GroupViewHolder, item: GroupItem)
 
-    abstract fun bindChildViewHolder(holder: ViewHolder?, item: ChildItem)
+    abstract fun bindChildViewHolder(holder: ChildViewHolder, item: ChildItem)
 
     override fun getItemCount(): Int {
         return adapterList.size
@@ -141,11 +148,14 @@ abstract class ExpandableRecyclerViewAdapter
             groups[i].groupPosition = i
         }
 
+        //TODO add to the adapter list and notify, and add children if expanded, possibly write new method to find a group in the adapter list (have you done this before somewhere else?)
+
         return true
     }
 
     fun addChild(newChild: ChildItem, groupPosition: Int,
                  childPosition: Int = -1): Boolean {
+
         if (groupPosition !in groups.indices ||
                 childPosition > children[groupPosition].size ||
                 childPosition < -1) {
@@ -165,16 +175,49 @@ abstract class ExpandableRecyclerViewAdapter
             children[groupPosition][i].childPosition = i
         }
 
+        // TODO add to adapter list and notify if group expanded
+
         return true
     }
 
     fun removeGroup(groupItem: GroupItem): Boolean {
-        //TODO
+        for (i in groups.indices) {
+            if (groups[i] == groupItem) {
+                groups.removeAt(i)
+                children.removeAt(i)
+                for (j in i until groups.size) {
+                    groups[j].groupPosition = j
+                    for (k in children[j].indices) {
+                        children[j][k].groupPosition = j
+                    }
+                }
+
+                return true
+            }
+        }
+        //TODO remove from adapter list and notify
+
         return false
     }
 
     fun removeChild(groupItem: GroupItem, childItem: ChildItem): Boolean {
-        //TODO
+        for (i in groups.indices) {
+            if (groups[i] == groupItem) {
+                for (j in children[i].indices) {
+                    if (children[i][j] == childItem) {
+                        children[i].removeAt(j)
+                        for (k in j until children[i].size) {
+                            children[i][k].childPosition = k
+                        }
+
+                        return true
+                    }
+                }
+            }
+        }
+
+        // TODO remove from adapter list and notify if expanded
+
         return false
     }
 
