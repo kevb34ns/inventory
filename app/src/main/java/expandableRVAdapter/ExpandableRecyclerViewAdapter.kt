@@ -123,6 +123,29 @@ abstract class ExpandableRecyclerViewAdapter
         return children[groupPosition][childPosition]
     }
 
+    /**
+     * Find the position in the adapter of a group item
+     * @param groupPos position of the group.
+     * @return The position in adapterList containing this group item,
+     * or -1 if it does not exist in the adapter.
+     */
+    private fun getGroupAdapterIndex(groupPos: Int): Int {
+        if (groupPos == 0 || groupPos == groups.size - 1) {
+            return groupPos
+        } else {
+            for (i in adapterList.indices) {
+                if (adapterList[i] is GroupItemBase) {
+                    val item = adapterList[i] as GroupItemBase
+                    if (item.groupPosition == groupPos) {
+                        return i
+                    }
+                }
+            }
+        }
+
+        return -1
+    }
+
     fun addGroup(newGroup: GroupItem, childList: ArrayList<ChildItem>,
                  position: Int = -1): Boolean {
 
@@ -142,13 +165,23 @@ abstract class ExpandableRecyclerViewAdapter
             childList[i].childPosition = i
         }
 
+        val adapterPos = getGroupAdapterIndex(pos)
+
         groups.add(pos, newGroup)
         children.add(pos, childList)
         for (i in pos + 1 until groups.size) {
+            // update positions of existing groups
             groups[i].groupPosition = i
         }
 
-        //TODO add to the adapter list and notify, and add children if expanded, possibly write new method to find a group in the adapter list (have you done this before somewhere else?)
+        adapterList.add(adapterPos, newGroup)
+        notifyItemInserted(adapterPos)
+        if (newGroup.expanded) {
+            for (i in children[pos].indices) {
+                adapterList.add(adapterPos + i + 1, children[pos][i])
+            }
+            notifyItemRangeInserted(adapterPos + 1, children[pos].size)
+        }
 
         return true
     }
@@ -168,14 +201,18 @@ abstract class ExpandableRecyclerViewAdapter
         }
 
         newChild.groupPosition = groupPosition
-        newChild.childPosition = childPosition
+        newChild.childPosition = childPos
 
         children[groupPosition].add(childPos, newChild)
         for (i in childPos + 1 until children[groupPosition].size) {
             children[groupPosition][i].childPosition = i
         }
 
-        // TODO add to adapter list and notify if group expanded
+        if (groups[groupPosition].expanded) {
+            val adapterPos = getGroupAdapterIndex(groupPosition)
+            adapterList.add(adapterPos + childPos + 1, newChild)
+            notifyItemInserted(adapterPos + childPos + 1)
+        }
 
         return true
     }
@@ -183,6 +220,17 @@ abstract class ExpandableRecyclerViewAdapter
     fun removeGroup(groupItem: GroupItem): Boolean {
         for (i in groups.indices) {
             if (groups[i] == groupItem) {
+                // remove from adapter first
+                val adapterPos = getGroupAdapterIndex(groupItem.groupPosition)
+                adapterList.removeAt(adapterPos)
+                notifyItemRemoved(adapterPos)
+                if (groupItem.expanded) {
+                    for (j in 0 until children[i].size) {
+                        adapterList.removeAt(adapterPos)
+                    }
+                    notifyItemRangeRemoved(adapterPos + 1, children[i].size)
+                }
+                // remove from groups/children lists
                 groups.removeAt(i)
                 children.removeAt(i)
                 for (j in i until groups.size) {
@@ -195,7 +243,6 @@ abstract class ExpandableRecyclerViewAdapter
                 return true
             }
         }
-        //TODO remove from adapter list and notify
 
         return false
     }
@@ -205,6 +252,11 @@ abstract class ExpandableRecyclerViewAdapter
             if (groups[i] == groupItem) {
                 for (j in children[i].indices) {
                     if (children[i][j] == childItem) {
+                        val adapterPos = getGroupAdapterIndex(
+                                groupItem.groupPosition)
+                        adapterList.removeAt(adapterPos + j + 1)
+                        notifyItemRemoved(adapterPos + j + 1)
+
                         children[i].removeAt(j)
                         for (k in j until children[i].size) {
                             children[i][k].childPosition = k
@@ -215,8 +267,6 @@ abstract class ExpandableRecyclerViewAdapter
                 }
             }
         }
-
-        // TODO remove from adapter list and notify if expanded
 
         return false
     }
