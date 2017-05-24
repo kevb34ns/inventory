@@ -3,8 +3,7 @@ package expandableRVAdapter
 import android.support.v7.widget.RecyclerView.Adapter
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.ViewGroup
-//TODO BUG expiring inventory doesn't work
-//TODO BUG labels disappear
+
 abstract class ExpandableRecyclerViewAdapter
         <GroupItem : GroupItemBase,
         ChildItem : ChildItemBase,

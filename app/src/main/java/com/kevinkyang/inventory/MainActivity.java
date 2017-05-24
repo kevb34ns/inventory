@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 						inventoryFragment.showInventory(null);
 						changeFragments("0");
 						break;
-					case "Expriring":
+					case "Expiring":
 						inventoryFragment.showInventory(title);
 						changeFragments("0");
 						break;

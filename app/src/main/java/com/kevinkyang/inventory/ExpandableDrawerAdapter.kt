@@ -93,6 +93,7 @@ class ExpandableDrawerAdapter(var context: Context,
             holder.colorTag.layoutParams.width = 6
             holder.colorTag.setBackgroundColor(
                     colorArray.getColor(item.childPosition, 0))
+            holder.itemCountLabel.visibility = View.VISIBLE
             val count = ItemData.getInstance()
                     .getInventoryItemCount(item.name)
             val countString: String
