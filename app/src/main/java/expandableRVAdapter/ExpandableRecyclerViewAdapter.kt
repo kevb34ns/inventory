@@ -3,7 +3,8 @@ package expandableRVAdapter
 import android.support.v7.widget.RecyclerView.Adapter
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.ViewGroup
-
+//TODO BUG expiring inventory doesn't work
+//TODO BUG labels disappear
 abstract class ExpandableRecyclerViewAdapter
         <GroupItem : GroupItemBase,
         ChildItem : ChildItemBase,
@@ -16,7 +17,7 @@ abstract class ExpandableRecyclerViewAdapter
     private val VIEWTYPE_GROUP = 0
     private val VIEWTYPE_CHILD = 1
     private var adapterList = ArrayList<ItemBase>()
-    var listener: OnItemClickListener? = null
+    var onItemClickListener: OnItemClickListener? = null
 
     init {
         for (i in groups.indices) {
@@ -42,7 +43,7 @@ abstract class ExpandableRecyclerViewAdapter
                     }
 
                     val item = adapterList[position] as GroupItemBase
-                    listener?.onGroupClick(item.groupPosition)
+                    onItemClickListener?.onGroupClick(item.groupPosition)
                 }
             }
 
@@ -56,7 +57,7 @@ abstract class ExpandableRecyclerViewAdapter
                     }
 
                     val item = adapterList[position] as ChildItemBase
-                    listener?.onChildClick(
+                    onItemClickListener?.onChildClick(
                             item.groupPosition,
                             item.childPosition)
                 }
@@ -318,9 +319,9 @@ abstract class ExpandableRecyclerViewAdapter
             val index = adapterList.indexOf(groups[position])
             if (index != -1) {
                 for (i in children[position].indices) {
-                    if (adapterList[index + i + 1] is ChildItemBase) {
-                        adapterList.removeAt(index + i + 1)
-                        notifyItemRemoved(index + i + 1)
+                    if (adapterList[index + 1] is ChildItemBase) {
+                        adapterList.removeAt(index + 1)
+                        notifyItemRemoved(index + 1)
                     } else {
                         return
                     }

@@ -68,7 +68,9 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	private DrawerLayout drawerLayout;
 	private RecyclerView drawerRV;
+	// TODO chopping block
 	private DrawerRVAdapter drawerRVAdapter;
+	private ExpandableDrawerAdapter drawerAdapter;
 	private LinearLayoutManager drawerLayoutManager;
 
 	private Toolbar toolbar;
@@ -199,31 +201,39 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerLayout.setStatusBarBackground(R.color.colorPrimary);
 
-		HashMap<String, ArrayList<String>> childrenMap = getInventoryMap();
-		ArrayList<String> titles = new ArrayList<String>();
-		titles.add("Inventory");
-		titles.add("Expiring");
-		titles.add("Grocery List");
+		ArrayList<DrawerGroupItem> groups = new ArrayList<>();
+		groups.add(new DrawerGroupItem("Inventory"));
+		groups.add(new DrawerGroupItem("Expiring"));
+		groups.add(new DrawerGroupItem("Grocery List"));
+
+		ArrayList<ArrayList<DrawerChildItem>> children = new ArrayList<>();
+		children.add(getInventoryChildren());
+		children.add(new ArrayList<>());
+		children.add(new ArrayList<>());
 
 		drawerRV = (RecyclerView) findViewById(R.id.drawer_rv_list);
-		drawerRVAdapter = new DrawerRVAdapter(this, titles, childrenMap);
-		drawerRV.setAdapter(drawerRVAdapter);
+		drawerAdapter = new ExpandableDrawerAdapter(this, groups, children);
+		drawerRV.setAdapter(drawerAdapter);
 		drawerLayoutManager = new LinearLayoutManager(this);
 		drawerRV.setLayoutManager(drawerLayoutManager);
 
-		drawerRVAdapter.setOnDrawerClickListener(new DrawerRVAdapter.OnDrawerClickListener() {
+		drawerAdapter.setOnItemClickListener(new ExpandableRecyclerViewAdapter.OnItemClickListener() {
 			@Override
 			public boolean onGroupClick(int groupPosition) {
-				String title = (String) drawerRVAdapter
-						.getGroup(groupPosition);
-				if (title.equals("Inventory")) {
-					inventoryFragment.showInventory(null);
-					changeFragments("0");
-				} else if (title.equals("Expiring")) {
-					inventoryFragment.showInventory(title);
-					changeFragments("0");
-				} else if (title.equals("Grocery List")) {
-					changeFragments("1");
+				String title = drawerAdapter.getGroup(groupPosition).getName();
+				switch (title) {
+					case "Inventory":
+						inventoryFragment.showInventory(null);
+						changeFragments("0");
+						break;
+					case "Expriring":
+						inventoryFragment.showInventory(title);
+						changeFragments("0");
+						break;
+					case "Grocery List":
+						changeFragments("1");
+						break;
+					default: break;
 				}
 				changeActionBarTitle(title);
 
@@ -234,12 +244,12 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 			@Override
 			public boolean onChildClick(int groupPosition, int childPosition) {
-				String title = (String) drawerRVAdapter
-						.getGroup(groupPosition);
+				String title = drawerAdapter.getGroup(groupPosition).getName();
 				if (title.equals("Inventory")) {
-					if (childPosition != drawerRVAdapter.getChildrenCount(groupPosition) - 1) {
-						String inventory = (String) drawerRVAdapter
-								.getChild(groupPosition, childPosition);
+					if (childPosition != drawerAdapter.getChildrenCount(groupPosition) - 1) {
+						String inventory = (String) drawerAdapter
+								.getChild(groupPosition, childPosition)
+								.getName();
 						inventoryFragment.showInventory(inventory);
 						changeFragments(Integer.toString(groupPosition));
 						changeActionBarTitle(inventory);
@@ -325,17 +335,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		dialog.getWindow().setLayout(800, 500); //TODO need to dpi scale
 	}
 
-	private HashMap<String, ArrayList<String>> getInventoryMap() {
-		ArrayList<String> inventoryList = dbManager.getInventories();
-		inventoryList.add("New inventory...");
+	private ArrayList<DrawerChildItem> getInventoryChildren() {
+		ArrayList<DrawerChildItem> invList = new ArrayList<>();
+		for (String name : dbManager.getInventories()) {
+			invList.add(new DrawerChildItem(name));
+		}
+		invList.add(new DrawerChildItem("New Inventory..."));
 
-		HashMap<String, ArrayList<String>> invMap =
-				new HashMap<String, ArrayList<String>>();
-		invMap.put("Inventory", inventoryList);
-		invMap.put("Expiring", new ArrayList<String>());
-		invMap.put("Grocery List", new ArrayList<String>());
-
-		return invMap;
+		return invList;
 	}
 
 	private void changeFragments(String tag) {
