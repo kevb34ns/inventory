@@ -48,7 +48,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 
 		itemData = ItemData.getInstance();
 
-		itemRVAdapter = new ItemRVAdapter(new ArrayList<Item>(), this);
+		itemRVAdapter = new ItemRVAdapter(new ArrayList<Item>(), itemRecyclerView, this);
 		itemRecyclerView.setAdapter(itemRVAdapter);
 		layoutManager = new LinearLayoutManager(parent);
 		itemRecyclerView.setLayoutManager(layoutManager);

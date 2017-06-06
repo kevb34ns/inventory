@@ -8,6 +8,7 @@ import android.graphics.PorterDuffColorFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -72,8 +73,10 @@ class ExpandableDrawerAdapter(var context: Context,
         } else {
             holder.button.setOnClickListener {
                 if (adapter.isGroupExpanded(item.groupPosition)) {
+                    collapseRotateAnimation(holder.button)
                     adapter.collapseGroup(item.groupPosition)
                 } else {
+                    expandRotateAnimation(holder.button)
                     adapter.expandGroup(item.groupPosition)
                 }
             }
@@ -116,6 +119,28 @@ class ExpandableDrawerAdapter(var context: Context,
             holder.colorTag.setImageDrawable(addIcon)
             holder.itemCountLabel.visibility = View.INVISIBLE
         }
+
+        //TODO animation experiment
+        setChildAnimation(holder.itemView)
+    }
+
+    private fun expandRotateAnimation(view: View) {
+        val expandAnim = AnimationUtils.loadAnimation(context, R.anim.expand_rotation)
+        expandAnim.fillAfter = true
+        view.startAnimation(expandAnim)
+    }
+
+    private fun collapseRotateAnimation(view: View) {
+        val collapseAnim = AnimationUtils.loadAnimation(context, R.anim.collapse_rotation)
+        collapseAnim.fillAfter = true
+        view.startAnimation(collapseAnim)
+    }
+
+    //TODO animation experiments, may want to include in ERVA, you'd have to pass context to it
+    fun setChildAnimation(viewToAnimate: View) {
+            val anim = AnimationUtils.loadAnimation(context, R.anim.push_in_top)
+            anim.duration = 500
+            viewToAnimate.startAnimation(anim)
     }
 
 }

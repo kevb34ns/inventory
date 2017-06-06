@@ -85,13 +85,6 @@
                     android:hint="@string/type"/>
             </android.support.design.widget.TextInputLayout>
 
-            <!--<Spinner-->
-                <!--android:id="@+id/spinner_expiration"-->
-                <!--android:layout_width="0dp"-->
-                <!--android:layout_height="48dp"-->
-                <!--android:layout_weight="3"-->
-                <!--android:entries="@array/array_expires_dates" />-->
-
             <Button
                 android:id="@+id/button_expiration"
                 android:layout_width="0dp"

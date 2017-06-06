@@ -1,63 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
+              android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:paddingStart="10dp"
               android:paddingEnd="10dp"
-              android:background="?attr/selectableItemBackground">
-    <TextView
-        android:id="@+id/item_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="8"
-        android:padding="@dimen/listitem_default_margin"
-        android:textSize="20sp"
-        android:layout_gravity="center_vertical"/>
+              android:clipToPadding="false"
+              android:foreground="?attr/selectableItemBackground"
+              android:background="@drawable/item_background"
+              android:stateListAnimator="@animator/item_selection">
 
     <LinearLayout
-        android:id="@+id/expires_container"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minWidth="40dp"
-        android:layout_margin="10dp"
-        android:layout_marginStart="0dp"
-        android:layout_gravity="center_vertical"
-        android:padding="5dp"
-        android:orientation="vertical"
-        android:background="@drawable/round_rect_border">
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/item_color_tag"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
 
         <TextView
-            android:id="@+id/expires_num"
+            android:id="@+id/item_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="8"
+            android:padding="@dimen/listitem_default_margin"
+            android:textSize="20sp"
+            android:layout_gravity="center_vertical"/>
+
+        <TextView
+            android:id="@+id/expires_warning"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone"/>
 
-        <TextView
-            android:id="@+id/expires_unit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textSize="12sp"/>
-    </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/decrease_quantity"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_gravity="center_vertical"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_remove_circle"/>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center_vertical">
         <TextView
             android:id="@+id/quantity"
             android:layout_width="wrap_content"
@@ -65,24 +46,145 @@
             android:layout_gravity="center_horizontal"
             android:textSize="18sp"/>
 
-        <TextView
-            android:id="@+id/quantity_unit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textSize="12sp"
-            android:visibility="gone"/>
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/increase_quantity"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/detail_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_gravity="center_vertical"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_add_circle"/>
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorLightGrey" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:id="@+id/detail_expiration_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Expiration"
+                    android:textColor="@color/colorLightGrey"/>
+
+                <TextView
+                    android:id="@+id/detail_expiration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <Button
+                    android:id="@+id/detail_edit_expiration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:drawableStart="@drawable/ic_date_range"
+                    android:text="Change..."/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/detail_quantity_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quantity"
+                    android:textColor="@color/colorLightGrey"/>
+
+                <TextView
+                    android:id="@+id/detail_quantity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/decrease_quantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_remove_circle"/>
+
+                    <ImageButton
+                        android:id="@+id/increase_quantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_add_circle"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/detail_created_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorLightGrey" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/detail_color_tag"
+                android:layout_width="1dp"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/detail_inventory_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/detail_type_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"/>
+
+            <Button
+                android:id="@+id/detail_edit_button"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:text="Edit"
+                android:textColor="@drawable/button_borderless_text_color"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"/>
+
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

@@ -15,6 +15,7 @@ abstract class ExpandableRecyclerViewAdapter
 
     private val VIEWTYPE_GROUP = 0
     private val VIEWTYPE_CHILD = 1
+
     private var adapterList = ArrayList<ItemBase>()
     var onItemClickListener: OnItemClickListener? = null
 
@@ -88,6 +89,46 @@ abstract class ExpandableRecyclerViewAdapter
     abstract fun bindGroupViewHolder(holder: GroupViewHolder, item: GroupItem)
 
     abstract fun bindChildViewHolder(holder: ChildViewHolder, item: ChildItem)
+
+    override fun onBindViewHolder(holder: ViewHolder?, position: Int,
+                                  payloads: MutableList<Any>?) {
+
+        if (holder == null) {
+            return
+        }
+
+        if (payloads == null) {
+            onBindViewHolder(holder, position)
+        } else if (getItemViewType(position) == VIEWTYPE_GROUP) {
+            bindGroupViewHolder(holder as GroupViewHolder,
+                    adapterList[position] as GroupItem,
+                    payloads)
+        } else if (getItemViewType(position) == VIEWTYPE_CHILD) {
+            bindChildViewHolder(holder as ChildViewHolder,
+                    adapterList[position] as ChildItem,
+                    payloads)
+        }
+    }
+
+    /**
+     * Override this method to handle payloads.
+     */
+    open fun bindGroupViewHolder(holder: GroupViewHolder,
+                            item: GroupItem,
+                            payloads: MutableList<Any>) {
+
+        bindGroupViewHolder(holder, item)
+    }
+
+    /**
+     * Override this method to handle payloads.
+     */
+    open fun bindChildViewHolder(holder: ChildViewHolder,
+                            item: ChildItem,
+                            payloads: MutableList<Any>) {
+
+        bindChildViewHolder(holder, item)
+    }
 
     override fun getItemCount(): Int {
         return adapterList.size

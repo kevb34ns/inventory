@@ -2,38 +2,48 @@ package com.kevinkyang.inventory;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.transition.TransitionManager;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by Kevin on 3/13/2017.
- */
 
 public class ItemRVAdapter
 		extends RecyclerView.Adapter<ItemRVAdapter.ViewHolder>
 		implements ListItemTouchHelperCallback.ListItemTouchHelperListener {
+	private static final int PAYLOAD_EXPAND = 0x1;
+	private static final int PAYLOAD_COLLAPSE = 0x2;
+
 	private ArrayList<Item> items;
 	private InventoryFragment parent;
 	private DBManager dbManager;
 	private int defaultColor;
 
+	//TODO experimental
+	private RecyclerView recyclerView;
+	private int expandedItemPosition;
+
 	private int contextMenuPosition;
 
 	public ItemRVAdapter(ArrayList<Item> items,
+						 RecyclerView recyclerView,
 						 InventoryFragment parent) {
 		this.items = items;
 		this.parent = parent;
 		dbManager = DBManager.getInstance();
 		defaultColor = -1;
+
+		expandedItemPosition = RecyclerView.NO_POSITION;
+		this.recyclerView = recyclerView;
 
 		setHasStableIds(true);
 	}
@@ -42,39 +52,42 @@ public class ItemRVAdapter
 	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		View view = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.item, parent, false);
-
-		TextView name = (TextView) view.findViewById(R.id.item_name);
-		LinearLayout expiresContainer = (LinearLayout) view.findViewById(R.id.expires_container);
-		TextView expiresNum = (TextView) view.findViewById(R.id.expires_num);
-		TextView expiresUnit = (TextView) view.findViewById(R.id.expires_unit);
-		TextView quantity = (TextView) view.findViewById(R.id.quantity);
-		TextView quantityUnit = (TextView) view.findViewById(R.id.quantity_unit);
-		ImageButton decQuantityButton = (ImageButton) view.findViewById(R.id.decrease_quantity);
-		decQuantityButton.setFocusable(false);
-		ImageButton incQuantityButton = (ImageButton) view.findViewById(R.id.increase_quantity);
-		incQuantityButton.setFocusable(false);
-
-		ViewHolder.ViewHolderClickListener listener =
-				new ViewHolder.ViewHolderClickListener() {
-					@Override
-					public void onClick(int position) {
-						Item item = items.get(position);
-						ItemRVAdapter.this
-								.parent.getParent()
-								.showEditDialog(item, position);
-					}
-
-					@Override
-					public void onLongClick(int position, View itemView) {
-						setContextMenuPosition(position);
-					}
-				};
-
-		ViewHolder holder =
-				new ViewHolder(view, name, expiresContainer, expiresNum,
-						expiresUnit, quantity, quantityUnit,
-						decQuantityButton, incQuantityButton, listener,
+		
+		ViewHolder holder = new ViewHolder(view,
 						ItemRVAdapter.this.parent.getParent());
+
+		holder.setViewHolderClickListener(new ViewHolder
+				.ViewHolderClickListener() {
+
+			@Override
+			public void onClick(int position) {
+				// TODO open edit dialog some other way
+//						Item item = items.get(position);
+//						ItemRVAdapter.this
+//								.parent.getParent()
+//								.showEditDialog(item, position);
+
+				if (expandedItemPosition != RecyclerView.NO_POSITION) {
+					notifyItemChanged(expandedItemPosition, PAYLOAD_COLLAPSE);
+				}
+
+				if (expandedItemPosition != position) {
+					expandedItemPosition = position;
+					notifyItemChanged(position, PAYLOAD_EXPAND);
+				} else {
+					expandedItemPosition = RecyclerView.NO_POSITION;
+				}
+				//TODO see dribbbleshot for a better expandcollapse transition
+				TransitionManager.beginDelayedTransition(recyclerView);
+			}
+
+			@Override
+			public void onLongClick(int position, View itemView) {
+				setContextMenuPosition(position);
+			}
+		});
+
+
 		return holder;
 	}
 
@@ -82,68 +95,94 @@ public class ItemRVAdapter
 	public void onBindViewHolder(final ViewHolder holder, int position) {
 		Item item = items.get(position);
 
-		holder.name.setText(item.getName());
+		holder.mName.setText(item.getName());
 
+		// If the item expires in 3 days or less (or is expired),
+		// show expiration warning message
 		String expiresDate = item.getExpiresDate();
 		if (!expiresDate.isEmpty()) {
+
 			int dateDifference = TimeManager.getDateDifferenceInDays(
 					TimeManager.getDateTimeLocal(),
 					expiresDate);
-			String convertedTime = TimeManager.convertDays(dateDifference);
-			String[] splitString = convertedTime.split(" ");
-			holder.expiresNum.setText(splitString[0]);
-			holder.expiresUnit.setText(splitString[1]);
-			if (dateDifference < 0) {
-				int color = holder.itemView
-						.getContext()
-						.getResources()
-						.getColor(
-								android.R.color.holo_red_dark, null);
-				setExpirationColor(holder, color);
+			if (dateDifference > 3) {
+				holder.mExpiresWarning.setVisibility(View.INVISIBLE);
+
 			} else {
-				if (defaultColor == -1) {
-					Context context = holder.itemView.getContext();
-					defaultColor = context.getResources()
-							.getColor(R.color.defaultTextColor,
-									context.getTheme());
-				}
-				setExpirationColor(holder, defaultColor);
+				String convertedTime = TimeManager.convertDays(dateDifference);
+				holder.mExpiresWarning.setText(convertedTime);
+				holder.mExpiresWarning.setVisibility(View.VISIBLE);
 			}
-			setExpirationVisibility(holder, View.VISIBLE);
+
 		} else {
-			setExpirationVisibility(holder, View.INVISIBLE);
+			holder.mExpiresWarning.setVisibility(View.INVISIBLE);
 		}
 
-		holder.quantity.setText(Integer.toString(item.getQuantity()));
+		String quantityString = Integer.toString((item.getQuantity()))
+				+ " " + item.getUnit().trim();
+		holder.mQuantity.setText(quantityString);
 
-		String unitString = item.getUnit().trim();
-		if (unitString.isEmpty()) {
-			holder.quantityUnit.setVisibility(View.GONE);
-		} else {
-			holder.quantityUnit.setText(item.getUnit());
-			holder.quantityUnit.setVisibility(View.VISIBLE);
+		// Set detail layout info
+		// TODO set expires/quantity visibility based on whether or not it exists for the item
+		if (!expiresDate.isEmpty()) {
+			holder.mExpiresDate.setText(expiresDate);
 		}
 
-		View.OnClickListener quantityListener = new View.OnClickListener() {
-			public void onClick(View view) {
-				int amount = 0;
-				switch (view.getId()) {
-					case R.id.decrease_quantity: amount = -1; break;
-					case R.id.increase_quantity: amount = 1; break;
-					default: break;
-				}
+		holder.mQuantity.setText(quantityString);
+		View.OnClickListener quantityListener = (view) -> {
+			int amount = 0;
+			switch (view.getId()) {
+				case R.id.decrease_quantity:
+					amount = -1;
+					break;
+				case R.id.increase_quantity:
+					amount = 1;
+					break;
+				default:
+					break;
+			}
 
-				Item item = items.get(holder.getAdapterPosition());
-				if (item != null) {
-					item.setQuantity(item.getQuantity() + amount);
-					dbManager.updateItemColumn(item, DBSchema.TABLE_ITEMS.COL_QUANTITY);
-					ItemRVAdapter.this.parent.refresh();
-				}
+			Item clickedItem = items.get(holder.getAdapterPosition());
+			if (clickedItem != null) {
+				clickedItem.setQuantity(clickedItem.getQuantity() + amount);
+				dbManager.updateItemColumn(clickedItem, DBSchema.TABLE_ITEMS.COL_QUANTITY);
+				ItemRVAdapter.this.parent.refresh(); // TODO change to notifyItemChanged
 			}
 		};
 
-		holder.decQuantityButton.setOnClickListener(quantityListener);
-		holder.incQuantityButton.setOnClickListener(quantityListener);
+		holder.mDecQuantityButton.setOnClickListener(quantityListener);
+		holder.mIncQuantityButton.setOnClickListener(quantityListener);
+
+		String createdString = "Created on: " + item.getCreatedDate();
+		holder.mCreatedDate.setText(createdString);
+
+		// TODO color tag, inventory label, type label
+
+		final boolean isExpanded = position == expandedItemPosition;
+		setItemExpansion(holder, isExpanded);
+	}
+
+	private void setItemExpansion(ViewHolder holder, boolean isExpanded) {
+		// TODO change item name size
+		holder.mQuantity.setVisibility(isExpanded ?
+				View.GONE : View.VISIBLE);
+
+		holder.mDetailLayout.setVisibility(isExpanded ?
+				View.VISIBLE : View.GONE);
+		holder.mItemView.setActivated(isExpanded);
+	}
+
+	@Override
+	public void onBindViewHolder(ViewHolder holder, int position,
+								 List<Object> payloads) {
+
+		if (payloads.contains(PAYLOAD_EXPAND)) {
+			setItemExpansion(holder, true);
+		} else if (payloads.contains(PAYLOAD_COLLAPSE)) {
+			setItemExpansion(holder, false);
+		} else {
+			onBindViewHolder(holder, position);
+		}
 	}
 
 	@Override
@@ -154,7 +193,7 @@ public class ItemRVAdapter
 	public void setItemsList(final ArrayList<Item> newItems) {
 		int oldSize = items.size();
 		items.clear();
-		if(oldSize > 0) {
+		if (oldSize > 0) {
 			notifyItemRangeRemoved(0, oldSize);
 		}
 		items.addAll(newItems);
@@ -204,7 +243,7 @@ public class ItemRVAdapter
 				inventory + ".";
 		parent.getParent()
 				.showSnackbar(item, parent.getView(), position,
-				msg, parent::undoDelete);
+						msg, parent::undoDelete);
 	}
 
 	@Override
@@ -216,7 +255,7 @@ public class ItemRVAdapter
 		String msg = "Moved " + item.getName() + " to the Grocery List.";
 		parent.getParent()
 				.showSnackbar(item, parent.getView(), position,
-				msg, parent::undoSwapList);
+						msg, parent::undoSwapList);
 	}
 
 	public Item getItem(int position) {
@@ -231,78 +270,133 @@ public class ItemRVAdapter
 		this.contextMenuPosition = contextMenuPosition;
 	}
 
-	private void setExpirationVisibility(ViewHolder holder, int visibility) {
-		holder.expiresContainer.setVisibility(visibility);
-		holder.expiresNum.setVisibility(visibility);
-		holder.expiresUnit.setVisibility(visibility);
-	}
-
-	private void setExpirationColor(ViewHolder holder, int color) {
-		holder.name.setTextColor(color);
-		holder.expiresNum.setTextColor(color);
-		holder.expiresUnit.setTextColor(color);
-	}
-
 	public static class ViewHolder extends RecyclerView.ViewHolder
 			implements View.OnClickListener,
 			View.OnLongClickListener,
 			View.OnCreateContextMenuListener {
-		public View itemView;
+		public View mItemView;
 
-		public TextView name;
-		public LinearLayout expiresContainer;
-		public TextView expiresNum;
-		public TextView expiresUnit;
-		public TextView quantity;
-		public TextView quantityUnit;
-		public ImageButton decQuantityButton;
-		public ImageButton incQuantityButton;
+		// default view items
+		public View mColorTag;
+		public TextView mName;
+		public TextView mExpiresWarning;
+		public TextView mQuantity;
 
-		public ViewHolderClickListener listener;
+		// detail view items
+		public LinearLayout mDetailLayout;
+		// expiration views
+		public LinearLayout mExpiresContainer;
+		public TextView mExpiresDate;
+		public Button mEditExpirationButton;
+		// quantity views
+		public LinearLayout mQuantityContainer;
+		public TextView mDetailQuantity;
+		public ImageButton mDecQuantityButton;
+		public ImageButton mIncQuantityButton;
+		// date created
+		public TextView mCreatedDate;
+		// bottom inventory/type info and edit button
+		public View mDetailColorTag;
+		public TextView mInventoryLabel;
+		public TextView mTypeLabel;
+		public Button mEditButton;
+
+		public ViewHolderClickListener viewHolderClickListener;
 		private MainActivity parent;
 
-		public ViewHolder(View itemView, TextView name,
-						  LinearLayout expiresContainer,
-						  TextView expiresNum, TextView expiresUnit,
-						  TextView quantity, TextView quantityUnit,
-						  ImageButton decQuantityButton,
-						  ImageButton incQuantityButton,
-						  ViewHolderClickListener listener,
+		public ViewHolder(View itemView,
 						  MainActivity parent) {
 			super(itemView);
-			this.itemView = itemView;
-			this.name = name;
-			this.expiresContainer = expiresContainer;
-			this.expiresNum = expiresNum;
-			this.expiresUnit = expiresUnit;
-			this.quantity = quantity;
-			this.quantityUnit = quantityUnit;
-			this.decQuantityButton = decQuantityButton;
-			this.incQuantityButton = incQuantityButton;
-			this.listener = listener;
+			mItemView = itemView;
 			this.parent = parent;
 
-			itemView.setOnClickListener(this);
-			itemView.setOnLongClickListener(this);
-			itemView.setOnCreateContextMenuListener(this);
+			getViews();
+			setListeners();
+		}
+
+		private void getViews() {
+			mColorTag = itemView.findViewById(R.id.item_color_tag);
+			mName = (TextView) itemView.findViewById(R.id.item_name);
+			mExpiresWarning = (TextView)
+					itemView.findViewById(R.id.expires_warning);
+			mQuantity = (TextView) itemView.findViewById(R.id.quantity);
+
+			mDetailLayout = (LinearLayout)
+					itemView.findViewById(R.id.detail_layout);
+
+			mExpiresContainer = (LinearLayout)
+					itemView.findViewById(R.id.detail_expiration_container);
+			mExpiresDate = (TextView)
+					itemView.findViewById(R.id.detail_expiration);
+			mEditExpirationButton = (Button)
+					itemView.findViewById(R.id.detail_edit_expiration);
+
+			mQuantityContainer = (LinearLayout)
+					itemView.findViewById(R.id.detail_quantity_container);
+			mDetailQuantity = (TextView)
+					itemView.findViewById(R.id.detail_quantity);
+			mDecQuantityButton = (ImageButton)
+					itemView.findViewById(R.id.decrease_quantity);
+			mIncQuantityButton = (ImageButton)
+					itemView.findViewById(R.id.increase_quantity);
+
+			mCreatedDate = (TextView)
+					itemView.findViewById(R.id.detail_created_date);
+
+			mDetailColorTag = itemView.findViewById(R.id.detail_color_tag);
+			mInventoryLabel = (TextView)
+					itemView.findViewById(R.id.detail_inventory_label);
+			mTypeLabel = (TextView)
+					itemView.findViewById(R.id.detail_type_label);
+			mEditButton = (Button)
+					itemView.findViewById(R.id.detail_edit_button);
+		}
+
+		private void setListeners() {
+			viewHolderClickListener = null;
+
+			mItemView.setOnClickListener(this);
+			mItemView.setOnLongClickListener(this);
+			mItemView.setOnCreateContextMenuListener(this);
+
+			mEditExpirationButton.setOnClickListener((view) -> {
+				// TODO pop expiration edit widget (same one from the add/edit dialog)
+			});
+
+			mEditButton.setOnClickListener((view) -> {
+				// TODO pop edit dialog
+			});
+		}
+
+		public ViewHolderClickListener getViewHolderClickListener() {
+			return viewHolderClickListener;
+		}
+
+		public void setViewHolderClickListener(ViewHolderClickListener viewHolderClickListener) {
+			this.viewHolderClickListener = viewHolderClickListener;
 		}
 
 		@Override
 		public void onClick(View v) {
-			listener.onClick(getAdapterPosition());
+			if (viewHolderClickListener != null) {
+				viewHolderClickListener.onClick(getAdapterPosition());
+			}
 		}
 
 		@Override
 		public boolean onLongClick(View v) {
-			Log.d(MainActivity.TAG, "ViewHolder onLongClick entered"); //TODO
-			listener.onLongClick(getAdapterPosition(),
-					itemView);
+			if (viewHolderClickListener != null) {
+				viewHolderClickListener.onLongClick(getAdapterPosition(),
+						itemView);
+			}
+
 			return false;
 		}
 
 		/**
 		 * Workaround to implement context menu in
 		 * RecyclerView.
+		 *
 		 * @param menu
 		 * @param v
 		 * @param menuInfo

@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">@color/colorDarkGreen</color>
     <color name="colorAccent">#ff495c</color>
     <color name="colorWhite">#ffffff</color>
+    <color name="colorLightGrey">#eeeeee</color>
     <color name="colorGrey">#888888</color>
     <color name="colorGreen">#4caf6b</color>
     <color name="colorDarkGreen">#347649</color>
