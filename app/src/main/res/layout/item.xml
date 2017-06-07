@@ -3,6 +3,7 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              android:minHeight="64dp"
               android:paddingStart="10dp"
               android:paddingEnd="10dp"
               android:clipToPadding="false"
@@ -23,18 +24,18 @@
 
         <TextView
             android:id="@+id/item_name"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="8"
             android:padding="@dimen/listitem_default_margin"
             android:textSize="20sp"
             android:layout_gravity="center_vertical"/>
 
         <TextView
             android:id="@+id/expires_warning"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             android:textStyle="bold"
             android:textColor="@android:color/holo_red_dark"
             android:visibility="gone"/>
@@ -43,7 +44,7 @@
             android:id="@+id/quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center_vertical"
             android:textSize="18sp"/>
 
     </LinearLayout>
@@ -58,6 +59,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginBottom="8dp"
             android:background="@color/colorLightGrey" />
 
         <LinearLayout
@@ -78,12 +80,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Expiration"
-                    android:textColor="@color/colorLightGrey"/>
+                    android:textColor="@color/colorGrey"/>
 
                 <TextView
                     android:id="@+id/detail_expiration"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
 
                 <Button
                     android:id="@+id/detail_edit_expiration"
@@ -106,12 +110,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Quantity"
-                    android:textColor="@color/colorLightGrey"/>
+                    android:textColor="@color/colorGrey"/>
 
                 <TextView
                     android:id="@+id/detail_quantity"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -146,11 +152,13 @@
         <TextView
             android:id="@+id/detail_created_date"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_marginTop="8dp"
             android:background="@color/colorLightGrey" />
 
         <LinearLayout
@@ -171,9 +179,10 @@
 
             <TextView
                 android:id="@+id/detail_type_label"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"/>
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"/>
 
             <Button
                 android:id="@+id/detail_edit_button"

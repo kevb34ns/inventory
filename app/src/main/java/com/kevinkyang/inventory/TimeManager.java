@@ -111,20 +111,20 @@ public class TimeManager {
 	private static String convertTime(int num, int unit) {
 		// TODO issue here where anything > 360 days and < 365 will say 12 months when it should say 11. Probaby other cases where this happens as well
 		if (unit == 0 && num < 7) {
-			String result = "" + num + " day";
-			return (num != 1) ? result + "s" : result;
+			String result = "" + num + " DAY";
+			return (num != 1) ? result + "S" : result;
 		} else if (unit == 1 && num < 30) {
 			num /= 7;
-			String result = "" + num + " wk";
-			return (num != 1) ? result + "s" : result;
+			String result = "" + num + " WEEK";
+			return (num != 1) ? result + "S" : result;
 		} else if (unit == 2 && num < 365) {
 			num /= 30;
-			String result = "" + num + " mo";
-			return (num != 1) ? result + "s" : result;
+			String result = "" + num + " MONTH";
+			return (num != 1) ? result + "S" : result;
 		} else if (unit == 3) {
 			num /= 365;
-			String result = "" + num + " yr";
-			return (num != 1) ? result + "s" : result;
+			String result = "" + num + " YEAR";
+			return (num != 1) ? result + "S" : result;
 		} else {
 			return convertTime(num, ++unit);
 		}

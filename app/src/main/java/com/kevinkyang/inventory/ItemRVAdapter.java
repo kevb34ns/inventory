@@ -61,11 +61,6 @@ public class ItemRVAdapter
 
 			@Override
 			public void onClick(int position) {
-				// TODO open edit dialog some other way
-//						Item item = items.get(position);
-//						ItemRVAdapter.this
-//								.parent.getParent()
-//								.showEditDialog(item, position);
 
 				if (expandedItemPosition != RecyclerView.NO_POSITION) {
 					notifyItemChanged(expandedItemPosition, PAYLOAD_COLLAPSE);
@@ -110,7 +105,15 @@ public class ItemRVAdapter
 
 			} else {
 				String convertedTime = TimeManager.convertDays(dateDifference);
-				holder.mExpiresWarning.setText(convertedTime);
+				String warningString;
+				if (dateDifference < 0) {
+					warningString = "EXPIRED " + convertedTime + " AGO";
+				} else if (dateDifference > 0) {
+					warningString = "EXPIRES IN " + convertedTime;
+				} else {
+					warningString = "EXPIRES TODAY";
+				}
+				holder.mExpiresWarning.setText(warningString);
 				holder.mExpiresWarning.setVisibility(View.VISIBLE);
 			}
 
@@ -128,7 +131,7 @@ public class ItemRVAdapter
 			holder.mExpiresDate.setText(expiresDate);
 		}
 
-		holder.mQuantity.setText(quantityString);
+		holder.mDetailQuantity.setText(quantityString);
 		View.OnClickListener quantityListener = (view) -> {
 			int amount = 0;
 			switch (view.getId()) {
@@ -157,6 +160,12 @@ public class ItemRVAdapter
 		holder.mCreatedDate.setText(createdString);
 
 		// TODO color tag, inventory label, type label
+
+		holder.mEditButton.setOnClickListener((view) -> {
+			ItemRVAdapter.this
+					.parent.getParent()
+					.showEditDialog(item, position);
+		});
 
 		final boolean isExpanded = position == expandedItemPosition;
 		setItemExpansion(holder, isExpanded);
@@ -361,10 +370,6 @@ public class ItemRVAdapter
 
 			mEditExpirationButton.setOnClickListener((view) -> {
 				// TODO pop expiration edit widget (same one from the add/edit dialog)
-			});
-
-			mEditButton.setOnClickListener((view) -> {
-				// TODO pop edit dialog
 			});
 		}
 

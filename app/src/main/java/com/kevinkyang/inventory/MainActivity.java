@@ -680,22 +680,16 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				}
 			});
 
-			cancelButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					AddItemDialog.this.dismiss();
-				}
+			cancelButton.setOnClickListener((view) -> {
+				AddItemDialog.this.dismiss();
 			});
 
-			expirationButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					if (dateSet) {
-						String date = expirationButton.getText().toString();
-						setUpPopupWindow(date);
-					} else {
-						setUpPopupWindow(null);
-					}
+			expirationButton.setOnClickListener((view) -> {
+				if (dateSet) {
+					String date = expirationButton.getText().toString();
+					setUpPopupWindow(date);
+				} else {
+					setUpPopupWindow(null);
 				}
 			});
 		}
@@ -731,22 +725,21 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 								R.layout.simple_dropdown_item_1line,
 								items);
 				nameEditText.setAdapter(nameAdapter);
-				nameEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-						SuggestionItem item = items.get(position);
-						if (!item.getDefaultUnit().equals("none")) {
-							unitEditText.setText(item.getDefaultUnit());
-						}
-						if (!item.getType().equals("none")) {
-							typeEditText.setText(item.getType());
-						}
-						if (!item.getDefaultExpiration().equals("none")) {
-							expirationButton.setText(
-									TimeManager.getDateFromSuggestion(
-											item.getDefaultExpiration()));
-							dateSet = true;
-						}
+				nameEditText.setOnItemClickListener(
+						(parent, view, position, id) -> {
+
+					SuggestionItem item = items.get(position);
+					if (!item.getDefaultUnit().equals("none")) {
+						unitEditText.setText(item.getDefaultUnit());
+					}
+					if (!item.getType().equals("none")) {
+						typeEditText.setText(item.getType());
+					}
+					if (!item.getDefaultExpiration().equals("none")) {
+						expirationButton.setText(
+								TimeManager.getDateFromSuggestion(
+										item.getDefaultExpiration()));
+						dateSet = true;
 					}
 				});
 
@@ -785,6 +778,15 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		 */
 		@SuppressWarnings("ResourceType")
 		private void setUpPopupWindow(String dateToSet) {
+			//TODO experimental code
+			ExpirationPickerPopup popup = new ExpirationPickerPopup
+					(this, dateToSet);
+			popup.showAtLocation(typeEditText,
+					Gravity.START,
+					(int) expirationButton.getX(),
+					(int) expirationButton.getY());
+
+			//TODO get rid
 			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			View view = inflater.inflate(R.layout.expiration_picker_dialog, null, false);
 
@@ -824,7 +826,6 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			int[] dim = getPopupResolution();
 			final PopupWindow popupWindow =
 					new PopupWindow(view, dim[0], dim[1], true);
-//			final PopupWindow popupWindow = new PopupWindow(view, 600, 650, true);
 			popupWindow.setAnimationStyle(R.style.PopupAnimation);
 			popupWindow.setElevation(16.0f);
 
