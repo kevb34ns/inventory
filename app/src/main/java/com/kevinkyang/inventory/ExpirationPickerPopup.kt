@@ -13,13 +13,15 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Calendar.YEAR
 
-class ExpirationPickerPopup(val parent: MainActivity.AddItemDialog,
+class ExpirationPickerPopup(val context: Context,
                             val dateToSet: String?)
-    : PopupWindow(parent.context) {
+    : PopupWindow(context) {
 
-    private val context = parent.context
     private val presetArray = context.resources
             .getStringArray(R.array.array_expires_dates)
+
+    var clearButtonClickListener: ClearButtonClickListener? = null
+    var saveButtonClickListener: SaveButtonClickListener? = null
 
     init {
         val inflater = context.getSystemService(
@@ -40,7 +42,8 @@ class ExpirationPickerPopup(val parent: MainActivity.AddItemDialog,
 
         isFocusable = true
         animationStyle = R.style.PopupAnimation
-        elevation = 16.0f
+        elevation = 8.0f
+        setBackgroundDrawable(null)
 
         contentView.preset_exp_1.text = presetArray[0]
         contentView.preset_exp_2.text = presetArray[1]
@@ -67,17 +70,31 @@ class ExpirationPickerPopup(val parent: MainActivity.AddItemDialog,
     }
 
     private fun setListeners() {
+        //TODO need to make custom listeners to be able to generalize
         val cancelButton = contentView.clear_button
         cancelButton.setOnClickListener {
-            // TODO
+            clearButtonClickListener?.onClick()
+
+            dismiss()
         }
 
-        val expirationButton = contentView.button_expiration
-        expirationButton.setOnClickListener {
-            //TODO
+        val doneButton = contentView.done_button
+        doneButton.setOnClickListener {
+            val year = contentView.date_picker.year
+            val month = contentView.date_picker.month
+            val day = contentView.date_picker.dayOfMonth
+            saveButtonClickListener?.onClick(year, month, day)
+
+            dismiss()
         }
     }
 
+    /**
+     * Scales the popup dimensions based on the device's
+     * screen resolution.
+     * @return an integer array of size 2, with the
+     * width in pixels at indice 0 and height at indice 1
+     */
     private fun getPopupResolution() : IntArray {
         val width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 220f, context.resources.displayMetrics).toInt()
@@ -85,5 +102,13 @@ class ExpirationPickerPopup(val parent: MainActivity.AddItemDialog,
                 250f, context.resources.displayMetrics).toInt()
 
         return intArrayOf(width, height)
+    }
+
+    interface ClearButtonClickListener {
+        fun onClick()
+    }
+
+    interface SaveButtonClickListener {
+        fun onClick(year: Int, month: Int, day: Int)
     }
 }

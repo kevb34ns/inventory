@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionManager;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -13,7 +14,9 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -22,6 +25,8 @@ public class ItemRVAdapter
 		implements ListItemTouchHelperCallback.ListItemTouchHelperListener {
 	private static final int PAYLOAD_EXPAND = 0x1;
 	private static final int PAYLOAD_COLLAPSE = 0x2;
+	private static final int PAYLOAD_EXP_EDIT = 0x3;
+	private static final int PAYLOAD_QUA_EDIT = 0x4;
 
 	private ArrayList<Item> items;
 	private InventoryFragment parent;
@@ -92,46 +97,51 @@ public class ItemRVAdapter
 
 		holder.mName.setText(item.getName());
 
-		// If the item expires in 3 days or less (or is expired),
-		// show expiration warning message
-		String expiresDate = item.getExpiresDate();
-		if (!expiresDate.isEmpty()) {
+		updateExpirationViews(holder, item);
 
-			int dateDifference = TimeManager.getDateDifferenceInDays(
-					TimeManager.getDateTimeLocal(),
-					expiresDate);
-			if (dateDifference > 3) {
-				holder.mExpiresWarning.setVisibility(View.INVISIBLE);
+		updateQuantityViews(holder, item);
 
-			} else {
-				String convertedTime = TimeManager.convertDays(dateDifference);
-				String warningString;
-				if (dateDifference < 0) {
-					warningString = "EXPIRED " + convertedTime + " AGO";
-				} else if (dateDifference > 0) {
-					warningString = "EXPIRES IN " + convertedTime;
-				} else {
-					warningString = "EXPIRES TODAY";
+		holder.mEditExpirationButton.setOnClickListener(view -> {
+
+			String expiresDate = item.getExpiresDate();
+			String dateToSet = (expiresDate.isEmpty()) ? null : expiresDate;
+			ExpirationPickerPopup popup = new ExpirationPickerPopup(parent.getContext(), dateToSet);
+
+			popup.setClearButtonClickListener(() -> {
+				holder.mExpiresDate.setText("");
+				item.setExpiresDate("");
+				DBManager dbManager = DBManager.getInstance();
+				dbManager.updateItemColumn(item, DBSchema.TABLE_ITEMS.COL_EXPIRES);
+
+				ItemRVAdapter.this.notifyItemChanged(position,
+						PAYLOAD_EXP_EDIT);
+			});
+
+			popup.setSaveButtonClickListener((year, month, day) -> {
+				final SimpleDateFormat sdFormat =
+						new SimpleDateFormat(
+								TimeManager.DEFAULT_DATE_FORMAT);
+
+				Calendar cal = Calendar.getInstance();
+				cal.set(year, month, day);
+				String date = sdFormat.format(cal.getTime());
+				if (!date.equals(item.getExpiresDate())) {
+					item.setExpiresDate(date);
+					holder.mExpiresDate.setText(date);
+					DBManager dbManager = DBManager.getInstance();
+					dbManager.updateItemColumn(item, DBSchema.TABLE_ITEMS.COL_EXPIRES);
 				}
-				holder.mExpiresWarning.setText(warningString);
-				holder.mExpiresWarning.setVisibility(View.VISIBLE);
-			}
 
-		} else {
-			holder.mExpiresWarning.setVisibility(View.INVISIBLE);
-		}
+				ItemRVAdapter.this.notifyItemChanged(position,
+						PAYLOAD_EXP_EDIT);
+			});
 
-		String quantityString = Integer.toString((item.getQuantity()))
-				+ " " + item.getUnit().trim();
-		holder.mQuantity.setText(quantityString);
+			popup.showAtLocation(holder.mEditExpirationButton,
+					Gravity.START,
+					(int) holder.mEditExpirationButton.getX(),
+					(int) holder.mEditExpirationButton.getY());
+		});
 
-		// Set detail layout info
-		// TODO set expires/quantity visibility based on whether or not it exists for the item
-		if (!expiresDate.isEmpty()) {
-			holder.mExpiresDate.setText(expiresDate);
-		}
-
-		holder.mDetailQuantity.setText(quantityString);
 		View.OnClickListener quantityListener = (view) -> {
 			int amount = 0;
 			switch (view.getId()) {
@@ -149,7 +159,9 @@ public class ItemRVAdapter
 			if (clickedItem != null) {
 				clickedItem.setQuantity(clickedItem.getQuantity() + amount);
 				dbManager.updateItemColumn(clickedItem, DBSchema.TABLE_ITEMS.COL_QUANTITY);
-				ItemRVAdapter.this.parent.refresh(); // TODO change to notifyItemChanged
+
+				ItemRVAdapter.this.notifyItemChanged(position,
+						PAYLOAD_QUA_EDIT);
 			}
 		};
 
@@ -181,6 +193,46 @@ public class ItemRVAdapter
 		holder.mItemView.setActivated(isExpanded);
 	}
 
+	private void updateExpirationViews(ViewHolder holder, Item item) {
+		String expiresDate = item.getExpiresDate();
+		if (!expiresDate.isEmpty()) {
+
+			int dateDifference = TimeManager.getDateDifferenceInDays(
+					TimeManager.getDateTimeLocal(),
+					expiresDate);
+			if (dateDifference > 3) {
+				holder.mExpiresWarning.setVisibility(View.INVISIBLE);
+
+			} else {
+				String convertedTime = TimeManager.convertDays(dateDifference);
+				String warningString;
+				if (dateDifference < 0) {
+					warningString = "EXPIRED " + convertedTime + " AGO";
+				} else if (dateDifference > 0) {
+					warningString = "EXPIRES IN " + convertedTime;
+				} else {
+					warningString = "EXPIRES TODAY";
+				}
+				holder.mExpiresWarning.setText(warningString);
+				holder.mExpiresWarning.setVisibility(View.VISIBLE);
+			}
+
+			holder.mExpiresDate.setText(expiresDate);
+
+		} else {
+			holder.mExpiresWarning.setVisibility(View.INVISIBLE);
+
+			holder.mExpiresDate.setText("");
+		}
+	}
+
+	private void updateQuantityViews(ViewHolder holder, Item item) {
+		String quantityString = Integer.toString((item.getQuantity()))
+				+ " " + item.getUnit().trim();
+		holder.mQuantity.setText(quantityString);
+		holder.mDetailQuantity.setText(quantityString);
+	}
+
 	@Override
 	public void onBindViewHolder(ViewHolder holder, int position,
 								 List<Object> payloads) {
@@ -189,6 +241,10 @@ public class ItemRVAdapter
 			setItemExpansion(holder, true);
 		} else if (payloads.contains(PAYLOAD_COLLAPSE)) {
 			setItemExpansion(holder, false);
+		} else if (payloads.contains(PAYLOAD_EXP_EDIT)) {
+			updateExpirationViews(holder, items.get(position));
+		} else if (payloads.contains(PAYLOAD_QUA_EDIT)) {
+			updateQuantityViews(holder, items.get(position));
 		} else {
 			onBindViewHolder(holder, position);
 		}
@@ -286,7 +342,6 @@ public class ItemRVAdapter
 		public View mItemView;
 
 		// default view items
-		public View mColorTag;
 		public TextView mName;
 		public TextView mExpiresWarning;
 		public TextView mQuantity;
@@ -324,7 +379,6 @@ public class ItemRVAdapter
 		}
 
 		private void getViews() {
-			mColorTag = itemView.findViewById(R.id.item_color_tag);
 			mName = (TextView) itemView.findViewById(R.id.item_name);
 			mExpiresWarning = (TextView)
 					itemView.findViewById(R.id.expires_warning);
@@ -367,10 +421,6 @@ public class ItemRVAdapter
 			mItemView.setOnClickListener(this);
 			mItemView.setOnLongClickListener(this);
 			mItemView.setOnCreateContextMenuListener(this);
-
-			mEditExpirationButton.setOnClickListener((view) -> {
-				// TODO pop expiration edit widget (same one from the add/edit dialog)
-			});
 		}
 
 		public ViewHolderClickListener getViewHolderClickListener() {

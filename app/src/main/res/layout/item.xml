@@ -16,12 +16,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <View
-            android:id="@+id/item_color_tag"
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:visibility="gone"/>
-
         <TextView
             android:id="@+id/item_name"
             android:layout_width="wrap_content"
@@ -93,9 +87,11 @@
                     android:id="@+id/detail_edit_expiration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:background="?attr/selectableItemBackground"
                     android:drawableStart="@drawable/ic_date_range"
-                    android:text="Change..."/>
+                    android:text="  Change..."/>
             </LinearLayout>
 
             <LinearLayout
@@ -126,21 +122,25 @@
 
                     <ImageButton
                         android:id="@+id/decrease_quantity"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_gravity="center_vertical"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
+                        android:scaleX="1.25"
+                        android:scaleY="1.25"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_remove_circle"/>
 
                     <ImageButton
                         android:id="@+id/increase_quantity"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
                         android:layout_gravity="center_vertical"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
+                        android:scaleX="1.25"
+                        android:scaleY="1.25"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_add_circle"/>
 
@@ -168,7 +168,7 @@
 
             <View
                 android:id="@+id/detail_color_tag"
-                android:layout_width="1dp"
+                android:layout_width="4dp"
                 android:layout_height="match_parent" />
 
             <TextView

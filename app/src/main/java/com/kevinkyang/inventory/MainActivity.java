@@ -409,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 								 String type, String expiresDate,
 								 String inventory,
 								 boolean inGroceryList) {
-		/* Selected GroupItemBaseBase.kt Positions TODO find better solution for visibility
+		/* Selected item Positions TODO find better solution for visibility
 		   None = 0
 		   1 day = 1
 		   3 days = 2
@@ -600,11 +600,11 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 			AddItemDialogListener parent = (AddItemDialogListener) getActivity();
 			if (inEditMode) {
-				getDialog().setTitle("Edit GroupItemBaseBase.kt");
+				getDialog().setTitle("Edit Item");
 			} else if (parent.isInGroceryMode()) {
-				getDialog().setTitle("New Grocery GroupItemBase.kte.kt");
+				getDialog().setTitle("New Grocery Item");
 			} else {
-				getDialog().setTitle("New GroupItemBaseBase.kt");
+				getDialog().setTitle("New Item");
 			}
 
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);
@@ -778,111 +778,35 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		 */
 		@SuppressWarnings("ResourceType")
 		private void setUpPopupWindow(String dateToSet) {
-			//TODO experimental code
 			ExpirationPickerPopup popup = new ExpirationPickerPopup
-					(this, dateToSet);
+					(this.getContext(), dateToSet);
+			popup.setClearButtonClickListener(this::clearExpirationDate);
+			popup.setSaveButtonClickListener(this::setExpirationDate);
+
 			popup.showAtLocation(typeEditText,
-					Gravity.START,
-					(int) expirationButton.getX(),
-					(int) expirationButton.getY());
-
-			//TODO get rid
-			LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View view = inflater.inflate(R.layout.expiration_picker_dialog, null, false);
-
-			String[] presetArray = getResources().getStringArray(R.array.array_expires_dates);
-			TextView text1 = (TextView) view.findViewById(R.id.preset_exp_1);
-			text1.setText(presetArray[0]);
-			TextView text2 = (TextView) view.findViewById(R.id.preset_exp_2);
-			text2.setText(presetArray[1]);
-			TextView text3 = (TextView) view.findViewById(R.id.preset_exp_3);
-			text3.setText(presetArray[2]);
-			TextView text4 = (TextView) view.findViewById(R.id.preset_exp_4);
-			text4.setText(presetArray[3]);
-			TextView text5 = (TextView) view.findViewById(R.id.preset_exp_5);
-			text5.setText(presetArray[4]);
-			TextView text6 = (TextView) view.findViewById(R.id.preset_exp_6);
-			text6.setText(presetArray[5]);
-
-			final SimpleDateFormat sdFormat =
-					new SimpleDateFormat(
-							TimeManager.DEFAULT_DATE_FORMAT);
-
-			final DatePicker datePicker = (DatePicker) view.findViewById(R.id.date_picker);
-			datePicker.setMinDate(System.currentTimeMillis());
-			if (dateToSet != null) {
-				Calendar cal = Calendar.getInstance();
-				try {
-					cal.setTime(sdFormat.parse(dateToSet));
-					datePicker.updateDate(
-							cal.get(Calendar.YEAR),
-							cal.get(Calendar.MONTH),
-							cal.get(Calendar.DAY_OF_MONTH));
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
-			}
-
-			int[] dim = getPopupResolution();
-			final PopupWindow popupWindow =
-					new PopupWindow(view, dim[0], dim[1], true);
-			popupWindow.setAnimationStyle(R.style.PopupAnimation);
-			popupWindow.setElevation(16.0f);
-
-			ImageButton cancelButton = (ImageButton) view.findViewById(R.id.clear_button);
-			cancelButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					String text = getResources().getString(
-							R.string.expires_button_default_string);
-					expirationButton.setText(text);
-					dateSet = false;
-					popupWindow.dismiss();
-				}
-			});
-
-			ImageButton doneButton = (ImageButton) view.findViewById(R.id.done_button);
-			doneButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					int month = datePicker.getMonth();
-					int day = datePicker.getDayOfMonth();
-					int year = datePicker.getYear();
-
-					Calendar cal = Calendar.getInstance();
-					cal.set(year, month, day);
-					String date = sdFormat.format(cal.getTime());
-					expirationButton.setText(date);
-
-					dateSet = true;
-
-					popupWindow.dismiss();
-				}
-			});
-
-			popupWindow.showAtLocation(typeEditText,
 					Gravity.START,
 					(int) expirationButton.getX(),
 					(int) expirationButton.getY());
 		}
 
-		/**
-		 * Scales the popup dimensions based on the device's
-		 * screen resolution.
-		 * @return an integer array of size 2, with the
-		 * width in pixels at indice 0 and height at indice 1
-		 */
-		private int[] getPopupResolution() {
-			// TODO http://stackoverflow.com/questions/19610044/popupwindows-size-in-px-or-dip, go to this link to see dp conversion
-			int width = (int) TypedValue.applyDimension(
-					TypedValue.COMPLEX_UNIT_DIP, 220,
-					getResources().getDisplayMetrics());
-			int height = (int) TypedValue.applyDimension(
-					TypedValue.COMPLEX_UNIT_DIP, 250,
-					getResources().getDisplayMetrics());
+		void clearExpirationDate() {
+			String text = getResources().getString(
+					R.string.expires_button_default_string);
+			expirationButton.setText(text);
+			dateSet = false;
+		}
 
-			int[] arr = {width, height};
-			return arr;
+		void setExpirationDate(int year, int month, int day) {
+			final SimpleDateFormat sdFormat =
+					new SimpleDateFormat(
+							TimeManager.DEFAULT_DATE_FORMAT);
+
+			Calendar cal = Calendar.getInstance();
+			cal.set(year, month, day);
+			String date = sdFormat.format(cal.getTime());
+			expirationButton.setText(date);
+
+			dateSet = true;
 		}
 	}
 
