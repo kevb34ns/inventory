@@ -1,6 +1,7 @@
 package com.kevinkyang.inventory;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionManager;
 import android.view.ContextMenu;
@@ -31,13 +32,13 @@ public class ItemRVAdapter
 	private ArrayList<Item> items;
 	private InventoryFragment parent;
 	private DBManager dbManager;
-	private int defaultColor;
 
-	//TODO experimental
 	private RecyclerView recyclerView;
 	private int expandedItemPosition;
 
 	private int contextMenuPosition;
+
+	private TypedArray colorArray;
 
 	public ItemRVAdapter(ArrayList<Item> items,
 						 RecyclerView recyclerView,
@@ -45,10 +46,12 @@ public class ItemRVAdapter
 		this.items = items;
 		this.parent = parent;
 		dbManager = DBManager.getInstance();
-		defaultColor = -1;
 
 		expandedItemPosition = RecyclerView.NO_POSITION;
 		this.recyclerView = recyclerView;
+
+		colorArray = parent.getResources()
+				.obtainTypedArray(R.array.array_inventory_colors);
 
 		setHasStableIds(true);
 	}
@@ -171,7 +174,32 @@ public class ItemRVAdapter
 		String createdString = "Created on: " + item.getCreatedDate();
 		holder.mCreatedDate.setText(createdString);
 
-		// TODO color tag, inventory label, type label
+		String invString = item.getInventory();
+		if (!invString.isEmpty()) {
+			ArrayList<String> inventories =
+					DBManager.getInstance().getInventories();
+
+			holder.mDetailColorTag.setBackgroundColor(
+					colorArray.getColor(inventories.indexOf(invString),
+							parent.getResources().getColor(
+									R.color.colorGrey, null)));
+			holder.mInventoryLabel.setText(invString);
+		} else {
+			holder.mDetailColorTag.setBackgroundColor(
+					parent.getResources().getColor(
+							R.color.colorGrey, null));
+			holder.mInventoryLabel.setText("None");
+		}
+
+		String typeString = item.getType();
+		if (!typeString.isEmpty()) {
+
+			holder.mTypeLabel.setText(typeString);
+
+			holder.mTypeLabel.setVisibility(View.VISIBLE);
+		} else {
+			holder.mTypeLabel.setVisibility(View.GONE);
+		}
 
 		holder.mEditButton.setOnClickListener((view) -> {
 			ItemRVAdapter.this
@@ -222,13 +250,15 @@ public class ItemRVAdapter
 		} else {
 			holder.mExpiresWarning.setVisibility(View.INVISIBLE);
 
-			holder.mExpiresDate.setText("");
+			holder.mExpiresDate.setText("Not Set");
 		}
 	}
 
 	private void updateQuantityViews(ViewHolder holder, Item item) {
-		String quantityString = Integer.toString((item.getQuantity()))
-				+ " " + item.getUnit().trim();
+		String quantityString = Integer.toString((item.getQuantity()));
+		if (item.getQuantity() > 0) {
+			quantityString += " " + item.getUnit().trim();
+		}
 		holder.mQuantity.setText(quantityString);
 		holder.mDetailQuantity.setText(quantityString);
 	}

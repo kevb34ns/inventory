@@ -104,6 +104,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		setSupportActionBar(toolbar);
 		changeActionBarTitle("Inventory");
 
+		toolbar.setNavigationOnClickListener((v) -> {
+			if (drawerLayout != null &&
+					!drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+
+				drawerLayout.openDrawer(Gravity.LEFT);
+			}
+		});
+
 		FragmentManager fragmentManager = getSupportFragmentManager();
 
 		inventoryFragment = (InventoryFragment) fragmentManager

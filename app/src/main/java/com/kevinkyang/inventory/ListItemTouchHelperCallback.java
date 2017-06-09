@@ -56,7 +56,8 @@ public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 			View itemView = viewHolder.itemView;
 			float height = (float) itemView.getBottom() -
 					(float) itemView.getTop();
-			float width = height / 3;
+			float width = 72.0f;
+			float heightOffset = (height / 2) - (width / 2);
 
 			if (dX > 0) {
 				Paint paint = new Paint();
@@ -72,9 +73,9 @@ public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
 				RectF icon_loc =
 						new RectF((float) itemView.getLeft() + width,
-								(float) itemView.getTop() + width,
+								(float) itemView.getTop() + heightOffset,
 								(float) itemView.getLeft() + 2 * width,
-								(float) itemView.getBottom() - width);
+								(float) itemView.getBottom() - heightOffset);
 				c.drawBitmap(icon, null, icon_loc, paint);
 			} else if (dX < 0){
 				Paint paint = new Paint();
@@ -97,9 +98,9 @@ public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 				// TODO can make this rectf slightly bigger if groceryMode to make add icon look same size as the other icons
 				RectF icon_loc =
 						new RectF((float) itemView.getRight() - 2 *	 width,
-								(float) itemView.getTop() + width,
+								(float) itemView.getTop() + heightOffset,
 								(float) itemView.getRight() - width,
-								(float) itemView.getBottom() - width);
+								(float) itemView.getBottom() - heightOffset);
 				c.drawBitmap(icon, null, icon_loc, paint);
 			}
 		}
