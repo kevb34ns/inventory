@@ -3,7 +3,9 @@ package com.kevinkyang.inventory;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v7.widget.RecyclerView;
+import android.transition.Transition;
 import android.transition.TransitionManager;
+import android.transition.TransitionValues;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -212,7 +214,6 @@ public class ItemRVAdapter
 	}
 
 	private void setItemExpansion(ViewHolder holder, boolean isExpanded) {
-		// TODO change item name size
 		holder.mQuantity.setVisibility(isExpanded ?
 				View.GONE : View.VISIBLE);
 

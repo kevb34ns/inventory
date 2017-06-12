@@ -35,6 +35,48 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
+            <LinearLayout
+                android:id="@+id/add_item_widget"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:padding="8dp"
+                app:layout_anchor="@id/fragment_container"
+                app:layout_anchorGravity="bottom"
+                android:background="@color/colorWhite"
+                android:elevation="16dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/widget_edittext"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="8dp"
+                    android:hint="Add an item"
+                    android:inputType="text"
+                    android:imeOptions="actionDone"
+                    android:background="@android:color/transparent"/>
+
+                <ImageButton
+                    android:id="@+id/widget_more_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="16dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_more_horiz"/>
+
+                <ImageButton
+                    android:id="@+id/widget_add_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_add_box"/>
+            </LinearLayout>
+
+
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/add_item_button"
                 android:layout_width="wrap_content"

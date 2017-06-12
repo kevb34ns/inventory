@@ -140,6 +140,12 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		itemRVAdapter.changeItem(position);
 	}
 
+	public void itemExpanded(int position) {
+		if (position == itemRVAdapter.getItemCount() - 1) {
+			layoutManager.scrollToPosition(itemRVAdapter.getItemCount() - 1);
+		}
+	}
+
 	public void setInventory(String inventory) {
 		this.inventory = inventory;
 	}

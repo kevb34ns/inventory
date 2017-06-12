@@ -13,5 +13,7 @@ interface AddItemDialogListener {
 						   String type, String expiresDate, String inventory,
 						   boolean inGroceryList, Item item, int position);
 
+	void onDialogDismissed();
+
 	boolean isInGroceryMode();
 }

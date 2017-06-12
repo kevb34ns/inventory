@@ -36,6 +36,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -388,7 +390,28 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 							inventoryFragment.getCurrentInventory());
 					dialog.setArguments(args);
 				}
-				dialog.show(getSupportFragmentManager(), "dialog");
+
+				Animation shrinkAnim = AnimationUtils.loadAnimation(MainActivity.this,
+						R.anim.button_shrink);
+				addItemButton.startAnimation(shrinkAnim);
+				shrinkAnim.setAnimationListener(new Animation.AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation animation) {
+
+					}
+
+					@Override
+					public void onAnimationEnd(Animation animation) {
+						dialog.show(getSupportFragmentManager(), "dialog");
+						addItemButton.setVisibility(View.GONE);
+						// TODO make FAB invisible, then in dialog onDismiss() make it visible and grow, then change it to click the add widget instead of showing a dialog
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation animation) {
+
+					}
+				});
 			}
 		});
 
@@ -459,6 +482,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 		dbManager.updateItem(item);
 		saveToCurrentList(position);
+	}
+
+	@Override
+	public void onDialogDismissed() {
+		addItemButton.setVisibility(View.VISIBLE);
+		Animation growAnim = AnimationUtils.loadAnimation(MainActivity.this,
+				R.anim.button_grow);
+		addItemButton.startAnimation(growAnim);
 	}
 
 	@Override
@@ -645,6 +676,13 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		public void onStart() {
 			getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 			super.onStart();
+		}
+
+		@Override
+		public void onDismiss(DialogInterface dialog) {
+			AddItemDialogListener listener = (AddItemDialogListener) getActivity();
+			listener.onDialogDismissed();
+			super.onDismiss(dialog);
 		}
 
 		private void addListeners() {
