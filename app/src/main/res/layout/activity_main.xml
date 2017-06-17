@@ -38,13 +38,14 @@
             <LinearLayout
                 android:id="@+id/add_item_widget"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="56dp"
                 android:padding="8dp"
                 app:layout_anchor="@id/fragment_container"
                 app:layout_anchorGravity="bottom"
                 android:background="@color/colorWhite"
                 android:elevation="16dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <EditText
                     android:id="@+id/widget_edittext"

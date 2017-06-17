@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -29,15 +30,18 @@ import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -70,10 +74,15 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	private DrawerLayout drawerLayout;
 	private RecyclerView drawerRV;
-	// TODO chopping block
 	private DrawerRVAdapter drawerRVAdapter;
 	private ExpandableDrawerAdapter drawerAdapter;
 	private LinearLayoutManager drawerLayoutManager;
+
+	// add item widget views
+	private LinearLayout addItemWidget;
+	private EditText addItemEditText;
+	private ImageButton editNewItemButton;
+	private ImageButton addNewItemButton;
 
 	private Toolbar toolbar;
 
@@ -157,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		colorArray = null;
 
 		initializeDrawer();
+		addItemWidgetSetup();
 		addListeners();
 		checkNotificationScheduled();
 	}
@@ -204,6 +214,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (addItemWidget != null && addItemWidget.getVisibility() == View.VISIBLE) {
+			//TODO find way to make additemwidget invisible on keyboard hide
+			addItemEditText.clearFocus();
 		}
 	}
 
@@ -379,7 +397,91 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		drawerLayout.closeDrawers();
 	}
 
+	private void toggleAddButton(boolean isVisible) {
+		//TODO rename addItemButton to toggleAddWidgetButton
+
+		boolean currentlyVisible = addItemButton.getVisibility() ==
+				View.VISIBLE;
+		if (currentlyVisible == isVisible) {
+			return;
+		}
+
+		if (isVisible) {
+
+			addItemButton.setVisibility(View.VISIBLE);
+			Animation growAnim = AnimationUtils.loadAnimation(MainActivity.this,
+					R.anim.button_grow);
+			addItemButton.startAnimation(growAnim);
+		} else {
+
+			Animation shrinkAnim = AnimationUtils.loadAnimation(MainActivity.this,
+					R.anim.button_shrink);
+			shrinkAnim.setAnimationListener(new Animation.AnimationListener() {
+				@Override
+				public void onAnimationStart(Animation animation) {
+
+				}
+
+				@Override
+				public void onAnimationEnd(Animation animation) {
+					addItemButton.setVisibility(View.GONE);
+					toggleAddItemWidget(true);
+				}
+
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+
+				}
+			});
+			addItemButton.startAnimation(shrinkAnim);
+		}
+	}
+
+	private void toggleAddItemWidget(boolean isVisible) {
+		boolean currentlyVisible = addItemWidget.getVisibility() ==
+				View.VISIBLE;
+		if (currentlyVisible == isVisible) {
+			return;
+		}
+
+		if (isVisible) {
+
+			addItemWidget.setVisibility(View.VISIBLE);
+			addItemEditText.requestFocus();
+			InputMethodManager imMgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+			imMgr.showSoftInput(addItemEditText, 0);
+
+		} else {
+
+			addItemWidget.setVisibility(View.GONE);
+			InputMethodManager imMgr = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+			imMgr.hideSoftInputFromWindow(addItemEditText.getWindowToken(),
+					0);
+		}
+	}
+
+	private void addItemWidgetSetup() {
+		addItemWidget = (LinearLayout) findViewById(R.id.add_item_widget);
+		addItemEditText = (EditText) findViewById(R.id.widget_edittext);
+		editNewItemButton = (ImageButton)
+				findViewById(R.id.widget_more_button);
+		addNewItemButton = (ImageButton)
+				findViewById(R.id.widget_add_button);
+
+		addItemEditText.setFocusableInTouchMode(true);
+		addItemEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (!hasFocus) {
+					toggleAddItemWidget(false);
+					toggleAddButton(true);
+				}
+			}
+		});
+	}
+
 	private void addListeners() {
+		// TODO replace this method with UI and listener creation in the same method, for each separate part of the app
 		addItemButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -391,27 +493,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 					dialog.setArguments(args);
 				}
 
-				Animation shrinkAnim = AnimationUtils.loadAnimation(MainActivity.this,
-						R.anim.button_shrink);
-				addItemButton.startAnimation(shrinkAnim);
-				shrinkAnim.setAnimationListener(new Animation.AnimationListener() {
-					@Override
-					public void onAnimationStart(Animation animation) {
-
-					}
-
-					@Override
-					public void onAnimationEnd(Animation animation) {
-						dialog.show(getSupportFragmentManager(), "dialog");
-						addItemButton.setVisibility(View.GONE);
-						// TODO make FAB invisible, then in dialog onDismiss() make it visible and grow, then change it to click the add widget instead of showing a dialog
-					}
-
-					@Override
-					public void onAnimationRepeat(Animation animation) {
-
-					}
-				});
+				toggleAddButton(false);
 			}
 		});
 
