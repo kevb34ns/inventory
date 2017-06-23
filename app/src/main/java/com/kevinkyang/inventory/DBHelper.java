@@ -8,10 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.kevinkyang.inventory.DBSchema.TABLE_ITEMS;
 import com.kevinkyang.inventory.DBSchema.TABLE_INVENTORY_INFO;
 
-/**
- * Created by Kevin on 12/14/2016.
- */
-
 public class DBHelper extends SQLiteOpenHelper {
 	public static final String DB_NAME = "items.db";
 	public static final int DB_VERSION = 1;

@@ -11,11 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-
-/**
- * Created by Kevin on 2/17/2017.
- */
-
 public class GroceryFragment extends Fragment implements CustomFragment {
 	private MainActivity parent;
 

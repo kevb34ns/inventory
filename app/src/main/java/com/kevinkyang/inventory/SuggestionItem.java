@@ -1,9 +1,5 @@
 package com.kevinkyang.inventory;
 
-/**
- * Created by Kevin on 2/15/2017.
- */
-
 public class SuggestionItem {
 	private String name;
 	private String type;

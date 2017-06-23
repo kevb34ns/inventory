@@ -6,10 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-/**
- * Created by Kevin on 12/15/2016.
- */
-
 public class TimeManager {
 	public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	public static final String DEFAULT_DATE_FORMAT = "MM/dd/yyyy";

@@ -1,11 +1,8 @@
 package com.kevinkyang.inventory;
 
-import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v7.widget.RecyclerView;
-import android.transition.Transition;
 import android.transition.TransitionManager;
-import android.transition.TransitionValues;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -72,18 +69,7 @@ public class ItemRVAdapter
 			@Override
 			public void onClick(int position) {
 
-				if (expandedItemPosition != RecyclerView.NO_POSITION) {
-					notifyItemChanged(expandedItemPosition, PAYLOAD_COLLAPSE);
-				}
-
-				if (expandedItemPosition != position) {
-					expandedItemPosition = position;
-					notifyItemChanged(position, PAYLOAD_EXPAND);
-				} else {
-					expandedItemPosition = RecyclerView.NO_POSITION;
-				}
-				//TODO see dribbbleshot for a better expandcollapse transition
-				TransitionManager.beginDelayedTransition(recyclerView);
+				expandItem(position);
 			}
 
 			@Override
@@ -210,10 +196,25 @@ public class ItemRVAdapter
 		});
 
 		final boolean isExpanded = position == expandedItemPosition;
-		setItemExpansion(holder, isExpanded);
+		handleItemExpansion(holder, isExpanded);
 	}
 
-	private void setItemExpansion(ViewHolder holder, boolean isExpanded) {
+	private void expandItem(int position) {
+		if (expandedItemPosition != RecyclerView.NO_POSITION) {
+			notifyItemChanged(expandedItemPosition, PAYLOAD_COLLAPSE);
+		}
+
+		if (expandedItemPosition != position) {
+			expandedItemPosition = position;
+			notifyItemChanged(position, PAYLOAD_EXPAND);
+		} else {
+			expandedItemPosition = RecyclerView.NO_POSITION;
+		}
+		//TODO see dribbbleshot for a better expandcollapse transition
+		TransitionManager.beginDelayedTransition(recyclerView);
+	}
+
+	private void handleItemExpansion(ViewHolder holder, boolean isExpanded) {
 		holder.mQuantity.setVisibility(isExpanded ?
 				View.GONE : View.VISIBLE);
 
@@ -269,9 +270,9 @@ public class ItemRVAdapter
 								 List<Object> payloads) {
 
 		if (payloads.contains(PAYLOAD_EXPAND)) {
-			setItemExpansion(holder, true);
+			handleItemExpansion(holder, true);
 		} else if (payloads.contains(PAYLOAD_COLLAPSE)) {
-			setItemExpansion(holder, false);
+			handleItemExpansion(holder, false);
 		} else if (payloads.contains(PAYLOAD_EXP_EDIT)) {
 			updateExpirationViews(holder, items.get(position));
 		} else if (payloads.contains(PAYLOAD_QUA_EDIT)) {
@@ -305,6 +306,8 @@ public class ItemRVAdapter
 
 		items.add(position, item);
 		notifyItemInserted(position);
+
+		expandItem(position);
 	}
 
 	public void changeItem(int position) {
@@ -322,6 +325,10 @@ public class ItemRVAdapter
 
 		items.remove(position);
 		notifyItemRemoved(position);
+
+		if (position == expandedItemPosition) {
+			expandedItemPosition = RecyclerView.NO_POSITION;
+		}
 	}
 
 	@Override

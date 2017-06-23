@@ -25,10 +25,6 @@ import java.util.Map;
 import expandableRVAdapter.ExpandableRecyclerViewAdapter;
 import expandableRVAdapter.ExpandableViewHolder;
 
-/**
- * Created by Kevin on 3/20/2017.
- */
-
 public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 	public static final int VIEWTYPE_GROUP = 0;
 	public static final int VIEWTYPE_CHILD = 1;

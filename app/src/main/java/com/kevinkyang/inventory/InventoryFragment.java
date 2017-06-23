@@ -15,10 +15,6 @@ import android.widget.AdapterView;
 
 import java.util.ArrayList;
 
-/**
- * Created by Kevin on 2/17/2017.
- */
-
 public class InventoryFragment extends Fragment implements CustomFragment {
 	private MainActivity parent;
 
@@ -111,6 +107,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	}
 
 	public String getCurrentInventory() {
+		//TODO this can be null even though in the db an empty string represents no inv, which causes confusion
 		return inventory;
 	}
 

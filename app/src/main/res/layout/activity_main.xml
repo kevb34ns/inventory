@@ -38,7 +38,7 @@
             <LinearLayout
                 android:id="@+id/add_item_widget"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="@dimen/add_item_widget_height"
                 android:padding="8dp"
                 app:layout_anchor="@id/fragment_container"
                 app:layout_anchorGravity="bottom"
@@ -55,7 +55,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_margin="8dp"
                     android:hint="Add an item"
-                    android:inputType="text"
+                    android:inputType="textCapWords"
                     android:imeOptions="actionDone"
                     android:background="@android:color/transparent"/>
 
@@ -106,6 +106,23 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@color/colorLightGrey"/>
+
+        <ImageButton
+            android:id="@+id/drawer_settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_settings_applications"/>
+
     </LinearLayout>
 
     

@@ -23,10 +23,6 @@ import java.util.Calendar;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
-/**
- * Created by Kevin on 1/30/2017.
- */
-
 public class ExpirationManager {
 	public static final int RANGE = 3;
 

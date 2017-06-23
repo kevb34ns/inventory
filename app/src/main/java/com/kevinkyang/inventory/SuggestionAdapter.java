@@ -9,10 +9,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by Kevin on 2/16/2017.
- */
-
 public class SuggestionAdapter extends ArrayAdapter<SuggestionItem> {
 
 	public SuggestionAdapter(Context context, ArrayList<SuggestionItem> items) {

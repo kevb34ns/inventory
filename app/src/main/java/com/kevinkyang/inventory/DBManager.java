@@ -11,10 +11,6 @@ import java.util.StringTokenizer;
 import com.kevinkyang.inventory.DBSchema.TABLE_ITEMS;
 import com.kevinkyang.inventory.DBSchema.TABLE_INVENTORY_INFO;
 
-/**
- * Created by Kevin on 12/14/2016.
- */
-
 public class DBManager {
 	private static DBManager instance = null;
 	private Context context = null;

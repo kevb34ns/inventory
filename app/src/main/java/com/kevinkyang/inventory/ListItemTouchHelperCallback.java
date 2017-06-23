@@ -11,10 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
-/**
- * Created by Kevin on 3/21/2017.
- */
-
 public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 	private Context context;
 	private ListItemTouchHelperListener listener;

@@ -20,10 +20,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 
-/**
- * Created by Kevin on 2/9/2017.
- */
-
 public class SuggestionManager {
 	public static final String TAG = "inventory-preset";
 

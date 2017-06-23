@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -30,47 +29,39 @@ import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 
 import expandableRVAdapter.ExpandableRecyclerViewAdapter;
 
-public class MainActivity extends AppCompatActivity implements AddItemDialogListener {
+public class MainActivity extends AppCompatActivity implements ItemChangeListener {
 	public static final String TAG = "inventory";
 
 	private ItemData itemData = null;
 	private DBManager dbManager = null;
 	private SuggestionManager suggestionManager;
-	private FloatingActionButton addItemButton;
+	private FloatingActionButton floatingAddButton;
 
 	private DrawerLayout drawerLayout;
 	private RecyclerView drawerRV;
@@ -105,8 +96,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		suggestionManager = new SuggestionManager(this);
 		suggestionManager.executeThread();
 
-		addItemButton = (FloatingActionButton) findViewById(R.id.add_item_button);
-		addItemButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary, null)));
+		floatingAddButton = (FloatingActionButton) findViewById(R.id.add_item_button);
+		floatingAddButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary, null)));
 
 		// Set up toolbar
 		// TODO when returning from an onDestroy() (eg orientation change), the color of the inventory is not preserved; fix the bug so that the right color is shown
@@ -222,6 +213,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		if (addItemWidget != null && addItemWidget.getVisibility() == View.VISIBLE) {
 			//TODO find way to make additemwidget invisible on keyboard hide
 			addItemEditText.clearFocus();
+		} else {
+			super.onBackPressed();
 		}
 	}
 
@@ -398,9 +391,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	private void toggleAddButton(boolean isVisible) {
-		//TODO rename addItemButton to toggleAddWidgetButton
-
-		boolean currentlyVisible = addItemButton.getVisibility() ==
+		boolean currentlyVisible = floatingAddButton.getVisibility() ==
 				View.VISIBLE;
 		if (currentlyVisible == isVisible) {
 			return;
@@ -408,10 +399,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 		if (isVisible) {
 
-			addItemButton.setVisibility(View.VISIBLE);
+			floatingAddButton.setVisibility(View.VISIBLE);
 			Animation growAnim = AnimationUtils.loadAnimation(MainActivity.this,
 					R.anim.button_grow);
-			addItemButton.startAnimation(growAnim);
+			floatingAddButton.startAnimation(growAnim);
 		} else {
 
 			Animation shrinkAnim = AnimationUtils.loadAnimation(MainActivity.this,
@@ -424,7 +415,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 				@Override
 				public void onAnimationEnd(Animation animation) {
-					addItemButton.setVisibility(View.GONE);
+					floatingAddButton.setVisibility(View.GONE);
 					toggleAddItemWidget(true);
 				}
 
@@ -433,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 				}
 			});
-			addItemButton.startAnimation(shrinkAnim);
+			floatingAddButton.startAnimation(shrinkAnim);
 		}
 	}
 
@@ -463,35 +454,66 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	private void addItemWidgetSetup() {
 		addItemWidget = (LinearLayout) findViewById(R.id.add_item_widget);
 		addItemEditText = (EditText) findViewById(R.id.widget_edittext);
+
 		editNewItemButton = (ImageButton)
 				findViewById(R.id.widget_more_button);
+		editNewItemButton.setOnClickListener((v -> {
+			AddItemDialog dialog = new AddItemDialog();
+
+			Bundle args = new Bundle();
+			if (!inGroceryMode) {
+				args.putString("Inventory",
+						inventoryFragment.getCurrentInventory());
+			}
+
+			String name = addItemEditText.getText().toString();
+			if (!name.isEmpty()) {
+				args.putString("NameToSet", name);
+			}
+
+			dialog.setArguments(args);
+			dialog.show(getSupportFragmentManager(), "dialog");
+
+			addItemEditText.setText("");
+			addItemWidget.setVisibility(View.GONE);
+			toggleAddButton(true);
+		}));
+
 		addNewItemButton = (ImageButton)
 				findViewById(R.id.widget_add_button);
 
+		addNewItemButton.setOnClickListener((v -> {
+			String name = addItemEditText.getText().toString();
+			if (name.isEmpty()) {
+				return;
+			}
+
+			boolean inGroceryList = isInGroceryMode();
+			String inventory = "";
+			if (!inGroceryList &&
+					inventoryFragment.getCurrentInventory() != null) {
+
+				inventory = inventoryFragment.getCurrentInventory();
+			}
+
+			onItemAdded(name, 1, "", "", "", inventory, inGroceryList);
+			addItemEditText.setText("");
+		}));
+
 		addItemEditText.setFocusableInTouchMode(true);
-		addItemEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if (!hasFocus) {
-					toggleAddItemWidget(false);
-					toggleAddButton(true);
-				}
+		addItemEditText.setOnFocusChangeListener((v, hasFocus) -> {
+			if (!hasFocus) {
+				toggleAddItemWidget(false);
+				toggleAddButton(true);
 			}
 		});
 	}
 
 	private void addListeners() {
 		// TODO replace this method with UI and listener creation in the same method, for each separate part of the app
-		addItemButton.setOnClickListener(new View.OnClickListener() {
+		floatingAddButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				AddItemDialog dialog = new AddItemDialog();
-				if (!inGroceryMode) {
-					Bundle args = new Bundle();
-					args.putString("Inventory",
-							inventoryFragment.getCurrentInventory());
-					dialog.setArguments(args);
-				}
 
 				toggleAddButton(false);
 			}
@@ -518,10 +540,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	@Override
-	public void onAddItemClicked(String name, int quantity, String unit,
-								 String type, String expiresDate,
-								 String inventory,
-								 boolean inGroceryList) {
+	public void onItemAdded(String name, int quantity, String unit,
+							String type, String expiresDate,
+							String inventory,
+							boolean inGroceryList) {
 		/* Selected item Positions TODO find better solution for visibility
 		   None = 0
 		   1 day = 1
@@ -549,11 +571,11 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 	}
 
 	@Override
-	public void onSaveItemClicked(String name, int quantity, String unit,
-								  String type, String expiresDate,
-								  String inventory,
-								  boolean inGroceryList, Item item,
-								  int position) {
+	public void onItemSaved(String name, int quantity, String unit,
+							String type, String expiresDate,
+							String inventory,
+							boolean inGroceryList, Item item,
+							int position) {
 		item.setName(name);
 		item.setQuantity(quantity);
 		item.setExpiresDate(expiresDate);
@@ -568,10 +590,10 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	@Override
 	public void onDialogDismissed() {
-		addItemButton.setVisibility(View.VISIBLE);
+		floatingAddButton.setVisibility(View.VISIBLE);
 		Animation growAnim = AnimationUtils.loadAnimation(MainActivity.this,
 				R.anim.button_grow);
-		addItemButton.startAnimation(growAnim);
+		floatingAddButton.startAnimation(growAnim);
 	}
 
 	@Override
@@ -631,7 +653,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 	private void setUIColor(int color) {
 		toolbar.setBackgroundColor(color);
-		addItemButton.setBackgroundTintList(
+		floatingAddButton.setBackgroundTintList(
 				ColorStateList.valueOf(
 						color));
 		drawerLayout.setStatusBarBackgroundColor(color);
@@ -696,6 +718,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 		private boolean inEditMode;
 		private Item itemToEdit;
 		private int position;
+		private String nameToSet;
 
 		private boolean dateSet;
 
@@ -712,6 +735,8 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 				itemToEdit = args.getParcelable("ItemParcel");
 				currentInventory = args.getString("Inventory");
 				position = args.getInt("Position");
+				nameToSet = args.getString("NameToSet");
+
 			}
 
 			dateSet = false;
@@ -719,7 +744,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-			AddItemDialogListener parent = (AddItemDialogListener) getActivity();
+			ItemChangeListener parent = (ItemChangeListener) getActivity();
 			if (inEditMode) {
 				getDialog().setTitle("Edit Item");
 			} else if (parent.isInGroceryMode()) {
@@ -729,7 +754,12 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 			}
 
 			View view = inflater.inflate(R.layout.add_item_dialog, container, false);
+
 			nameEditText = (AutoCompleteTextView) view.findViewById(R.id.input_name);
+			if (nameToSet != null) {
+				nameEditText.setText(nameToSet);
+			}
+
 			quantityEditText = (EditText) view.findViewById(R.id.input_quantity);
 			unitEditText = (AutoCompleteTextView)
 					view.findViewById(R.id.input_unit);
@@ -762,7 +792,7 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 
 		@Override
 		public void onDismiss(DialogInterface dialog) {
-			AddItemDialogListener listener = (AddItemDialogListener) getActivity();
+			ItemChangeListener listener = (ItemChangeListener) getActivity();
 			listener.onDialogDismissed();
 			super.onDismiss(dialog);
 		}
@@ -790,14 +820,14 @@ public class MainActivity extends AppCompatActivity implements AddItemDialogList
 							invString = (String) inventorySpinner.getSelectedItem();
 						}
 
-						AddItemDialogListener activity = (AddItemDialogListener) getActivity();
+						ItemChangeListener activity = (ItemChangeListener) getActivity();
 						if (inEditMode) {
-							activity.onSaveItemClicked(name, quantity,
+							activity.onItemSaved(name, quantity,
 									unitString, typeString, expiresString,
 									invString, activity.isInGroceryMode(),
 									itemToEdit, position);
 						} else {
-							activity.onAddItemClicked(name, quantity,
+							activity.onItemAdded(name, quantity,
 									unitString, typeString, expiresString,
 									invString, activity.isInGroceryMode());
 						}

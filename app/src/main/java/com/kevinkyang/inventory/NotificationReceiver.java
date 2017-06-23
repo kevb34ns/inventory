@@ -5,10 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-/**
- * Created by Kevin on 2/2/2017.
- */
-
 public class NotificationReceiver extends BroadcastReceiver {
 	public static final String NOTIFICATION_ID = "notification_id";
 	public static final String NOTIFICATION = "notification";
