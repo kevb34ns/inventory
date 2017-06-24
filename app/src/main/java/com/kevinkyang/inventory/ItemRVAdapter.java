@@ -2,6 +2,8 @@ package com.kevinkyang.inventory;
 
 import android.content.res.TypedArray;
 import android.support.v7.widget.RecyclerView;
+import android.transition.AutoTransition;
+import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -9,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -34,6 +37,7 @@ public class ItemRVAdapter
 
 	private RecyclerView recyclerView;
 	private int expandedItemPosition;
+	private Transition expansionTransition;
 
 	private int contextMenuPosition;
 
@@ -51,6 +55,10 @@ public class ItemRVAdapter
 
 		colorArray = parent.getResources()
 				.obtainTypedArray(R.array.array_inventory_colors);
+
+		expansionTransition = new AutoTransition();
+		expansionTransition.setDuration(200);
+		expansionTransition.setInterpolator(AnimationUtils.loadInterpolator(parent.getContext(), android.R.interpolator.fast_out_slow_in));
 
 		setHasStableIds(true);
 	}
@@ -200,6 +208,9 @@ public class ItemRVAdapter
 	}
 
 	private void expandItem(int position) {
+
+		TransitionManager.beginDelayedTransition(recyclerView, expansionTransition);
+
 		if (expandedItemPosition != RecyclerView.NO_POSITION) {
 			notifyItemChanged(expandedItemPosition, PAYLOAD_COLLAPSE);
 		}
@@ -210,8 +221,6 @@ public class ItemRVAdapter
 		} else {
 			expandedItemPosition = RecyclerView.NO_POSITION;
 		}
-		//TODO see dribbbleshot for a better expandcollapse transition
-		TransitionManager.beginDelayedTransition(recyclerView);
 	}
 
 	private void handleItemExpansion(ViewHolder holder, boolean isExpanded) {
