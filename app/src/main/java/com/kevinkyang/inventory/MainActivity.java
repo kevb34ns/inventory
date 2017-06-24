@@ -57,6 +57,7 @@ import expandableRVAdapter.ExpandableRecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity implements ItemChangeListener {
 	public static final String TAG = "inventory";
+	public static final int SETTINGS_REQUEST = 0x73;
 
 	private ItemData itemData = null;
 	private DBManager dbManager = null;
@@ -68,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	private DrawerRVAdapter drawerRVAdapter;
 	private ExpandableDrawerAdapter drawerAdapter;
 	private LinearLayoutManager drawerLayoutManager;
+
+	private ImageButton drawerSettingsButton;
 
 	// add item widget views
 	private LinearLayout addItemWidget;
@@ -166,6 +169,12 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putBoolean("inGroceryMode", inGroceryMode);
 		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		// TODO on settings result, check resultCode that settings were changed, and get the changed settings from the intent, and apply them, if applicable (some settings wouldn't require any action)
 	}
 
 	@Override
@@ -284,6 +293,13 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 				return true;
 			}
 		});
+
+		drawerSettingsButton = (ImageButton)
+				findViewById(R.id.drawer_settings_button);
+		drawerSettingsButton.setOnClickListener((v -> {
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivityForResult(intent, SETTINGS_REQUEST);
+		}));
 	}
 
 	public void changeActionBarTitle(String title) {
