@@ -1,4 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Expiration Notifications">
+        <SwitchPreference
+            android:key="notificationsEnabled"
+            android:title="Notifications"
+            android:summary="Receive notifications for items that are expiring soon."
+            android:defaultValue="true"/>
+
+        <ListPreference
+            android:dependency="notificationsEnabled"
+            android:key="expirationInterval"
+            android:title="Expiration Interval"
+            android:dialogTitle="Expiration Interval"
+            android:entries="@array/array_expires_dates"
+            android:entryValues="@array/array_expires_dates"
+            android:defaultValue="3 Days"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

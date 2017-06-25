@@ -38,6 +38,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -101,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 
 		floatingAddButton = (FloatingActionButton) findViewById(R.id.add_item_button);
 		floatingAddButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary, null)));
+		floatingAddButton.setOnClickListener(view -> toggleAddButton(false));
 
 		// Set up toolbar
 		// TODO when returning from an onDestroy() (eg orientation change), the color of the inventory is not preserved; fix the bug so that the right color is shown
@@ -161,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 
 		initializeDrawer();
 		addItemWidgetSetup();
-		addListeners();
 		checkNotificationScheduled();
 	}
 
@@ -467,6 +468,25 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		}
 	}
 
+	private void quickAddItem() {
+		String name = addItemEditText.getText().toString();
+		if (name.isEmpty()) {
+			return;
+		}
+
+		boolean inGroceryList = isInGroceryMode();
+		String inventory = "";
+		if (!inGroceryList &&
+				inventoryFragment.getCurrentInventory() != null) {
+
+			inventory = inventoryFragment.getCurrentInventory();
+		}
+
+		onItemAdded(name, 1, "", "", "", inventory, inGroceryList);
+
+		addItemEditText.setText("");
+	}
+
 	private void addItemWidgetSetup() {
 		addItemWidget = (LinearLayout) findViewById(R.id.add_item_widget);
 		addItemEditText = (EditText) findViewById(R.id.widget_edittext);
@@ -499,21 +519,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 				findViewById(R.id.widget_add_button);
 
 		addNewItemButton.setOnClickListener((v -> {
-			String name = addItemEditText.getText().toString();
-			if (name.isEmpty()) {
-				return;
-			}
-
-			boolean inGroceryList = isInGroceryMode();
-			String inventory = "";
-			if (!inGroceryList &&
-					inventoryFragment.getCurrentInventory() != null) {
-
-				inventory = inventoryFragment.getCurrentInventory();
-			}
-
-			onItemAdded(name, 1, "", "", "", inventory, inGroceryList);
-			addItemEditText.setText("");
+			quickAddItem();
 		}));
 
 		addItemEditText.setFocusableInTouchMode(true);
@@ -523,18 +529,13 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 				toggleAddButton(true);
 			}
 		});
-	}
-
-	private void addListeners() {
-		// TODO replace this method with UI and listener creation in the same method, for each separate part of the app
-		floatingAddButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				toggleAddButton(false);
+		addItemEditText.setOnEditorActionListener(((v, actionId, event) -> {
+			if (actionId == EditorInfo.IME_ACTION_DONE) {
+				quickAddItem();
 			}
-		});
 
+			return true;
+		}));
 	}
 
 	private void checkNotificationScheduled() {
