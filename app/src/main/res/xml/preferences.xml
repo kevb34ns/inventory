@@ -17,6 +17,12 @@
             android:entryValues="@array/array_expires_dates"
             android:defaultValue="3 Days"/>
 
+        <com.kevinkyang.inventory.TimePreference
+            android:dependency="notificationsEnabled"
+            android:key="notificationTime"
+            android:title="Notification Time"
+            android:summary="The time that you will receive an expiring soon notification."/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

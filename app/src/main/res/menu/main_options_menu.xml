@@ -21,4 +21,8 @@
     <item
         android:id="@+id/options_item_cancel"
         android:title="Cancel Notifications"/>
+
+    <item
+        android:id="@+id/options_item_check_enabled"
+        android:title="Check Notif Enabled"/>
 </menu>

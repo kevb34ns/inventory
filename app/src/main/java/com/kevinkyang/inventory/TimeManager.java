@@ -9,6 +9,7 @@ import java.util.TimeZone;
 public class TimeManager {
 	public static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	public static final String DEFAULT_DATE_FORMAT = "MM/dd/yyyy";
+	public static final String DEFAULT_TIME_FORMAT = "hh:mm a";
 
 	public static String addDaysToDate(String date, int daysToAdd) {
 		SimpleDateFormat sdFormat = new SimpleDateFormat(DEFAULT_DATE_FORMAT);

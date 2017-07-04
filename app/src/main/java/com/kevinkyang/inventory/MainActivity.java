@@ -5,11 +5,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -163,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 
 		initializeDrawer();
 		addItemWidgetSetup();
-		checkNotificationScheduled();
+		checkNotificationStatus();
 	}
 
 	@Override
@@ -212,6 +214,14 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 			case R.id.options_item_cancel:
 				manager = new ExpirationManager(this);
 				manager.cancelNotifications();
+				return true;
+			case R.id.options_item_check_enabled:
+				PendingIntent pendingIntent =
+						PendingIntent.getBroadcast(this, 0,
+								new Intent(this, NotificationReceiver.class),
+								PendingIntent.FLAG_NO_CREATE);
+				Boolean enabled = pendingIntent != null;
+				Toast.makeText(this, enabled.toString(), Toast.LENGTH_SHORT).show();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -538,21 +548,21 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		}));
 	}
 
-	private void checkNotificationScheduled() {
+	private void checkNotificationStatus() {
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		boolean enabled = preferences.getBoolean(SettingsActivity.PREFKEY_NOTIFICATIONS_ENABLED, true);
+
 		PendingIntent pendingIntent =
 				PendingIntent.getBroadcast(this, 0,
 						new Intent(this, NotificationReceiver.class),
 						PendingIntent.FLAG_NO_CREATE);
-		if (pendingIntent == null) {
-			ExpirationManager mgr = new ExpirationManager(this);
-			mgr.scheduleNotifications();
+		ExpirationManager mgr = new ExpirationManager(this);
 
-			// enable NotificationReceiver
-			ComponentName receiver = new ComponentName(this, NotificationReceiver.class);
-			PackageManager pm = getPackageManager();
-			pm.setComponentEnabledSetting(receiver,
-					PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-					PackageManager.DONT_KILL_APP);
+		if (pendingIntent == null && enabled) {
+			mgr.scheduleNotifications();
+		} else if (pendingIntent != null && !enabled) {
+			mgr.cancelNotifications();
 		}
 	}
 

@@ -25,6 +25,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class ExpirationManager {
 	public static final int RANGE = 3;
+	public static final String DEFAULT_NOTIFICATION_TIME = "12:00 PM";
 
 	private Context context;
 
@@ -158,6 +159,13 @@ public class ExpirationManager {
 		AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		alarmMgr.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(),
 				AlarmManager.INTERVAL_DAY, pendingIntent); //TODO could this be inexact?
+
+		// enable NotificationReceiver
+		ComponentName receiver = new ComponentName(context, NotificationReceiver.class);
+		PackageManager pm = context.getPackageManager();
+		pm.setComponentEnabledSetting(receiver,
+				PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+				PackageManager.DONT_KILL_APP);
 	}
 
 	public void cancelNotifications() {
@@ -166,6 +174,7 @@ public class ExpirationManager {
 
 		AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		alarmMgr.cancel(pendingIntent);
+		pendingIntent.cancel();
 
 		// disable NotificationReceiver
 		ComponentName receiver = new ComponentName(context, NotificationReceiver.class);
