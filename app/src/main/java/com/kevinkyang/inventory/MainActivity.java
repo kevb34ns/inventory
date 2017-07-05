@@ -551,7 +551,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	private void checkNotificationStatus() {
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		boolean enabled = preferences.getBoolean(SettingsActivity.PREFKEY_NOTIFICATIONS_ENABLED, true);
+		boolean enabled = preferences.getBoolean(SettingsFragment.PREFKEY_NOTIFICATIONS_ENABLED, true);
 
 		PendingIntent pendingIntent =
 				PendingIntent.getBroadcast(this, 0,

@@ -6,6 +6,7 @@
               android:padding="@dimen/activity_default_margin" >
 
     <TimePicker
+        android:id="@+id/notification_time_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"

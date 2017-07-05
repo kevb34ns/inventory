@@ -7,14 +7,17 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.sql.Time;
 import java.text.SimpleDateFormat;
@@ -49,7 +52,6 @@ public class ExpirationManager {
 		return string;
 	}
 
-	// TODO style notification, look at Notification.InboxStyle
 	private Notification getNotification() {
 		if (!DBManager.getInstance().isInitialized()) {
 			DBManager.getInstance().init(context);
@@ -150,11 +152,13 @@ public class ExpirationManager {
 		Intent intent = new Intent(context, NotificationReceiver.class);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(System.currentTimeMillis());
-		cal.set(Calendar.HOUR_OF_DAY, 12); // TODO make user customizable
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		String timeString = prefs.getString(
+				SettingsFragment.PREFKEY_NOTIFICATION_TIME,
+				DEFAULT_NOTIFICATION_TIME);
+
+		Calendar cal = TimeManager.timeStringToCal(timeString);
 
 		AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		alarmMgr.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(),
@@ -171,6 +175,10 @@ public class ExpirationManager {
 	public void cancelNotifications() {
 		Intent intent = new Intent(context, NotificationReceiver.class);
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		if (pendingIntent == null) {
+			return;
+		}
 
 		AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		alarmMgr.cancel(pendingIntent);

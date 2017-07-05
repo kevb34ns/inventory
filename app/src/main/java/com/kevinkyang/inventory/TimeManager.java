@@ -127,6 +127,20 @@ public class TimeManager {
 		}
 	}
 
+	public static Calendar timeStringToCal(String timeString) {
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat format =
+				new SimpleDateFormat(DEFAULT_TIME_FORMAT);
+		try {
+			Date date = format.parse(timeString);
+			cal.setTime(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		return cal;
+	}
+
 	/**
 	 * TODO better method name, same issue where you arbitrarily decide that 1 month = 30 days, and it's not the best solution
 	 * @param suggestion
