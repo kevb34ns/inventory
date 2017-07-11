@@ -122,8 +122,15 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	 */
 	@Override
 	public void refresh() {
-		itemRVAdapter.setItemsList(
-				itemData.getItemsByInventory(inventory));
+		if (inventory != null && inventory.equals("Expiring")) {
+			itemRVAdapter.setItemsList(
+					itemData.getItemsByInventory(inventory,
+							ExpirationManager.getExpirationInterval(
+									getContext())));
+		} else {
+			itemRVAdapter.setItemsList(
+					itemData.getItemsByInventory(inventory));
+		}
 	}
 
 	@Override

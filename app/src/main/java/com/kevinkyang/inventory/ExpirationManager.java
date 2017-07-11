@@ -27,7 +27,6 @@ import java.util.Calendar;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class ExpirationManager {
-	public static final int RANGE = 3;
 	public static final String DEFAULT_NOTIFICATION_TIME = "12:00 PM";
 
 	private Context context;
@@ -56,7 +55,7 @@ public class ExpirationManager {
 		if (!DBManager.getInstance().isInitialized()) {
 			DBManager.getInstance().init(context);
 		}
-		ArrayList<Item> expiring = ItemData.getInstance().getExpiringItems(RANGE);
+		ArrayList<Item> expiring = ItemData.getInstance().getExpiringItems(getExpirationInterval(context));
 		if (expiring.isEmpty()) {
 			return null;
 		}
@@ -190,5 +189,13 @@ public class ExpirationManager {
 		pm.setComponentEnabledSetting(receiver,
 				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
 				PackageManager.DONT_KILL_APP);
+	}
+
+	public static int getExpirationInterval(Context context) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return TimeManager.parseDays(prefs.getString(
+				SettingsFragment.PREFKEY_EXPIRATION_INTERVAL,
+				"3 days"));
 	}
 }

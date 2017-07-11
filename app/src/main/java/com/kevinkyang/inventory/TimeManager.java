@@ -163,4 +163,39 @@ public class TimeManager {
 
 		return addDaysToDate(getDateTimeLocal(), amount * multiplier);
 	}
+
+	/**
+	 * Converts a human language string to an integer number of
+	 * days.
+	 * @param timeString a string containing an integer and a
+	 *                   lowercase unit of time, which can be
+	 *                   days, weeks, months, or years. Examples:
+	 *                   "1 day", "2 weeks", "6 months", "3 years".
+	 * @return An approximate number of days represented by the
+	 * string, or -1 if the input was invalid.
+	 */
+	public static int parseDays(String timeString) {
+		int result = -1;
+		try {
+			int amount = Integer.parseInt(timeString.substring(0, 1));
+			String unit = timeString.substring(2, 3);
+			if (unit.equals("d")) {
+				result = amount;
+			} else if (unit.equals("w")) {
+				result = 7 * amount;
+			} else if (unit.equals("m")) {
+				result = 30 * amount;
+			} else if (unit.equals("y")) {
+				result = 365 * amount;
+			} else {
+				throw new Exception("The parameter '" + timeString
+						+ "' has an invalid unit of time.");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -1;
+		}
+
+		return result;
+	}
 }

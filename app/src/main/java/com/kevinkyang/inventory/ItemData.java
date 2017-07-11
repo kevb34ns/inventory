@@ -64,10 +64,15 @@ public class ItemData {
 	 * inventory it belongs to.
 	 */
 	public ArrayList<Item> getItemsByInventory(String inventory) {
+		return getItemsByInventory(inventory, 3);
+	}
+
+	public ArrayList<Item> getItemsByInventory(
+			String inventory, int expirationInterval) {
 		if (inventory == null) {
 			return getInventoryItems();
 		} else if (inventory.equals("Expiring")) {
-			return getExpiringItems(ExpirationManager.RANGE);
+			return getExpiringItems(expirationInterval);
 		}
 
 		ArrayList<Item> results = new ArrayList<Item>();

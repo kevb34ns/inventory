@@ -83,4 +83,7 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="notifications_enabled_pref_summary">Receive daily notifications for items that are expiring soon.</string>
+    <string name="notification_time_pref_summary">When to receive a notification each day.</string>
+    <string name="expiration_interval_pref_summary">You will be notified for expired items and items expiring within %1$s.</string>
 </resources>

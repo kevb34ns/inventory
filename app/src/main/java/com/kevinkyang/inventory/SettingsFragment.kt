@@ -3,6 +3,7 @@ package com.kevinkyang.inventory
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.PreferenceFragment
+import android.preference.PreferenceManager
 
 
 class SettingsFragment : PreferenceFragment(),
@@ -18,6 +19,8 @@ class SettingsFragment : PreferenceFragment(),
         super.onCreate(savedInstanceState)
 
         addPreferencesFromResource(R.xml.preferences)
+
+        updateExpirationIntervalSummary()
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
@@ -35,6 +38,8 @@ class SettingsFragment : PreferenceFragment(),
             val expirationManager = ExpirationManager(context)
             expirationManager.cancelNotifications()
             expirationManager.scheduleNotifications()
+        } else if (key == PREFKEY_EXPIRATION_INTERVAL) {
+            updateExpirationIntervalSummary()
         }
     }
 
@@ -48,5 +53,12 @@ class SettingsFragment : PreferenceFragment(),
         preferenceManager.sharedPreferences
                 .unregisterOnSharedPreferenceChangeListener(this)
         super.onPause()
+    }
+
+    private fun updateExpirationIntervalSummary() {
+        val intervalString = preferenceManager.sharedPreferences
+                .getString(PREFKEY_EXPIRATION_INTERVAL, "3 days")
+        val expPref = findPreference(PREFKEY_EXPIRATION_INTERVAL)
+        expPref?.summary = context.resources.getString(R.string.expiration_interval_pref_summary, intervalString)
     }
 }

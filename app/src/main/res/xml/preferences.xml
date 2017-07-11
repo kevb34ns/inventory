@@ -5,23 +5,24 @@
         <SwitchPreference
             android:key="notificationsEnabled"
             android:title="Notifications"
-            android:summary="Receive notifications for items that are expiring soon."
+            android:summary="@string/notifications_enabled_pref_summary"
             android:defaultValue="true"/>
 
         <com.kevinkyang.inventory.TimePreference
             android:dependency="notificationsEnabled"
             android:key="notificationTime"
             android:title="Notification Time"
-            android:summary="The time that you will receive an expiring soon notification."/>
+            android:summary="@string/notification_time_pref_summary"/>
 
         <ListPreference
             android:dependency="notificationsEnabled"
             android:key="expirationInterval"
             android:title="Expiration Interval"
+            android:summary="@string/expiration_interval_pref_summary"
             android:dialogTitle="Expiration Interval"
-            android:entries="@array/array_expires_dates"
-            android:entryValues="@array/array_expires_dates"
-            android:defaultValue="3 Days"/>
+            android:entries="@array/array_expires_pref_names"
+            android:entryValues="@array/array_expires_pref_names"
+            android:defaultValue="3 days"/>
 
     </PreferenceCategory>
 
