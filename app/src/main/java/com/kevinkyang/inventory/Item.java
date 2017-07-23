@@ -12,7 +12,7 @@ public class Item implements Parcelable{
 	private String name;
 	private String createdDate;
 	private String expiresDate;
-	private int quantity;
+	private float quantity;
 	private String unit;
 	private String type;
 	private String inventory;
@@ -24,7 +24,7 @@ public class Item implements Parcelable{
 				String name,
 				String createdDate,
 				String expiresDate,
-				int quantity,
+				float quantity,
 				String unit,
 				String type,
 				String inventory,
@@ -45,7 +45,7 @@ public class Item implements Parcelable{
 		name = in.readString();
 		createdDate = in.readString();
 		expiresDate = in.readString();
-		quantity = in.readInt();
+		quantity = in.readFloat();
 		unit = in.readString();
 		type = in.readString();
 		inventory = in.readString();
@@ -85,11 +85,11 @@ public class Item implements Parcelable{
 		this.expiresDate = expiresDate;
 	}
 
-	public int getQuantity() {
+	public float getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(int quantity) {
+	public void setQuantity(float quantity) {
 		if (quantity >= 0) {
 			// quantity MUST be non-negative
 			this.quantity = quantity;
@@ -159,7 +159,7 @@ public class Item implements Parcelable{
 		parcel.writeString(name);
 		parcel.writeString(createdDate);
 		parcel.writeString(expiresDate);
-		parcel.writeInt(quantity);
+		parcel.writeFloat(quantity);
 		parcel.writeString(unit);
 		parcel.writeString(type);
 		parcel.writeString(inventory);

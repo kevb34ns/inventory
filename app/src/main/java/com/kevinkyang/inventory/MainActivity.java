@@ -567,7 +567,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	}
 
 	@Override
-	public void onItemAdded(String name, int quantity, String unit,
+	public void onItemAdded(String name, float quantity, String unit,
 							String type, String expiresDate,
 							String inventory,
 							boolean inGroceryList) {
@@ -598,7 +598,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	}
 
 	@Override
-	public void onItemSaved(String name, int quantity, String unit,
+	public void onItemSaved(String name, float quantity, String unit,
 							String type, String expiresDate,
 							String inventory,
 							boolean inGroceryList, Item item,
@@ -830,7 +830,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 					String name = nameEditText.getText().toString().trim();
 					if (!name.isEmpty()) {
 						String quantityString = quantityEditText.getText().toString();
-						int quantity = 1;
+						float quantity = 1;
 						if (!quantityString.isEmpty()) {
 							quantity = Integer.parseInt(quantityString);
 						}
@@ -883,7 +883,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 			if (inEditMode) {
 				addButton.setText("Save");
 				nameEditText.setText(itemToEdit.getName());
-				quantityEditText.setText(Integer.toString(itemToEdit.getQuantity()));
+				quantityEditText.setText(Float.toString(itemToEdit.getQuantity()));
 				unitEditText.setText(itemToEdit.getUnit());
 				typeEditText.setText(itemToEdit.getType());
 				if (!itemToEdit.getExpiresDate().isEmpty()) {

@@ -119,7 +119,7 @@ public class DBManager {
 					String name = cursor.getString(TABLE_ITEMS.COL_NAME);
 					String created = cursor.getString(TABLE_ITEMS.COL_CREATED);
 					String expires = cursor.getString(TABLE_ITEMS.COL_EXPIRES);
-					int quantity = cursor.getInt(TABLE_ITEMS.COL_QUANTITY);
+					float quantity = cursor.getFloat(TABLE_ITEMS.COL_QUANTITY);
 					String unit = cursor.getString(TABLE_ITEMS.COL_UNIT);
 					String type = cursor.getString(TABLE_ITEMS.COL_TYPE);
 					String[] invTokens = cursor.getString(
