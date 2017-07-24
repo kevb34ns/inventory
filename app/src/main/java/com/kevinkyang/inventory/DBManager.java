@@ -262,12 +262,51 @@ public class DBManager {
 		return true;
 	}
 
-	public void updateInventory(String inventory, String color) {
-		// TODO
+	/**
+	 * Update the display color of the specified inventory.
+	 * @param inventory The name of an existing inventory.
+	 * @param color A hexadecimal string representing a color, in
+	 *              the format "0xRRGGBBAA".
+	 * @return true if the inventory was updated, false otherwise.
+	 */
+	public boolean updateInventory(String inventory, String color) {
+		if (inventory == null || inventory.isEmpty() ||
+				!inventories.contains(inventory)) {
+			return false;
+		}
+
+		StringBuilder sb =
+				new StringBuilder(TABLE_INVENTORY_INFO.KEY_NAME);
+		sb.append("=?");
+		String where = sb.toString();
+		String[] args = {inventory};
+		ContentValues cv = new ContentValues();
+		cv.put(TABLE_INVENTORY_INFO.KEY_NAME, inventory);
+		cv.put(TABLE_INVENTORY_INFO.KEY_COLOR, color);
+
+		long result = database.update(
+				TABLE_INVENTORY_INFO.TABLE_NAME,
+				cv, where, args);
+
+		return result != -1;
 	}
 
-	public void removeInventory(String inventory) {
-		// TODO
+	public boolean removeInventory(String inventory) {
+		if (inventory == null || inventory.isEmpty() ||
+				!inventories.contains(inventory)) {
+			return false;
+		}
+
+		StringBuilder sb =
+				new StringBuilder(TABLE_INVENTORY_INFO.KEY_NAME);
+		sb.append("=?");
+		String where = sb.toString();
+		String[] args = {inventory};
+
+		int result = database.delete(
+				TABLE_INVENTORY_INFO.TABLE_NAME, where, args);
+
+		return result > 0;
 	}
 
 	private void addDefaultInventories() {

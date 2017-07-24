@@ -73,7 +73,7 @@ public class GroceryItemRVAdapter
 		});
 
 		holder.name.setText(item.getName());
-		holder.quantity.setText(Integer.toString(item.getQuantity()));
+		holder.quantity.setText(Utilities.Math.formatFloat(item.getQuantity()));
 
 		String unitString = item.getUnit().trim();
 		if (unitString.isEmpty()) {

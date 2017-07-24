@@ -266,7 +266,7 @@ public class ItemRVAdapter
 	}
 
 	private void updateQuantityViews(ViewHolder holder, Item item) {
-		String quantityString = Integer.toString((item.getQuantity()));
+		String quantityString = Utilities.Math.formatFloat(item.getQuantity());
 		if (item.getQuantity() > 0) {
 			quantityString += " " + item.getUnit().trim();
 		}

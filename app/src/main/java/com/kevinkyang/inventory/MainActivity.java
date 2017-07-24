@@ -832,7 +832,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 						String quantityString = quantityEditText.getText().toString();
 						float quantity = 1;
 						if (!quantityString.isEmpty()) {
-							quantity = Integer.parseInt(quantityString);
+							quantity = Float.parseFloat(quantityString);
 						}
 						String unitString = unitEditText.getText().toString();
 						String typeString = typeEditText.getText().toString();
@@ -883,7 +883,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 			if (inEditMode) {
 				addButton.setText("Save");
 				nameEditText.setText(itemToEdit.getName());
-				quantityEditText.setText(Float.toString(itemToEdit.getQuantity()));
+				quantityEditText.setText(Utilities.Math.formatFloat(itemToEdit.getQuantity()));
 				unitEditText.setText(itemToEdit.getUnit());
 				typeEditText.setText(itemToEdit.getType());
 				if (!itemToEdit.getExpiresDate().isEmpty()) {
