@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:paddingStart="0dp"
             android:paddingEnd="@dimen/listitem_default_margin"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:layout_gravity="center_vertical"/>
 
         <TextView

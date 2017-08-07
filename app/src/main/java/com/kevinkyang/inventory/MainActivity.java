@@ -19,6 +19,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -109,7 +110,6 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		// Set up toolbar
 		// TODO when returning from an onDestroy() (eg orientation change), the color of the inventory is not preserved; fix the bug so that the right color is shown
 		toolbar = (Toolbar) findViewById(R.id.custom_action_bar);
-		toolbar.setNavigationIcon(R.drawable.ic_menu);
 		setSupportActionBar(toolbar);
 		changeActionBarTitle("Inventory");
 
@@ -311,6 +311,10 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivityForResult(intent, SETTINGS_REQUEST);
 		}));
+
+		// TODO fix R.string.app_name
+		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.app_name, R.string.app_name);
+		toggle.syncState();
 	}
 
 	public void changeActionBarTitle(String title) {

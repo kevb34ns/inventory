@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">@color/colorGreen</color>
-    <color name="colorPrimaryDark">@color/colorDarkGreen</color>
+    <color name="colorPrimary">@color/backgroundGrey</color>
+    <color name="colorPrimaryDark">@color/backgroundGreyDark</color>
     <color name="colorAccent">#ce3a49</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorLightGrey">#eeeeee</color>
     <color name="colorGrey">#888888</color>
     <color name="colorGreen">#4caf6b</color>
     <color name="colorDarkGreen">#347649</color>
+    <color name="backgroundGrey">#f2f2f2</color>
+    <color name="backgroundGreyDark">#d2d2d2</color>
+    <color name="statusBarColor">#80d6d6d6</color>
     <color name="defaultTextColor">#8a000000</color>
 </resources>
