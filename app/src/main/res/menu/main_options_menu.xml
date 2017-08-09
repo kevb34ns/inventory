@@ -3,6 +3,18 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/options_item_sort"
+        android:title="Sort By..."
+        android:icon="@drawable/ic_sort"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/options_item_search"
+        android:title="Search"
+        android:icon="@drawable/ic_search"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/options_item_suggestions"
         android:title="Get Suggestions"/>
 

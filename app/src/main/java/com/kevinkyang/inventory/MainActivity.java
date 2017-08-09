@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		suggestionManager.executeThread();
 
 		floatingAddButton = (FloatingActionButton) findViewById(R.id.add_item_button);
-		floatingAddButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary, null)));
+		floatingAddButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorAccent, null)));
 		floatingAddButton.setOnClickListener(view -> toggleAddButton(false));
 
 		// Set up toolbar
@@ -683,6 +683,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	}
 
 	private void setUIColor(int color) {
+		//TODO don't need to change toolbar color anymore, and must set FAB to accent, not primary
 		toolbar.setBackgroundColor(color);
 		floatingAddButton.setBackgroundTintList(
 				ColorStateList.valueOf(
