@@ -9,18 +9,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
-import android.util.Log;
-import android.widget.Toast;
 
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -52,10 +47,11 @@ public class ExpirationManager {
 	}
 
 	private Notification getNotification() {
-		if (!DBManager.getInstance().isInitialized()) {
-			DBManager.getInstance().init(context);
+		ItemManager itemManager = ItemManager.getInstance();
+		if (!itemManager.isInitialized()) {
+			itemManager.init(context);
 		}
-		ArrayList<Item> expiring = ItemData.getInstance().getExpiringItems(getExpirationInterval(context));
+		ArrayList<Item> expiring = itemManager.getInstance().getExpiringItems(getExpirationInterval(context));
 		if (expiring.isEmpty()) {
 			return null;
 		}

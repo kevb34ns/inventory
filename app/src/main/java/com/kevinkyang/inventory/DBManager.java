@@ -17,7 +17,6 @@ public class DBManager {
 	private SQLiteDatabase database = null;
 
 	private ArrayList<String> inventories = null;
-	private ArrayList<Item> items = null;
 
 	private DBManager() {
 
@@ -87,66 +86,64 @@ public class DBManager {
 	}
 
 	public ArrayList<Item> getItems() {
-		if (items == null) {
-			items = new ArrayList<Item>();
-			if (database == null) {
-				return items;
-			}
-
-			if (inventories == null) {
-				getInventories();
-			}
-
-			String[] cols = {
-					TABLE_ITEMS.ROW_ID,
-					TABLE_ITEMS.KEY_NAME,
-					TABLE_ITEMS.KEY_CREATED,
-					TABLE_ITEMS.KEY_EXPIRES,
-					TABLE_ITEMS.KEY_QUANTITY,
-					TABLE_ITEMS.KEY_UNIT,
-					TABLE_ITEMS.KEY_TYPE,
-					TABLE_ITEMS.KEY_INVENTORY
-			};
-
-			Cursor cursor = database.query(
-					false, TABLE_ITEMS.TABLE_NAME,
-					cols, null, null, null, null, null, null);
-
-			if (cursor.moveToFirst()) {
-				// populate items array
-				for (int i = 0; i < cursor.getCount(); i++) {
-					long rowID = cursor.getLong(TABLE_ITEMS.COL_ROW_ID);
-					String name = cursor.getString(TABLE_ITEMS.COL_NAME);
-					String created = cursor.getString(TABLE_ITEMS.COL_CREATED);
-					String expires = cursor.getString(TABLE_ITEMS.COL_EXPIRES);
-					float quantity = cursor.getFloat(TABLE_ITEMS.COL_QUANTITY);
-					String unit = cursor.getString(TABLE_ITEMS.COL_UNIT);
-					String type = cursor.getString(TABLE_ITEMS.COL_TYPE);
-					String[] invTokens = cursor.getString(
-							TABLE_ITEMS.COL_INVENTORY).split("\\|");
-					boolean inGroceryList = false;
-					String inventory = "";
-					if (invTokens[0].equals("Grocery")) {
-						inGroceryList = true;
-						if (invTokens.length == 2) {
-							inventory = invTokens[1];
-						}
-					} else {
-						inventory = invTokens[0];
-					}
-
-					// add unlisted inventories to the database
-					if (!inventory.isEmpty() && !inventories.contains(inventory)) {
-						addInventory(inventory);
-						inventories.add(inventory);
-					}
-
-					items.add(new Item(rowID, name, created, expires, quantity, unit, type, inventory, inGroceryList));
-					cursor.moveToNext();
-				}
-			}
-			cursor.close();
+		ArrayList<Item> items = new ArrayList<Item>();
+		if (database == null) {
+			return items;
 		}
+
+		if (inventories == null) {
+			getInventories();
+		}
+
+		String[] cols = {
+				TABLE_ITEMS.ROW_ID,
+				TABLE_ITEMS.KEY_NAME,
+				TABLE_ITEMS.KEY_CREATED,
+				TABLE_ITEMS.KEY_EXPIRES,
+				TABLE_ITEMS.KEY_QUANTITY,
+				TABLE_ITEMS.KEY_UNIT,
+				TABLE_ITEMS.KEY_TYPE,
+				TABLE_ITEMS.KEY_INVENTORY
+		};
+
+		Cursor cursor = database.query(
+				false, TABLE_ITEMS.TABLE_NAME,
+				cols, null, null, null, null, null, null);
+
+		if (cursor.moveToFirst()) {
+			// populate items array
+			for (int i = 0; i < cursor.getCount(); i++) {
+				long rowID = cursor.getLong(TABLE_ITEMS.COL_ROW_ID);
+				String name = cursor.getString(TABLE_ITEMS.COL_NAME);
+				String created = cursor.getString(TABLE_ITEMS.COL_CREATED);
+				String expires = cursor.getString(TABLE_ITEMS.COL_EXPIRES);
+				float quantity = cursor.getFloat(TABLE_ITEMS.COL_QUANTITY);
+				String unit = cursor.getString(TABLE_ITEMS.COL_UNIT);
+				String type = cursor.getString(TABLE_ITEMS.COL_TYPE);
+				String[] invTokens = cursor.getString(
+						TABLE_ITEMS.COL_INVENTORY).split("\\|");
+				boolean inGroceryList = false;
+				String inventory = "";
+				if (invTokens[0].equals("Grocery")) {
+					inGroceryList = true;
+					if (invTokens.length == 2) {
+						inventory = invTokens[1];
+					}
+				} else {
+					inventory = invTokens[0];
+				}
+
+				// add unlisted inventories to the database
+				if (!inventory.isEmpty() && !inventories.contains(inventory)) {
+					addInventory(inventory);
+					inventories.add(inventory);
+				}
+
+				items.add(new Item(rowID, name, created, expires, quantity, unit, type, inventory, inGroceryList));
+				cursor.moveToNext();
+			}
+		}
+		cursor.close();
 
 		return items;
 	}
@@ -185,43 +182,6 @@ public class DBManager {
 
 		String[] whereArgs = { String.valueOf(item.getRowID()) };
 		database.update(TABLE_ITEMS.TABLE_NAME, values, "rowid=?", whereArgs);
-	}
-
-	public void updateItemColumn(Item item, int col) {
-		ContentValues cv = new ContentValues();
-		switch (col) {
-			case TABLE_ITEMS.COL_NAME:
-				cv.put(TABLE_ITEMS.KEY_NAME, item
-					.getName());
-				break;
-			case TABLE_ITEMS.COL_CREATED:
-				cv.put(TABLE_ITEMS.KEY_CREATED, item
-					.getCreatedDate());
-				break;
-			case TABLE_ITEMS.COL_EXPIRES:
-				cv.put(TABLE_ITEMS.KEY_EXPIRES, item
-					.getExpiresDate());
-				break;
-			case TABLE_ITEMS.COL_QUANTITY:
-				cv.put(TABLE_ITEMS.KEY_QUANTITY, item
-					.getQuantity());
-				break;
-			case TABLE_ITEMS.COL_UNIT:
-				cv.put(TABLE_ITEMS.KEY_UNIT, item
-					.getUnit());
-				break;
-			case TABLE_ITEMS.COL_TYPE:
-				cv.put(TABLE_ITEMS.KEY_TYPE, item
-					.getType());
-				break;
-			case TABLE_ITEMS.COL_INVENTORY:
-				cv.put(TABLE_ITEMS.KEY_INVENTORY, getInventoryString(item));
-				break;
-			default: return;
-		}
-
-		String[] whereArgs = { String.valueOf(item.getRowID()) };
-		database.update(TABLE_ITEMS.TABLE_NAME, cv, "rowid=?", whereArgs);
 	}
 
 	public int removeItem(Item item) {

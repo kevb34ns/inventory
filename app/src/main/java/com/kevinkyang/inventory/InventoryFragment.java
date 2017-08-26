@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class InventoryFragment extends Fragment implements CustomFragment {
 	private MainActivity parent;
 
-	private ItemData itemData = null;
+	private ItemManager itemManager = null;
 
 	private RecyclerView itemRecyclerView;
 	private ItemRVAdapter itemRVAdapter;
@@ -42,7 +42,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		// TODO this fragment can only be attached to com.kevinkyang.inventory.MainActivity, is this safe?
 		parent = (MainActivity) getActivity();
 
-		itemData = ItemData.getInstance();
+		itemManager = ItemManager.getInstance();
 
 		itemRVAdapter = new ItemRVAdapter(new ArrayList<Item>(), itemRecyclerView, this);
 		itemRecyclerView.setAdapter(itemRVAdapter);
@@ -124,12 +124,12 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	public void refresh() {
 		if (inventory != null && inventory.equals("Expiring")) {
 			itemRVAdapter.setItemsList(
-					itemData.getItemsByInventory(inventory,
+					itemManager.getItemsByInventory(inventory,
 							ExpirationManager.getExpirationInterval(
 									getContext())));
 		} else {
 			itemRVAdapter.setItemsList(
-					itemData.getItemsByInventory(inventory));
+					itemManager.getItemsByInventory(inventory));
 		}
 	}
 
@@ -159,7 +159,7 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	}
 
 	public void removeItem(Item item, int position) {
-		if (itemData.removeItem(item)) {
+		if (itemManager.removeItem(item)) {
 			itemRVAdapter.removeItem(position);
 		}
 	}
@@ -173,20 +173,20 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 	@Override
 	public void swapList(Item item, int position) {
 		item.setInGroceryList(true);
-		itemData.updateItem(item);
+		itemManager.updateItem(item);
 		itemRVAdapter.removeItem(position);
 	}
 
 	@Override
 	public void undoDelete(Item item, Integer position) {
-		itemData.addItem(item);
+		itemManager.addItem(item);
 		itemRVAdapter.addItem(item, position);
 	}
 
 	@Override
 	public void undoSwapList(Item item, Integer position) {
 		item.setInGroceryList(false);
-		itemData.updateItem(item);
+		itemManager.updateItem(item);
 		itemRVAdapter.addItem(item, position);
 	}
 }

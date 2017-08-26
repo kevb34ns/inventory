@@ -10,11 +10,11 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+
 public class GroceryFragment extends Fragment implements CustomFragment {
 	private MainActivity parent;
 
-	private ItemData itemData = null;
+	private ItemManager itemManager = null;
 
 	private RecyclerView itemRecyclerView;
 	private GroceryItemRVAdapter itemRVAdapter;
@@ -38,11 +38,11 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 		// this fragment can only be attached to MainActivity
 		parent = (MainActivity) getActivity();
 
-		itemData = ItemData.getInstance();
+		itemManager = ItemManager.getInstance();
 
 		itemRVAdapter =
 				new GroceryItemRVAdapter(
-						itemData.getGroceryListItems(), this);
+						itemManager.getGroceryListItems(), this);
 		itemRecyclerView.setAdapter(itemRVAdapter);
 		layoutManager = new LinearLayoutManager(parent);
 		itemRecyclerView.setLayoutManager(layoutManager);
@@ -78,7 +78,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 //		switch (item.getItemId()) {
 //			case R.id.list_item_delete:
 //				ItemBase it = itemAdapter.getItem(menuInfo.position);
-//				if (itemData.swapList(it)) {
+//				if (itemManager.swapList(it)) {
 //					itemAdapter.notifyDataSetChanged();
 //					return true;
 //				}
@@ -95,7 +95,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	 */
 	@Override
 	public void refresh() {
-		itemRVAdapter.setItemsList(itemData.getGroceryListItems());
+		itemRVAdapter.setItemsList(itemManager.getGroceryListItems());
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 
 	@Override
 	public void removeItem(Item item, int position) {
-		if (itemData.removeItem(item)) {
+		if (itemManager.removeItem(item)) {
 			itemRVAdapter.removeItem(position);
 		}
 	}
@@ -129,20 +129,20 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	@Override
 	public void swapList(Item item, int position) {
 		item.setInGroceryList(false);
-		itemData.updateItem(item);
+		itemManager.updateItem(item);
 		itemRVAdapter.removeItem(position);
 	}
 
 	@Override
 	public void undoDelete(Item item, Integer position) {
-		itemData.addItem(item);
+		itemManager.addItem(item);
 		itemRVAdapter.addItem(item, position);
 	}
 
 	@Override
 	public void undoSwapList(Item item, Integer position) {
 		item.setInGroceryList(true);
-		itemData.updateItem(item);
+		itemManager.updateItem(item);
 		itemRVAdapter.addItem(item, position);
 	}
 

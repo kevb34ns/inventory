@@ -17,13 +17,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Map;
-
-import expandableRVAdapter.ExpandableRecyclerViewAdapter;
-import expandableRVAdapter.ExpandableViewHolder;
 
 public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 	public static final int VIEWTYPE_GROUP = 0;
@@ -155,7 +150,7 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 			holder.colorTag.getLayoutParams().width = 6;
 			holder.colorTag.setBackgroundColor(
 					colorArray.getColor(item.getChildPosition(), 0));
-			int count = ItemData.getInstance()
+			int count = ItemManager.getInstance()
 					.getInventoryItemCount(item.getName());
 			holder.itemCountLabel.setVisibility(View.VISIBLE);
 			if (count < 100) {

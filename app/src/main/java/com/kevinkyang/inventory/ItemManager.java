@@ -1,26 +1,41 @@
 package com.kevinkyang.inventory;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 
 /**
  * singleton class that holds the item data
  */
 
-public class ItemData {
+public class ItemManager {
 	private ArrayList<Item> items = null;
 	private DBManager dbManager = DBManager.getInstance();
 
-	private static ItemData instance = null;
+	private static ItemManager instance = null;
+	private Context context = null;
 
-	public static ItemData getInstance() {
+	public static ItemManager getInstance() {
 		if (instance == null) {
-			instance = new ItemData();
+			instance = new ItemManager();
 		}
 		return instance;
 	}
 
-	private ItemData() {
+	private ItemManager() {
+
+	}
+
+	public void init(Context context) {
+		this.context = context;
+		if (!dbManager.isInitialized()) {
+			dbManager.init(context);
+		}
 		items = dbManager.getItems();
+	}
+
+	public boolean isInitialized() {
+		return context != null;
 	}
 
 	public void addItem(Item item) {

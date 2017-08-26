@@ -1,12 +1,10 @@
 package com.kevinkyang.inventory;
 
 import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	public static final String TAG = "inventory";
 	public static final int SETTINGS_REQUEST = 0x73;
 
-	private ItemData itemData = null;
+	private ItemManager itemManager = null;
 	private DBManager dbManager = null;
 	private SuggestionManager suggestionManager;
 	private FloatingActionButton floatingAddButton;
@@ -96,9 +94,11 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+		itemManager = ItemManager.getInstance();
+		if (!itemManager.isInitialized()) {
+			itemManager.init(this);
+		}
 		dbManager = DBManager.getInstance();
-		dbManager.init(this);
-		itemData = ItemData.getInstance();
 
 		suggestionManager = new SuggestionManager(this);
 		suggestionManager.executeThread();
@@ -597,7 +597,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		Item item = new Item(-1, name, TimeManager.getDateTimeLocal(),
 				expiresDate, quantity, unit, type, inventory,
 				inGroceryList);
-		itemData.addItem(item);
+		itemManager.addItem(item);
 		addToCurrentList(item);
 	}
 
@@ -615,7 +615,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		item.setInventory(inventory);
 		item.setInGroceryList(inGroceryList); // TODO is this needed
 
-		dbManager.updateItem(item);
+		itemManager.updateItem(item);
 		saveToCurrentList(position);
 	}
 

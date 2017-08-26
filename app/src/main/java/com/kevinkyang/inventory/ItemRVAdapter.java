@@ -33,7 +33,6 @@ public class ItemRVAdapter
 
 	private ArrayList<Item> items;
 	private InventoryFragment parent;
-	private DBManager dbManager;
 
 	private RecyclerView recyclerView;
 	private int expandedItemPosition;
@@ -48,7 +47,6 @@ public class ItemRVAdapter
 						 InventoryFragment parent) {
 		this.items = items;
 		this.parent = parent;
-		dbManager = DBManager.getInstance();
 
 		expandedItemPosition = RecyclerView.NO_POSITION;
 		this.recyclerView = recyclerView;
@@ -109,8 +107,7 @@ public class ItemRVAdapter
 			popup.setClearButtonClickListener(() -> {
 				holder.mExpiresDate.setText("");
 				item.setExpiresDate("");
-				DBManager dbManager = DBManager.getInstance();
-				dbManager.updateItemColumn(item, DBSchema.TABLE_ITEMS.COL_EXPIRES);
+				ItemManager.getInstance().updateItem(item);
 
 				ItemRVAdapter.this.notifyItemChanged(position,
 						PAYLOAD_EXP_EDIT);
@@ -127,8 +124,7 @@ public class ItemRVAdapter
 				if (!date.equals(item.getExpiresDate())) {
 					item.setExpiresDate(date);
 					holder.mExpiresDate.setText(date);
-					DBManager dbManager = DBManager.getInstance();
-					dbManager.updateItemColumn(item, DBSchema.TABLE_ITEMS.COL_EXPIRES);
+					ItemManager.getInstance().updateItem(item);
 				}
 
 				ItemRVAdapter.this.notifyItemChanged(position,
@@ -157,7 +153,7 @@ public class ItemRVAdapter
 			Item clickedItem = items.get(holder.getAdapterPosition());
 			if (clickedItem != null) {
 				clickedItem.setQuantity(clickedItem.getQuantity() + amount);
-				dbManager.updateItemColumn(clickedItem, DBSchema.TABLE_ITEMS.COL_QUANTITY);
+				ItemManager.getInstance().updateItem(clickedItem);
 
 				ItemRVAdapter.this.notifyItemChanged(position,
 						PAYLOAD_QUA_EDIT);

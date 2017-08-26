@@ -16,13 +16,11 @@ public class GroceryItemRVAdapter
 		implements ListItemTouchHelperCallback.ListItemTouchHelperListener {
 	private ArrayList<Item> items;
 	private GroceryFragment parent;
-	private DBManager dbManager;
 
 	public GroceryItemRVAdapter(ArrayList<Item> items,
 								GroceryFragment parent) {
 		this.items = items;
 		this.parent = parent;
-		dbManager = DBManager.getInstance();
 
 		setHasStableIds(true);
 	}
