@@ -1,5 +1,7 @@
 package com.kevinkyang.trie
 
+import java.util.*
+
 
 class TrieNode(var value: Char?, var endOfWord: Boolean = false) {
 
@@ -8,7 +10,7 @@ class TrieNode(var value: Char?, var endOfWord: Boolean = false) {
     fun getChild(char: Char): TrieNode? {
         for (node in children) {
             if (node.value == char) {
-                return node;
+                return node
             }
         }
 
@@ -20,9 +22,9 @@ class TrieNode(var value: Char?, var endOfWord: Boolean = false) {
         return children.last()
     }
 
-    fun getListOfChildren(): ArrayList<TrieNode> {
-        return ArrayList(children)
-    }
+    fun getChildrenIterator(): Iterator<TrieNode> = children.iterator()
+
+    fun hasChildren(): Boolean = children.isEmpty()
 }
 
 class Trie {
@@ -65,8 +67,8 @@ class Trie {
 
     fun search(prefix: String): ArrayList<String> {
         val results = ArrayList<String>()
-        //TODO for each character in the prefix, go to the next trienode, immediately returning if a child is not found. if you get through the whole prefix, store it in lastSearchTerm/Node. Check if the prefix itself is a word, then traverse to the end of each subtrie and add those to the list
-        var curNode = root;
+
+        var curNode = root
         for (char in prefix) {
             val child = curNode.getChild(char)
             if (child == null) {
@@ -83,19 +85,51 @@ class Trie {
             results.add(prefix)
         }
 
-        val children = curNode.getListOfChildren()
-        for (child in children) {
-            traverse(child, StringBuilder(prefix), results)
+        curNode.getChildrenIterator().forEach {
+            node -> traverse(node, StringBuilder(prefix), results)
         }
 
         return results
     }
 
-    //TODO better name
+    //TODO better name, test, document, decide on rec or iter
     private fun traverse(root: TrieNode, prefix: StringBuilder, results: ArrayList<String>) {
+        if (root.value != null) {
+            val c = root.value
+            prefix.append(c)
+        }
 
-        //TODO depth-first traversal of the subtrie; each recursive call/iteration adds to the prefix. When you get to an endofword, add to results. After making the recursive calls, delete the last character from the stringbuilder; converting to iterative would reduce space complexity
+        if (root.endOfWord) {
+            results.add(prefix.toString())
+        } else {
+            root.getChildrenIterator().forEach {
+                node -> traverse(node, prefix, results)
+            }
+        }
 
+        prefix.setLength(prefix.length - 1)
+    }
 
+    private fun traverseIterative(root: TrieNode, prefix: StringBuilder, results: ArrayList<String>) {
+        val stack = Stack<TrieNode>()
+
+        stack.push(root)
+        while (!stack.empty()) {
+            val node = stack.pop()
+            if (node.value != null) {
+                val c = root.value
+                prefix.append(c)
+            }
+
+            if (root.endOfWord) {
+                results.add(prefix.toString())
+            } else {
+                node.getChildrenIterator().forEach {
+                    node -> stack.push(node)
+                }
+            }
+
+            prefix.setLength(prefix.length - 1)
+        }
     }
 }
