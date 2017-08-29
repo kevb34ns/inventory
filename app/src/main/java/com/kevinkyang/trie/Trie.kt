@@ -1,38 +1,34 @@
 package com.kevinkyang.trie
 
-import java.util.*
+import java.util.Stack
 
 
-class TrieNode(var value: Char?, var endOfWord: Boolean = false) {
+class TrieNode(var value: Char?,
+               val parent: TrieNode? = null,
+               var endOfWord: Boolean = false) {
 
     private val children: ArrayList<TrieNode> = ArrayList()
 
     fun getChild(char: Char): TrieNode? {
-        for (node in children) {
-            if (node.value == char) {
-                return node
-            }
+        return children.find {
+            node -> node.value == char
         }
-
-        return null
     }
 
+    //TODO check for duplicates
     fun addChild(value: Char, endOfWord: Boolean = false): TrieNode {
-        children.add(TrieNode(value, endOfWord))
+        children.add(TrieNode(value, this, endOfWord))
         return children.last()
     }
 
     fun getChildrenIterator(): Iterator<TrieNode> = children.iterator()
-
-    fun hasChildren(): Boolean = children.isEmpty()
 }
 
-class Trie {
+class Trie(private val caseSensitive: Boolean = false) {
 
-    val root: TrieNode = TrieNode(null)
+    private val root: TrieNode = TrieNode(null)
 
-    //TODO store the last searched term and node here; that way, if the user just searches for the same term with a new letter, you don't have to restart the search; clear this when you modify the trie as things may have changed;
-    //TODO should we modify TrieNode to have a reference to its parent, so you can do this for searches where the user gives the same word with a letter deleted? it seems that you can store a reference to the parent without storing a whole new object
+    //TODO clear last term/node when you modify the trie as things may have changed
     private var lastSearchTerm: String? = null
     private var lastSearchNode: TrieNode? = null
 
@@ -44,19 +40,27 @@ class Trie {
         }
     }
 
+    fun buildTrie(wordList: Array<String>) {
+        for (word in wordList) {
+            addWord(word)
+        }
+    }
+
     fun addWord(word: String) {
+        var _word = if (caseSensitive) word else word.toLowerCase()
+
         var curNode = root
-        for ((index, char) in word.withIndex()) {
+        for ((index, char) in _word.withIndex()) {
             val child = curNode.getChild(char)
             if (child == null) { // child does not exist yet
                 var endOfWord = false
-                if (index == word.lastIndex) {
+                if (index == _word.lastIndex) {
                     endOfWord = true
                 }
 
                 curNode = curNode.addChild(char, endOfWord)
             } else {
-                if (index == word.lastIndex) {
+                if (index == _word.lastIndex) {
                     child.endOfWord = true
                 }
 
@@ -70,14 +74,9 @@ class Trie {
 
         var curNode = root
         for (char in prefix) {
-            val child = curNode.getChild(char)
-            if (child == null) {
-                return results
-            } else {
-                curNode = child
-            }
+            curNode = curNode.getChild(char) ?: return results
         }
-
+        //TODO actually use these
         lastSearchNode = curNode
         lastSearchTerm = prefix
 
@@ -92,7 +91,19 @@ class Trie {
         return results
     }
 
-    //TODO better name, test, document, decide on rec or iter
+    private fun doesAddToLastSearch(newSearchTerm: String): Boolean {
+        val old = lastSearchTerm
+        return old != null && newSearchTerm.startsWith(old, !caseSensitive)
+    }
+
+    private fun doesSubtractFromLastSearch(newSearchTerm: String): Boolean {
+        val old = lastSearchTerm ?: return false
+
+        val diff = old.length - newSearchTerm.length
+        return old != null && diff == 1 &&  old.startsWith(newSearchTerm, !caseSensitive)
+    }
+
+    //TODO better name, test, document
     private fun traverse(root: TrieNode, prefix: StringBuilder, results: ArrayList<String>) {
         if (root.value != null) {
             val c = root.value
@@ -101,35 +112,12 @@ class Trie {
 
         if (root.endOfWord) {
             results.add(prefix.toString())
-        } else {
-            root.getChildrenIterator().forEach {
-                node -> traverse(node, prefix, results)
-            }
+        }
+
+        root.getChildrenIterator().forEach {
+            node -> traverse(node, prefix, results)
         }
 
         prefix.setLength(prefix.length - 1)
-    }
-
-    private fun traverseIterative(root: TrieNode, prefix: StringBuilder, results: ArrayList<String>) {
-        val stack = Stack<TrieNode>()
-
-        stack.push(root)
-        while (!stack.empty()) {
-            val node = stack.pop()
-            if (node.value != null) {
-                val c = root.value
-                prefix.append(c)
-            }
-
-            if (root.endOfWord) {
-                results.add(prefix.toString())
-            } else {
-                node.getChildrenIterator().forEach {
-                    node -> stack.push(node)
-                }
-            }
-
-            prefix.setLength(prefix.length - 1)
-        }
     }
 }
