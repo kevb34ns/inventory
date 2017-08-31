@@ -23,6 +23,17 @@ class TrieNode(var value: Char?,
         return children.last()
     }
 
+    fun removeChild(value: Char) {
+        children.forEachIndexed { index, node ->
+            if (node.value == value) {
+                children.removeAt(index)
+                return
+            }
+        }
+    }
+
+    fun hasChildren(): Boolean = !children.isEmpty()
+
     fun getChildrenIterator(): Iterator<TrieNode> = children.iterator()
 }
 
@@ -32,8 +43,6 @@ class Trie(private val caseSensitive: Boolean = false) {
 
     private var mLastSearchNode: TrieNode? = null
     private var mLastSearchTerm: String? = null
-
-    // TODO is there more efficient way to search a Trie's children?
 
     fun buildTrie(wordList: ArrayList<String>) {
         for (word in wordList) {
@@ -71,6 +80,16 @@ class Trie(private val caseSensitive: Boolean = false) {
         }
     }
 
+    fun removeWord(word: String) {
+        var curNode = getEndOfWord(word) ?: return
+        curNode.endOfWord = false
+        while (!curNode.hasChildren()) {
+            val c = curNode.value ?: return
+            curNode = curNode.parent ?: return
+            curNode.removeChild(c)
+        }
+    }
+
     fun search(prefix: String): ArrayList<String> {
         val results = ArrayList<String>()
 
@@ -96,13 +115,18 @@ class Trie(private val caseSensitive: Boolean = false) {
         if (lastSearchNode != null && lastSearchTerm != null) {
             if (doesAddToLastSearch(prefix)) {
                 return lastSearchNode.getChild(prefix[lastSearchTerm.length])
-            } else if(hasLastSearch() && doesSubtractFromLastSearch(prefix)) {
+            } else if(doesSubtractFromLastSearch(prefix)) {
                 return lastSearchNode.parent
             }
         }
 
+        return getEndOfWord(prefix)
+    }
+
+    private fun getEndOfWord(word: String): TrieNode? {
         var node = mRoot
-        for (char in prefix) {
+
+        for (char in word) {
             node = node.getChild(char) ?: return null
         }
 
@@ -120,9 +144,6 @@ class Trie(private val caseSensitive: Boolean = false) {
         val diff = old.length - newSearchTerm.length
         return diff == 1 &&  old.startsWith(newSearchTerm, !caseSensitive)
     }
-
-    private fun hasLastSearch(): Boolean =
-            mLastSearchNode != null && mLastSearchTerm != null
 
     private fun clearLastSearch() {
         mLastSearchNode = null
