@@ -1,6 +1,9 @@
 package com.kevinkyang.inventory;
 
 import android.content.Context;
+import android.os.AsyncTask;
+
+import com.kevinkyang.trie.Trie;
 
 import java.util.ArrayList;
 
@@ -10,6 +13,7 @@ import java.util.ArrayList;
 
 public class ItemManager {
 	private ArrayList<Item> items = null;
+	private Trie searchTrie = new Trie();
 	private DBManager dbManager = DBManager.getInstance();
 
 	private static ItemManager instance = null;
@@ -32,6 +36,7 @@ public class ItemManager {
 			dbManager.init(context);
 		}
 		items = dbManager.getItems();
+		searchTrie.buildTrie(getItemNames());
 	}
 
 	public boolean isInitialized() {
@@ -40,24 +45,29 @@ public class ItemManager {
 
 	public void addItem(Item item) {
 		items.add(item);
+		searchTrie.addWord(item.getName());
 		dbManager.addItem(item);
 	}
 
 	public void updateItem(Item item) {
 		dbManager.updateItem(item);
+		searchTrie.addWord(item.getName());
 	}
 
 	public boolean removeItem(Item item) {
 		if (dbManager.removeItem(item) == 1) {
 			items.remove(item);
+			if (!doesNameExist(item.getName())) {
+				searchTrie.removeWord(item.getName());
+			}
 			return true;
-		}
-		else return false;
+		} else return false;
 	}
 
 	/**
 	 * Get all items except for those in the
 	 * grocery list.
+	 *
 	 * @return List of items in the inventory.
 	 */
 	public ArrayList<Item> getInventoryItems() {
@@ -72,6 +82,7 @@ public class ItemManager {
 
 	/**
 	 * TODO description here
+	 *
 	 * @param inventory the name of the inventory the items
 	 *                  are located in, or null to return
 	 *                  all items.
@@ -103,6 +114,7 @@ public class ItemManager {
 
 	/**
 	 * TODO inefficient alg, description needed
+	 *
 	 * @param inventory the name of the inventory the items
 	 *                  are located in, or null for all items.
 	 * @return the number of items in the specified inventory
@@ -123,7 +135,7 @@ public class ItemManager {
 	}
 
 	public ArrayList<Item> getExpiringItems(int rangeInDays) {
-		ArrayList<Item> expiring = new ArrayList<Item>();
+		ArrayList<Item> expiring = new ArrayList<>();
 		for (Item item : items) {
 			if (item.isInGroceryList()) {
 				// ignore grocery items
@@ -148,4 +160,72 @@ public class ItemManager {
 
 		return expiring;
 	}
+
+	private ArrayList<String> getItemNames() {
+		ArrayList<String> names = new ArrayList<>();
+
+		if (items != null) {
+			for (Item item : items) {
+				names.add(item.getName());
+			}
+		}
+
+		return names;
+	}
+
+	/**
+	 * Checks whether a given item name exists in the items list.
+	 *
+	 * @param name The name of the item.
+	 * @return true if at least one item has this name, false otherwise.
+	 */
+	private boolean doesNameExist(String name) {
+
+		if (items != null) {
+			for (Item item : items) {
+				if (item.getName().equals(name)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * A listener interface to be used by clients to receive
+	 * the results of an item search.
+	 */
+	public interface OnSearchFinishedListener {
+		public void onSearchFinished(ArrayList<Item> results);
+	}
+
+	private class ItemSearchTask
+			extends AsyncTask<String, Void, ArrayList<Item>> {
+
+		private OnSearchFinishedListener listener;
+
+		public ItemSearchTask(OnSearchFinishedListener listener) {
+			this.listener = listener;
+		}
+
+		@Override
+		protected ArrayList<Item> doInBackground(String... strings) {
+			ArrayList<Item> result = new ArrayList<>();
+
+			//TODO for now, search the first string in the params only; in the future, could have multiple
+			if (strings.length == 0) {
+				return result;
+			}
+
+			// TODO search the trie, use the resulting names to add the corresponding items to the results list and return it
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<Item> result) {
+			// TODO notify listener
+		}
+	}
 }
+
