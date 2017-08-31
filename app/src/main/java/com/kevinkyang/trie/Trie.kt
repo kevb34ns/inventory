@@ -1,7 +1,5 @@
 package com.kevinkyang.trie
 
-import java.util.Stack
-
 
 class TrieNode(var value: Char?,
                val parent: TrieNode? = null,
@@ -15,8 +13,12 @@ class TrieNode(var value: Char?,
         }
     }
 
-    //TODO check for duplicates
     fun addChild(value: Char, endOfWord: Boolean = false): TrieNode {
+        val child = getChild(value)
+        if (child != null) {
+            return child
+        }
+
         children.add(TrieNode(value, this, endOfWord))
         return children.last()
     }
@@ -26,11 +28,10 @@ class TrieNode(var value: Char?,
 
 class Trie(private val caseSensitive: Boolean = false) {
 
-    private val root: TrieNode = TrieNode(null)
+    private val mRoot: TrieNode = TrieNode(null)
 
-    //TODO clear last term/node when you modify the trie as things may have changed
-    private var lastSearchTerm: String? = null
-    private var lastSearchNode: TrieNode? = null
+    private var mLastSearchNode: TrieNode? = null
+    private var mLastSearchTerm: String? = null
 
     // TODO is there more efficient way to search a Trie's children?
 
@@ -47,9 +48,10 @@ class Trie(private val caseSensitive: Boolean = false) {
     }
 
     fun addWord(word: String) {
-        var _word = if (caseSensitive) word else word.toLowerCase()
+        val _word = if (caseSensitive) word else word.toLowerCase()
+        clearLastSearch()
 
-        var curNode = root
+        var curNode = mRoot
         for ((index, char) in _word.withIndex()) {
             val child = curNode.getChild(char)
             if (child == null) { // child does not exist yet
@@ -72,13 +74,10 @@ class Trie(private val caseSensitive: Boolean = false) {
     fun search(prefix: String): ArrayList<String> {
         val results = ArrayList<String>()
 
-        var curNode = root
-        for (char in prefix) {
-            curNode = curNode.getChild(char) ?: return results
-        }
-        //TODO actually use these
-        lastSearchNode = curNode
-        lastSearchTerm = prefix
+        val curNode = getSearchNode(prefix) ?: return results
+
+        mLastSearchNode = curNode
+        mLastSearchTerm = prefix
 
         if (curNode.endOfWord) {
             results.add(prefix)
@@ -91,19 +90,45 @@ class Trie(private val caseSensitive: Boolean = false) {
         return results
     }
 
+    private fun getSearchNode(prefix: String): TrieNode? {
+        val lastSearchNode = mLastSearchNode
+        val lastSearchTerm = mLastSearchTerm
+        if (lastSearchNode != null && lastSearchTerm != null) {
+            if (doesAddToLastSearch(prefix)) {
+                return lastSearchNode.getChild(prefix[lastSearchTerm.length])
+            } else if(hasLastSearch() && doesSubtractFromLastSearch(prefix)) {
+                return lastSearchNode.parent
+            }
+        }
+
+        var node = mRoot
+        for (char in prefix) {
+            node = node.getChild(char) ?: return null
+        }
+
+        return node
+    }
+
     private fun doesAddToLastSearch(newSearchTerm: String): Boolean {
-        val old = lastSearchTerm
-        return old != null && newSearchTerm.startsWith(old, !caseSensitive)
+        val old = mLastSearchTerm ?: return false
+        return newSearchTerm.startsWith(old, !caseSensitive)
     }
 
     private fun doesSubtractFromLastSearch(newSearchTerm: String): Boolean {
-        val old = lastSearchTerm ?: return false
+        val old = mLastSearchTerm ?: return false
 
         val diff = old.length - newSearchTerm.length
-        return old != null && diff == 1 &&  old.startsWith(newSearchTerm, !caseSensitive)
+        return diff == 1 &&  old.startsWith(newSearchTerm, !caseSensitive)
     }
 
-    //TODO better name, test, document
+    private fun hasLastSearch(): Boolean =
+            mLastSearchNode != null && mLastSearchTerm != null
+
+    private fun clearLastSearch() {
+        mLastSearchNode = null
+        mLastSearchTerm = null
+    }
+
     private fun traverse(root: TrieNode, prefix: StringBuilder, results: ArrayList<String>) {
         if (root.value != null) {
             val c = root.value
