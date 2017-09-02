@@ -1,6 +1,7 @@
 package com.kevinkyang.inventory;
 
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,6 +23,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.text.SpannableString;
@@ -184,6 +186,15 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main_options_menu, menu);
+
+		SearchManager searchManager =
+				(SearchManager) getSystemService(Context.SEARCH_SERVICE);
+		SearchView searchView =
+				(SearchView) menu.findItem(R.id.options_item_search)
+						.getActionView();
+		searchView.setSearchableInfo(
+				searchManager.getSearchableInfo(getComponentName()));
+
 		return true;
 	}
 

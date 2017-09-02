@@ -161,6 +161,11 @@ public class ItemManager {
 		return expiring;
 	}
 
+	public void search(String query, OnSearchFinishedListener listener) {
+		ItemSearchTask itemSearch = new ItemSearchTask(listener);
+		itemSearch.execute(query);
+	}
+
 	private ArrayList<String> getItemNames() {
 		ArrayList<String> names = new ArrayList<>();
 
@@ -214,17 +219,27 @@ public class ItemManager {
 			ArrayList<Item> result = new ArrayList<>();
 
 			//TODO for now, search the first string in the params only; in the future, could have multiple
-			if (strings.length == 0) {
+			if (strings.length == 0 || strings[0] == null) {
 				return result;
 			}
 
-			// TODO search the trie, use the resulting names to add the corresponding items to the results list and return it
-			return null;
+			ArrayList<String> names = searchTrie.search(strings[0]);
+			for (String name : names) {
+				for (Item item : items) {
+					if (item.getName() == name) {
+						result.add(item);
+					}
+				}
+			}
+
+			return result;
 		}
 
 		@Override
 		protected void onPostExecute(ArrayList<Item> result) {
-			// TODO notify listener
+			if (listener != null) {
+				listener.onSearchFinished(result);
+			}
 		}
 	}
 }

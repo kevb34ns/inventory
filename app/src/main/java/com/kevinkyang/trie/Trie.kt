@@ -1,6 +1,6 @@
 package com.kevinkyang.trie
 
-
+//TODO handle whitespaces and other special chars by ignoring them?
 class TrieNode(var value: Char?,
                val parent: TrieNode? = null,
                var endOfWord: Boolean = false) {

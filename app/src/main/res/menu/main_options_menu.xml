@@ -12,7 +12,8 @@
         android:id="@+id/options_item_search"
         android:title="Search"
         android:icon="@drawable/ic_search"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="collapseActionView|ifRoom"
+        app:actionViewClass="android.support.v7.widget.SearchView"/>
 
     <item
         android:id="@+id/options_item_suggestions"

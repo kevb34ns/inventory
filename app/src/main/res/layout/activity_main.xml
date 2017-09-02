@@ -26,7 +26,6 @@
             app:titleTextAppearance="@style/AppTheme.Toolbar.Title"
             android:theme="@style/ToolbarTheme">
 
-            <!--TODO custom view items here-->
         </android.support.v7.widget.Toolbar>
 
         <android.support.design.widget.CoordinatorLayout
