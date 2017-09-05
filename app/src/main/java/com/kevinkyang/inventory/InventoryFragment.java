@@ -106,6 +106,11 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 		parent.changeActionBarTitle(inventory);
 	}
 
+	public void showSearchResults(String query, ArrayList<Item> items) {
+		itemRVAdapter.setItemsList(items);
+		parent.changeActionBarTitle("Results for: " + query);
+	}
+
 	public String getCurrentInventory() {
 		//TODO this can be null even though in the db an empty string represents no inv, which causes confusion
 		return inventory;

@@ -113,7 +113,9 @@ class Trie(private val caseSensitive: Boolean = false) {
         val lastSearchNode = mLastSearchNode
         val lastSearchTerm = mLastSearchTerm
         if (lastSearchNode != null && lastSearchTerm != null) {
-            if (doesAddToLastSearch(prefix)) {
+            if (prefix == lastSearchTerm) {
+                return lastSearchNode
+            } else if (doesAddToLastSearch(prefix)) {
                 return lastSearchNode.getChild(prefix[lastSearchTerm.length])
             } else if(doesSubtractFromLastSearch(prefix)) {
                 return lastSearchNode.parent

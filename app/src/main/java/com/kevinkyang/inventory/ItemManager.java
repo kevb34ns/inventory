@@ -226,7 +226,8 @@ public class ItemManager {
 			ArrayList<String> names = searchTrie.search(strings[0]);
 			for (String name : names) {
 				for (Item item : items) {
-					if (item.getName() == name) {
+					String itemName = item.getName().toLowerCase();
+					if (itemName.equals(name)) {
 						result.add(item);
 					}
 				}

@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	private SuggestionManager suggestionManager;
 	private FloatingActionButton floatingAddButton;
 
+	private SearchView mSearchView;
+
 	private DrawerLayout drawerLayout;
 	private RecyclerView drawerRV;
 	private DrawerRVAdapter drawerRVAdapter;
@@ -148,6 +150,9 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 					.commit();
 		}
 
+		//TODO should probably handle the 'getIntent' below this in handleIntent too
+		handleIntent(getIntent());
+
 		Intent intent = getIntent();
 		String intentInventory = intent.getStringExtra("inventory");
 		if (intentInventory != null) {
@@ -183,17 +188,43 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	}
 
 	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		handleIntent(intent);
+	}
+
+	private void handleIntent(Intent intent) {
+		if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
+			final String query = intent.getStringExtra(SearchManager.QUERY);
+			// TODO eventually, use searchview's onquerytextlistener to search every time the search text changes (put in an autocompletetextview maybe?
+
+			toolbar.collapseActionView();
+			if (itemManager != null) {
+				itemManager.search(query, (items) -> {
+					inventoryFragment.showSearchResults(query, items);
+				});
+				changeFragments("0");
+			}
+		}
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main_options_menu, menu);
 
 		SearchManager searchManager =
 				(SearchManager) getSystemService(Context.SEARCH_SERVICE);
-		SearchView searchView =
+		mSearchView =
 				(SearchView) menu.findItem(R.id.options_item_search)
 						.getActionView();
-		searchView.setSearchableInfo(
+		mSearchView.setSearchableInfo(
 				searchManager.getSearchableInfo(getComponentName()));
+
+		EditText searchField = (EditText) mSearchView.findViewById(
+				android.support.v7.appcompat.R.id.search_src_text);
+		searchField.setTextColor(getResources()
+				.getColor(R.color.defaultTextColor));
 
 		return true;
 	}
