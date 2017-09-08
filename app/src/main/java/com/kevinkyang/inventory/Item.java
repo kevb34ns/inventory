@@ -4,21 +4,21 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Object representing an inventory item
+ * Object representing an mInventory item
  */
 
 public class Item implements Parcelable{
-	private long rowID;
-	private String name;
-	private String createdDate;
-	private String expiresDate;
-	private float quantity;
-	private String unit;
-	private String type;
-	private String inventory;
-	private boolean inGroceryList;
+	private long mRowID;
+	private String mName;
+	private String mCreatedDate;
+	private String mExpiresDate;
+	private float mQuantity;
+	private String mUnit;
+	private String mType;
+	private String mInventory;
+	private boolean mInGroceryList;
 
-	private int daysUntilExpiration;
+	private int mDaysUntilExpiration;
 
 	public Item(long rowID,
 				String name,
@@ -29,111 +29,111 @@ public class Item implements Parcelable{
 				String type,
 				String inventory,
 				boolean inGroceryList) {
-		this.rowID = rowID;
-		this.name = name;
-		this.createdDate = createdDate;
-		this.expiresDate = expiresDate;
-		this.quantity = quantity;
-		this.unit = unit;
-		this.type = type;
-		this.inventory = inventory;
-		this.inGroceryList = inGroceryList;
+		mRowID = rowID;
+		mName = name;
+		mCreatedDate = createdDate;
+		mExpiresDate = expiresDate;
+		mQuantity = quantity;
+		mUnit = unit;
+		mType = type;
+		mInventory = inventory;
+		mInGroceryList = inGroceryList;
 	}
 
 	private Item(Parcel in) {
-		rowID = in.readLong();
-		name = in.readString();
-		createdDate = in.readString();
-		expiresDate = in.readString();
-		quantity = in.readFloat();
-		unit = in.readString();
-		type = in.readString();
-		inventory = in.readString();
-		inGroceryList = in.readByte() != 0;
-		daysUntilExpiration = in.readInt();
+		mRowID = in.readLong();
+		mName = in.readString();
+		mCreatedDate = in.readString();
+		mExpiresDate = in.readString();
+		mQuantity = in.readFloat();
+		mUnit = in.readString();
+		mType = in.readString();
+		mInventory = in.readString();
+		mInGroceryList = in.readByte() != 0;
+		mDaysUntilExpiration = in.readInt();
 	}
 
 	public long getRowID() {
-		return rowID;
+		return mRowID;
 	}
 
 	public void setRowID(long rowID) {
-		this.rowID = rowID;
+		this.mRowID = rowID;
 	}
 
 	public String getName() {
-		return name;
+		return mName;
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.mName = name;
 	}
 
 	public String getCreatedDate() {
-		return createdDate;
+		return mCreatedDate;
 	}
 
 	public void setCreatedDate(String createdDate) {
-		this.createdDate = createdDate;
+		this.mCreatedDate = createdDate;
 	}
 
 	public String getExpiresDate() {
-		return expiresDate;
+		return mExpiresDate;
 	}
 
 	public void setExpiresDate(String expiresDate) {
-		this.expiresDate = expiresDate;
+		this.mExpiresDate = expiresDate;
 	}
 
 	public float getQuantity() {
-		return quantity;
+		return mQuantity;
 	}
 
 	public void setQuantity(float quantity) {
 		if (quantity >= 0) {
-			// quantity MUST be non-negative
-			this.quantity = quantity;
+			// mQuantity MUST be non-negative
+			this.mQuantity = quantity;
 		}
 	}
 
 	public String getUnit() {
-		return unit;
+		return mUnit;
 	}
 
 	public void setUnit(String unit) {
-		this.unit = unit;
+		this.mUnit = unit;
 	}
 
 	public String getType() {
-		return type;
+		return mType;
 	}
 
 	public void setType(String type) {
-		this.type = type;
+		this.mType = type;
 	}
 
 	public String getInventory() {
-		return inventory;
+		return mInventory;
 	}
 
 	public void setInventory(String inventory) {
-		this.inventory = inventory;
+		this.mInventory = inventory;
 	}
 
 	public boolean isInGroceryList() {
-		return inGroceryList;
+		return mInGroceryList;
 	}
 
 	public void setInGroceryList(boolean inGroceryList) {
-		this.inGroceryList = inGroceryList;
+		this.mInGroceryList = inGroceryList;
 	}
 
 	public int getDaysUntilExpiration() {
-		return daysUntilExpiration;
+		return mDaysUntilExpiration;
 	}
 
 	public void setDaysUntilExpiration(int daysUntilExpiration) {
-		this.daysUntilExpiration = daysUntilExpiration;
+		this.mDaysUntilExpiration = daysUntilExpiration;
 	}
 
 	public static final Creator<Item> CREATOR = new Creator<Item>() {
@@ -155,15 +155,15 @@ public class Item implements Parcelable{
 
 	@Override
 	public void writeToParcel(Parcel parcel, int i) {
-		parcel.writeLong(rowID);
-		parcel.writeString(name);
-		parcel.writeString(createdDate);
-		parcel.writeString(expiresDate);
-		parcel.writeFloat(quantity);
-		parcel.writeString(unit);
-		parcel.writeString(type);
-		parcel.writeString(inventory);
-		parcel.writeByte((byte) (inGroceryList ? 1 : 0));
-		parcel.writeInt(daysUntilExpiration);
+		parcel.writeLong(mRowID);
+		parcel.writeString(mName);
+		parcel.writeString(mCreatedDate);
+		parcel.writeString(mExpiresDate);
+		parcel.writeFloat(mQuantity);
+		parcel.writeString(mUnit);
+		parcel.writeString(mType);
+		parcel.writeString(mInventory);
+		parcel.writeByte((byte) (mInGroceryList ? 1 : 0));
+		parcel.writeInt(mDaysUntilExpiration);
 	}
 }

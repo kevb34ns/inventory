@@ -24,10 +24,10 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 public class ExpirationManager {
 	public static final String DEFAULT_NOTIFICATION_TIME = "12:00 PM";
 
-	private Context context;
+	private Context mContext;
 
 	public ExpirationManager(Context context) {
-		this.context = context;
+		mContext = context;
 	}
 
 	// returns a String with bolded title + content
@@ -49,9 +49,9 @@ public class ExpirationManager {
 	private Notification getNotification() {
 		ItemManager itemManager = ItemManager.getInstance();
 		if (!itemManager.isInitialized()) {
-			itemManager.init(context);
+			itemManager.init(mContext);
 		}
-		ArrayList<Item> expiring = itemManager.getInstance().getExpiringItems(getExpirationInterval(context));
+		ArrayList<Item> expiring = itemManager.getInstance().getExpiringItems(getExpirationInterval(mContext));
 		if (expiring.isEmpty()) {
 			return null;
 		}
@@ -78,11 +78,11 @@ public class ExpirationManager {
 			}
 		}
 
-		Intent clickIntent = new Intent(context, MainActivity.class);
+		Intent clickIntent = new Intent(mContext, MainActivity.class);
 		clickIntent.putExtra("inventory", "Expiring");
 		PendingIntent clickPendingIntent =
 				PendingIntent.getActivity(
-						context,
+						mContext,
 						0,
 						clickIntent,
 						PendingIntent.FLAG_UPDATE_CURRENT
@@ -116,12 +116,12 @@ public class ExpirationManager {
 		}
 
 		int accentColor =
-			context
+			mContext
 				.getResources()
 				.getColor(R.color.colorPrimary, null);
 
 		NotificationCompat.Builder builder =
-				new NotificationCompat.Builder(context)
+				new NotificationCompat.Builder(mContext)
 						.setSmallIcon(R.drawable.ic_action_inbox)
 						.setContentTitle(contentTitle)
 						.setContentText(contentText)
@@ -139,49 +139,49 @@ public class ExpirationManager {
 		}
 
 		int notificationId = 1;
-		NotificationManager notifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+		NotificationManager notifyMgr = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
 		notifyMgr.notify(notificationId, notification);
 	}
 
 	public void scheduleNotifications() {
-		Intent intent = new Intent(context, NotificationReceiver.class);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		Intent intent = new Intent(mContext, NotificationReceiver.class);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(context);
+				.getDefaultSharedPreferences(mContext);
 		String timeString = prefs.getString(
 				SettingsFragment.PREFKEY_NOTIFICATION_TIME,
 				DEFAULT_NOTIFICATION_TIME);
 
 		Calendar cal = TimeManager.timeStringToCal(timeString);
 
-		AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		AlarmManager alarmMgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
 		alarmMgr.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(),
 				AlarmManager.INTERVAL_DAY, pendingIntent); //TODO could this be inexact?
 
 		// enable NotificationReceiver
-		ComponentName receiver = new ComponentName(context, NotificationReceiver.class);
-		PackageManager pm = context.getPackageManager();
+		ComponentName receiver = new ComponentName(mContext, NotificationReceiver.class);
+		PackageManager pm = mContext.getPackageManager();
 		pm.setComponentEnabledSetting(receiver,
 				PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
 				PackageManager.DONT_KILL_APP);
 	}
 
 	public void cancelNotifications() {
-		Intent intent = new Intent(context, NotificationReceiver.class);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		Intent intent = new Intent(mContext, NotificationReceiver.class);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		if (pendingIntent == null) {
 			return;
 		}
 
-		AlarmManager alarmMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		AlarmManager alarmMgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
 		alarmMgr.cancel(pendingIntent);
 		pendingIntent.cancel();
 
 		// disable NotificationReceiver
-		ComponentName receiver = new ComponentName(context, NotificationReceiver.class);
-		PackageManager pm = context.getPackageManager();
+		ComponentName receiver = new ComponentName(mContext, NotificationReceiver.class);
+		PackageManager pm = mContext.getPackageManager();
 		pm.setComponentEnabledSetting(receiver,
 				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
 				PackageManager.DONT_KILL_APP);

@@ -34,16 +34,16 @@ public class SuggestionManager {
 	public static final int LOCAL_INDEX = 0;
 	public static final int ASSET_INDEX = 1;
 
-	private Context context;
-	private ArrayList<SuggestionItem> itemSuggestions;
-	private ArrayList<String> typeSuggestions;
-	private ArrayList<String> unitSuggestions;
+	private Context mContext;
+	private ArrayList<SuggestionItem> mItemSuggestions;
+	private ArrayList<String> mTypeSuggestions;
+	private ArrayList<String> mUnitSuggestions;
 
 	public SuggestionManager(Context context) {
-		this.context = context;
-		itemSuggestions = new ArrayList<SuggestionItem>();
-		typeSuggestions = new ArrayList<String>();
-		unitSuggestions = new ArrayList<String>();
+		mContext = context;
+		mItemSuggestions = new ArrayList<SuggestionItem>();
+		mTypeSuggestions = new ArrayList<String>();
+		mUnitSuggestions = new ArrayList<String>();
 	}
 
 	public void executeThread() {
@@ -59,15 +59,15 @@ public class SuggestionManager {
 	 * @return a copy of the suggestion items array
 	 */
 	public ArrayList<SuggestionItem> getItemSuggestions() {
-		return new ArrayList<SuggestionItem>(itemSuggestions);
+		return new ArrayList<SuggestionItem>(mItemSuggestions);
 	}
 
 	public ArrayList<String> getTypeSuggestions() {
-		return new ArrayList<String>(typeSuggestions);
+		return new ArrayList<String>(mTypeSuggestions);
 	}
 
 	public ArrayList<String> getUnitSuggestions() {
-		return new ArrayList<String>(unitSuggestions);
+		return new ArrayList<String>(mUnitSuggestions);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class SuggestionManager {
 		double latestVersion = -1.0;
 		double localVersion = -1.0;
 
-		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+		SharedPreferences prefs = mContext.getSharedPreferences(PREFS_NAME, 0);
 		if (mostRecentLocalDatabase() == LOCAL_INDEX) {
 			localVersion = prefs.getFloat(LOCAL_VERSION_PREF, -1.0f);
 		} else {
@@ -113,7 +113,7 @@ public class SuggestionManager {
 			// TODO for safety, should download to a temp file, then transfer to the local file when safely downloaded
 			StorageReference dbStorageRef =
 					FirebaseStorage.getInstance().getReference().child("database.json");
-			final File localFile = new File(context.getFilesDir(), "suggestion_database.json");
+			final File localFile = new File(mContext.getFilesDir(), "suggestion_database.json");
 			dbStorageRef.getFile(localFile)
 					.addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
 						@Override
@@ -138,7 +138,7 @@ public class SuggestionManager {
 		try {
 			reader = new JsonReader(
 					new InputStreamReader(
-							context.getAssets()
+							mContext.getAssets()
 									.open("config.json")));
 			reader.beginObject();
 			String key = reader.nextName();
@@ -147,9 +147,9 @@ public class SuggestionManager {
 				while (reader.hasNext()) {
 					key = reader.nextName();
 					if (key.equals("types")) {
-						readStringArray(reader, typeSuggestions);
+						readStringArray(reader, mTypeSuggestions);
 					} else if (key.equals("units")) {
-						readStringArray(reader, unitSuggestions);
+						readStringArray(reader, mUnitSuggestions);
 					} else {
 						reader.skipValue();
 					}
@@ -176,10 +176,10 @@ public class SuggestionManager {
 			if (mostRecentLocalDatabase() == ASSET_INDEX) {
 				reader = new JsonReader(
 						new InputStreamReader(
-								context.getAssets()
+								mContext.getAssets()
 										.open("suggestion_database.json")));
 			} else {
-				File localFile = new File(context.getFilesDir(), "suggestion_database.json");
+				File localFile = new File(mContext.getFilesDir(), "suggestion_database.json");
 				reader = new JsonReader(
 						new FileReader(localFile));
 			}
@@ -193,7 +193,7 @@ public class SuggestionManager {
 					if (key.equals("items")) {
 						reader.beginArray();
 						while (reader.hasNext()) {
-							itemSuggestions.add(readSuggestionItem(reader));
+							mItemSuggestions.add(readSuggestionItem(reader));
 						}
 						reader.endArray();
 					} else {
@@ -233,7 +233,7 @@ public class SuggestionManager {
 		reader.beginObject();
 		while (reader.hasNext()) {
 			String key = reader.nextName();
-			if (key.equals("name")) {
+			if (key.equals("mName")) {
 				item.setName(reader.nextString());
 			} else if (key.equals("type")) {
 				item.setType(reader.nextString());
@@ -253,18 +253,18 @@ public class SuggestionManager {
 	private void updatePrefs() {
 		try {
 			SharedPreferences.Editor editor =
-					context.getSharedPreferences(PREFS_NAME, 0).edit();
+					mContext.getSharedPreferences(PREFS_NAME, 0).edit();
 
 			JsonReader assetReader = new JsonReader(
 					new InputStreamReader(
-							context.getAssets().open("suggestion_database.json")));
+							mContext.getAssets().open("suggestion_database.json")));
 			double assetVersion = getVersionFromFile(assetReader);
 			if (assetVersion >= 0.0) {
 				editor.putFloat(ASSET_VERSION_PREF, (float) assetVersion);
 			}
 			assetReader.close();
 
-			File localFile = new File(context.getFilesDir(), "suggestion_database.json");
+			File localFile = new File(mContext.getFilesDir(), "suggestion_database.json");
 			if (localFile.exists()) {
 				JsonReader localReader = new JsonReader(
 						new FileReader(localFile));
@@ -283,7 +283,7 @@ public class SuggestionManager {
 
 	private void updateCheckDate() {
 		SharedPreferences.Editor editor =
-				context.getSharedPreferences(PREFS_NAME, 0).edit();
+				mContext.getSharedPreferences(PREFS_NAME, 0).edit();
 		String date = TimeManager.getDateTimeLocal();
 		editor.putString(DATE_PREF, date);
 		editor.apply();
@@ -311,7 +311,7 @@ public class SuggestionManager {
 	}
 
 	private boolean hasCheckedOnlineToday() {
-		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+		SharedPreferences prefs = mContext.getSharedPreferences(PREFS_NAME, 0);
 		String date = TimeManager.getDateTimeLocal();
 		String prefDate = prefs.getString(DATE_PREF, "none");
 		Log.d(TAG, "date: " + date + "; prefDate: " + prefDate);
@@ -326,7 +326,7 @@ public class SuggestionManager {
 	 * @return the index of the most recent suggestion database.
 	 */
 	private int mostRecentLocalDatabase() {
-		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+		SharedPreferences prefs = mContext.getSharedPreferences(PREFS_NAME, 0);
 		double localVersion = prefs.getFloat(LOCAL_VERSION_PREF, -1.0f);
 		double assetVersion = prefs.getFloat(ASSET_VERSION_PREF, -1.0f);
 		if (localVersion > assetVersion && localVersion >= 0.0) {
@@ -340,15 +340,14 @@ public class SuggestionManager {
 	 * TODO temp function that deletes prefs and deletes internal storage file
 	 */
 	public void clearData() {
-		SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME, 0).edit();
+		SharedPreferences.Editor editor = mContext.getSharedPreferences(PREFS_NAME, 0).edit();
 		editor.clear();
 		editor.commit();
-		context.deleteFile("suggestion_database.json");
+		mContext.deleteFile("suggestion_database.json");
 	}
 
 	/**
 	 * Checks for suggestion database in a separate thread
-	 * TODO need to understand the params in AsyncTask< >
 	 */
 	private class SuggestionDBTask extends AsyncTask<Void, Void, Void> {
 

@@ -12,18 +12,18 @@ import java.util.ArrayList;
  */
 
 public class ItemManager {
-	private ArrayList<Item> items = null;
-	private Trie searchTrie = new Trie();
-	private DBManager dbManager = DBManager.getInstance();
+	private ArrayList<Item> mItems = null;
+	private Trie mSearchTrie = new Trie();
+	private DBManager mDbManager = DBManager.getInstance();
 
-	private static ItemManager instance = null;
-	private Context context = null;
+	private static ItemManager mInstance = null;
+	private Context mContext = null;
 
 	public static ItemManager getInstance() {
-		if (instance == null) {
-			instance = new ItemManager();
+		if (mInstance == null) {
+			mInstance = new ItemManager();
 		}
-		return instance;
+		return mInstance;
 	}
 
 	private ItemManager() {
@@ -31,48 +31,48 @@ public class ItemManager {
 	}
 
 	public void init(Context context) {
-		this.context = context;
-		if (!dbManager.isInitialized()) {
-			dbManager.init(context);
+		this.mContext = context;
+		if (!mDbManager.isInitialized()) {
+			mDbManager.init(context);
 		}
-		items = dbManager.getItems();
-		searchTrie.buildTrie(getItemNames());
+		mItems = mDbManager.getItems();
+		mSearchTrie.buildTrie(getItemNames());
 	}
 
 	public boolean isInitialized() {
-		return context != null;
+		return mContext != null;
 	}
 
 	public void addItem(Item item) {
-		items.add(item);
-		searchTrie.addWord(item.getName());
-		dbManager.addItem(item);
+		mItems.add(item);
+		mSearchTrie.addWord(item.getName());
+		mDbManager.addItem(item);
 	}
 
 	public void updateItem(Item item) {
-		dbManager.updateItem(item);
-		searchTrie.addWord(item.getName());
+		mDbManager.updateItem(item);
+		mSearchTrie.addWord(item.getName());
 	}
 
 	public boolean removeItem(Item item) {
-		if (dbManager.removeItem(item) == 1) {
-			items.remove(item);
+		if (mDbManager.removeItem(item) == 1) {
+			mItems.remove(item);
 			if (!doesNameExist(item.getName())) {
-				searchTrie.removeWord(item.getName());
+				mSearchTrie.removeWord(item.getName());
 			}
 			return true;
 		} else return false;
 	}
 
 	/**
-	 * Get all items except for those in the
+	 * Get all mItems except for those in the
 	 * grocery list.
 	 *
-	 * @return List of items in the inventory.
+	 * @return List of mItems in the inventory.
 	 */
 	public ArrayList<Item> getInventoryItems() {
 		ArrayList<Item> results = new ArrayList<Item>();
-		for (Item i : items) {
+		for (Item i : mItems) {
 			if (!i.isInGroceryList()) {
 				results.add(i);
 			}
@@ -83,10 +83,10 @@ public class ItemManager {
 	/**
 	 * TODO description here
 	 *
-	 * @param inventory the name of the inventory the items
+	 * @param inventory the mName of the inventory the mItems
 	 *                  are located in, or null to return
-	 *                  all items.
-	 * @return a subset of the inventory items based on the
+	 *                  all mItems.
+	 * @return a subset of the inventory mItems based on the
 	 * inventory it belongs to.
 	 */
 	public ArrayList<Item> getItemsByInventory(String inventory) {
@@ -102,7 +102,7 @@ public class ItemManager {
 		}
 
 		ArrayList<Item> results = new ArrayList<Item>();
-		for (Item i : items) {
+		for (Item i : mItems) {
 			if (!i.isInGroceryList() &&
 					i.getInventory().equals(inventory)) {
 				results.add(i);
@@ -115,9 +115,9 @@ public class ItemManager {
 	/**
 	 * TODO inefficient alg, description needed
 	 *
-	 * @param inventory the name of the inventory the items
-	 *                  are located in, or null for all items.
-	 * @return the number of items in the specified inventory
+	 * @param inventory the mName of the inventory the mItems
+	 *                  are located in, or null for all mItems.
+	 * @return the number of mItems in the specified inventory
 	 */
 	public int getInventoryItemCount(String inventory) {
 		return getItemsByInventory(inventory).size();
@@ -125,7 +125,7 @@ public class ItemManager {
 
 	public ArrayList<Item> getGroceryListItems() {
 		ArrayList<Item> results = new ArrayList<Item>();
-		for (Item i : items) {
+		for (Item i : mItems) {
 			if (i.isInGroceryList()) {
 				results.add(i);
 			}
@@ -136,9 +136,9 @@ public class ItemManager {
 
 	public ArrayList<Item> getExpiringItems(int rangeInDays) {
 		ArrayList<Item> expiring = new ArrayList<>();
-		for (Item item : items) {
+		for (Item item : mItems) {
 			if (item.isInGroceryList()) {
-				// ignore grocery items
+				// ignore grocery mItems
 				continue;
 			}
 
@@ -169,8 +169,8 @@ public class ItemManager {
 	private ArrayList<String> getItemNames() {
 		ArrayList<String> names = new ArrayList<>();
 
-		if (items != null) {
-			for (Item item : items) {
+		if (mItems != null) {
+			for (Item item : mItems) {
 				names.add(item.getName());
 			}
 		}
@@ -179,15 +179,15 @@ public class ItemManager {
 	}
 
 	/**
-	 * Checks whether a given item name exists in the items list.
+	 * Checks whether a given item mName exists in the mItems list.
 	 *
-	 * @param name The name of the item.
-	 * @return true if at least one item has this name, false otherwise.
+	 * @param name The mName of the item.
+	 * @return true if at least one item has this mName, false otherwise.
 	 */
 	private boolean doesNameExist(String name) {
 
-		if (items != null) {
-			for (Item item : items) {
+		if (mItems != null) {
+			for (Item item : mItems) {
 				if (item.getName().equals(name)) {
 					return true;
 				}
@@ -208,10 +208,10 @@ public class ItemManager {
 	private class ItemSearchTask
 			extends AsyncTask<String, Void, ArrayList<Item>> {
 
-		private OnSearchFinishedListener listener;
+		private OnSearchFinishedListener mListener;
 
 		public ItemSearchTask(OnSearchFinishedListener listener) {
-			this.listener = listener;
+			this.mListener = listener;
 		}
 
 		@Override
@@ -223,9 +223,9 @@ public class ItemManager {
 				return result;
 			}
 
-			ArrayList<String> names = searchTrie.search(strings[0]);
+			ArrayList<String> names = mSearchTrie.search(strings[0]);
 			for (String name : names) {
-				for (Item item : items) {
+				for (Item item : mItems) {
 					String itemName = item.getName().toLowerCase();
 					if (itemName.equals(name)) {
 						result.add(item);
@@ -238,8 +238,8 @@ public class ItemManager {
 
 		@Override
 		protected void onPostExecute(ArrayList<Item> result) {
-			if (listener != null) {
-				listener.onSearchFinished(result);
+			if (mListener != null) {
+				mListener.onSearchFinished(result);
 			}
 		}
 	}

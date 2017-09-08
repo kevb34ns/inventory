@@ -9,7 +9,7 @@ interface ItemChangeListener {
 					 String type, String expiresDate, String inventory,
 					 boolean inGroceryList, Item item, int position);
 
-	//TODO the following two methods do not necessarily fit the name/purpose of the class
+	//TODO the following two methods do not necessarily fit the mName/purpose of the class
 	void onDialogDismissed();
 
 	boolean isInGroceryMode();

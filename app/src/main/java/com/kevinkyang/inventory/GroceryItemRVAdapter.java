@@ -14,13 +14,13 @@ import java.util.ArrayList;
 public class GroceryItemRVAdapter
 		extends RecyclerView.Adapter<GroceryItemRVAdapter.ViewHolder>
 		implements ListItemTouchHelperCallback.ListItemTouchHelperListener {
-	private ArrayList<Item> items;
-	private GroceryFragment parent;
+	private ArrayList<Item> mItems;
+	private GroceryFragment mParent;
 
 	public GroceryItemRVAdapter(ArrayList<Item> items,
 								GroceryFragment parent) {
-		this.items = items;
-		this.parent = parent;
+		this.mItems = items;
+		this.mParent = parent;
 
 		setHasStableIds(true);
 	}
@@ -44,9 +44,9 @@ public class GroceryItemRVAdapter
 		ViewHolder.ViewHolderClickListener listener = new ViewHolder.ViewHolderClickListener() {
 			@Override
 			public void onClick(int position) {
-				Item item = items.get(position);
+				Item item = mItems.get(position);
 				GroceryItemRVAdapter.this
-						.parent.getParent()
+						.mParent.getParent()
 						.showEditDialog(item, position);
 			}
 		};
@@ -56,10 +56,10 @@ public class GroceryItemRVAdapter
 
 	@Override
 	public void onBindViewHolder(final GroceryItemRVAdapter.ViewHolder holder, int position) {
-		Item item = items.get(position);
+		Item item = mItems.get(position);
 
-		holder.checkBox.setChecked(false);
-		holder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+		holder.mCheckBox.setChecked(false);
+		holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (!isChecked) {
@@ -70,62 +70,62 @@ public class GroceryItemRVAdapter
 			}
 		});
 
-		holder.name.setText(item.getName());
-		holder.quantity.setText(Utilities.Math.formatFloat(item.getQuantity()));
+		holder.mName.setText(item.getName());
+		holder.mQuantity.setText(Utilities.Math.formatFloat(item.getQuantity()));
 
 		String unitString = item.getUnit().trim();
 		if (unitString.isEmpty()) {
-			holder.quantityUnit.setVisibility(View.GONE);
+			holder.mQuantityUnit.setVisibility(View.GONE);
 		} else {
-			holder.quantityUnit.setText(item.getUnit());
-			holder.quantityUnit.setVisibility(View.VISIBLE);
+			holder.mQuantityUnit.setText(item.getUnit());
+			holder.mQuantityUnit.setVisibility(View.VISIBLE);
 		}
 
 		View.OnClickListener quantityListener =
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						// TODO quantity change
+						// TODO mQuantity change
 					}
 				};
 
-		holder.decQuantityButton.setOnClickListener(quantityListener);
-		holder.incQuantityButton.setOnClickListener(quantityListener);
+		holder.mDecQuantityButton.setOnClickListener(quantityListener);
+		holder.mIncQuantityButton.setOnClickListener(quantityListener);
 	}
 
 	@Override
 	public int getItemCount() {
-		return items.size();
+		return mItems.size();
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return items.get(position).getRowID();
+		return mItems.get(position).getRowID();
 	}
 
 	public void setItemsList(ArrayList<Item> newItems) {
-		int oldSize = items.size();
-		items.clear();
+		int oldSize = mItems.size();
+		mItems.clear();
 		if (oldSize > 0) {
 			notifyItemRangeRemoved(0, oldSize);
 		}
-		items.addAll(newItems);
-		if (items.size() > 0) {
-			notifyItemRangeInserted(0, items.size());
+		mItems.addAll(newItems);
+		if (mItems.size() > 0) {
+			notifyItemRangeInserted(0, mItems.size());
 		}
 	}
 
 	public void addItem(Item item, int position) {
-		if (position < 0 || position > items.size()) {
+		if (position < 0 || position > mItems.size()) {
 			return;
 		}
 
-		items.add(position, item);
+		mItems.add(position, item);
 		notifyItemInserted(position);
 	}
 
 	public void changeItem(int position) {
-		if (position < 0 || position >= items.size()) {
+		if (position < 0 || position >= mItems.size()) {
 			return;
 		}
 
@@ -133,48 +133,48 @@ public class GroceryItemRVAdapter
 	}
 
 	public void removeItem(int position) {
-		if (position < 0 || position >= items.size()) {
+		if (position < 0 || position >= mItems.size()) {
 			return;
 		}
 
-		items.remove(position);
+		mItems.remove(position);
 		notifyItemRemoved(position);
 	}
 
 	@Override
 	public void onDelete(int position) {
-		Item item = items.get(position);
-		parent.removeItem(item, position);
+		Item item = mItems.get(position);
+		mParent.removeItem(item, position);
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
 		String msg = "Removed " + item.getName() + " from grocery list.";
-		parent.getParent()
-				.showSnackbar(item, parent.getView(), position,
-				msg, parent::undoDelete);
+		mParent.getParent()
+				.showSnackbar(item, mParent.getView(), position,
+				msg, mParent::undoDelete);
 	}
 
 	@Override
 	public void onSwapList(int position) {
-		Item item = items.get(position);
-		parent.swapList(item, position);
+		Item item = mItems.get(position);
+		mParent.swapList(item, position);
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
 		String msg = item.getName() + " added to " + inventory + ".";
-		parent.getParent()
-				.showSnackbar(item, parent.getView(), position,
-						msg, parent::undoSwapList);
+		mParent.getParent()
+				.showSnackbar(item, mParent.getView(), position,
+						msg, mParent::undoSwapList);
 	}
 
 	public static class ViewHolder extends RecyclerView.ViewHolder
 			implements View.OnClickListener {
-		public CheckBox checkBox;
-		public TextView name;
-		public TextView quantity;
-		public TextView quantityUnit;
-		public ImageButton decQuantityButton;
-		public ImageButton incQuantityButton;
+		public CheckBox mCheckBox;
+		public TextView mName;
+		public TextView mQuantity;
+		public TextView mQuantityUnit;
+		public ImageButton mDecQuantityButton;
+		public ImageButton mIncQuantityButton;
 
-		private ViewHolderClickListener listener;
+		private ViewHolderClickListener mListener;
 
 		public ViewHolder(View itemView, CheckBox checkBox,
 						  TextView name, TextView quantity,
@@ -183,20 +183,20 @@ public class GroceryItemRVAdapter
 						  ImageButton incQuantityButton,
 						  ViewHolderClickListener listener) {
 			super(itemView);
-			this.checkBox = checkBox;
-			this.name = name;
-			this.quantity = quantity;
-			this.quantityUnit = quantityUnit;
-			this.decQuantityButton = decQuantityButton;
-			this.incQuantityButton = incQuantityButton;
-			this.listener = listener;
+			mCheckBox = checkBox;
+			mName = name;
+			mQuantity = quantity;
+			mQuantityUnit = quantityUnit;
+			mDecQuantityButton = decQuantityButton;
+			mIncQuantityButton = incQuantityButton;
+			mListener = listener;
 
 			itemView.setOnClickListener(this);
 		}
 
 		@Override
 		public void onClick(View v) {
-			listener.onClick(getAdapterPosition());
+			mListener.onClick(getAdapterPosition());
 		}
 
 		public static interface ViewHolderClickListener {

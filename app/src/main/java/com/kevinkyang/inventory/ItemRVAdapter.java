@@ -31,32 +31,32 @@ public class ItemRVAdapter
 	private static final int PAYLOAD_EXP_EDIT = 0x3;
 	private static final int PAYLOAD_QUA_EDIT = 0x4;
 
-	private ArrayList<Item> items;
-	private InventoryFragment parent;
+	private ArrayList<Item> mItems;
+	private InventoryFragment mParent;
 
-	private RecyclerView recyclerView;
-	private int expandedItemPosition;
-	private Transition expansionTransition;
+	private RecyclerView mRecyclerView;
+	private int mExpandedItemPosition;
+	private Transition mExpansionTransition;
 
-	private int contextMenuPosition;
+	private int mContextMenuPosition;
 
-	private TypedArray colorArray;
+	private TypedArray mColorArray;
 
 	public ItemRVAdapter(ArrayList<Item> items,
 						 RecyclerView recyclerView,
 						 InventoryFragment parent) {
-		this.items = items;
-		this.parent = parent;
+		mItems = items;
+		mParent = parent;
 
-		expandedItemPosition = RecyclerView.NO_POSITION;
-		this.recyclerView = recyclerView;
+		mExpandedItemPosition = RecyclerView.NO_POSITION;
+		mRecyclerView = recyclerView;
 
-		colorArray = parent.getResources()
+		mColorArray = parent.getResources()
 				.obtainTypedArray(R.array.array_inventory_colors);
 
-		expansionTransition = new AutoTransition();
-		expansionTransition.setDuration(200);
-		expansionTransition.setInterpolator(AnimationUtils.loadInterpolator(parent.getContext(), android.R.interpolator.fast_out_slow_in));
+		mExpansionTransition = new AutoTransition();
+		mExpansionTransition.setDuration(200);
+		mExpansionTransition.setInterpolator(AnimationUtils.loadInterpolator(parent.getContext(), android.R.interpolator.fast_out_slow_in));
 
 		setHasStableIds(true);
 	}
@@ -67,7 +67,7 @@ public class ItemRVAdapter
 				.inflate(R.layout.item, parent, false);
 		
 		ViewHolder holder = new ViewHolder(view,
-						ItemRVAdapter.this.parent.getParent());
+						ItemRVAdapter.this.mParent.getParent());
 
 		holder.setViewHolderClickListener(new ViewHolder
 				.ViewHolderClickListener() {
@@ -90,7 +90,7 @@ public class ItemRVAdapter
 
 	@Override
 	public void onBindViewHolder(final ViewHolder holder, int position) {
-		Item item = items.get(position);
+		Item item = mItems.get(position);
 
 		holder.mName.setText(item.getName());
 
@@ -102,7 +102,7 @@ public class ItemRVAdapter
 
 			String expiresDate = item.getExpiresDate();
 			String dateToSet = (expiresDate.isEmpty()) ? null : expiresDate;
-			ExpirationPickerPopup popup = new ExpirationPickerPopup(parent.getContext(), dateToSet);
+			ExpirationPickerPopup popup = new ExpirationPickerPopup(mParent.getContext(), dateToSet);
 
 			popup.setClearButtonClickListener(() -> {
 				holder.mExpiresDate.setText("");
@@ -150,7 +150,7 @@ public class ItemRVAdapter
 					break;
 			}
 
-			Item clickedItem = items.get(holder.getAdapterPosition());
+			Item clickedItem = mItems.get(holder.getAdapterPosition());
 			if (clickedItem != null) {
 				clickedItem.setQuantity(clickedItem.getQuantity() + amount);
 				ItemManager.getInstance().updateItem(clickedItem);
@@ -172,13 +172,13 @@ public class ItemRVAdapter
 					DBManager.getInstance().getInventories();
 
 			holder.mDetailColorTag.setBackgroundColor(
-					colorArray.getColor(inventories.indexOf(invString),
-							parent.getResources().getColor(
+					mColorArray.getColor(inventories.indexOf(invString),
+							mParent.getResources().getColor(
 									R.color.colorGrey, null)));
 			holder.mInventoryLabel.setText(invString);
 		} else {
 			holder.mDetailColorTag.setBackgroundColor(
-					parent.getResources().getColor(
+					mParent.getResources().getColor(
 							R.color.colorGrey, null));
 			holder.mInventoryLabel.setText("None");
 		}
@@ -195,27 +195,27 @@ public class ItemRVAdapter
 
 		holder.mEditButton.setOnClickListener((view) -> {
 			ItemRVAdapter.this
-					.parent.getParent()
+					.mParent.getParent()
 					.showEditDialog(item, position);
 		});
 
-		final boolean isExpanded = position == expandedItemPosition;
+		final boolean isExpanded = position == mExpandedItemPosition;
 		handleItemExpansion(holder, isExpanded);
 	}
 
 	private void expandItem(int position) {
 
-		TransitionManager.beginDelayedTransition(recyclerView, expansionTransition);
+		TransitionManager.beginDelayedTransition(mRecyclerView, mExpansionTransition);
 
-		if (expandedItemPosition != RecyclerView.NO_POSITION) {
-			notifyItemChanged(expandedItemPosition, PAYLOAD_COLLAPSE);
+		if (mExpandedItemPosition != RecyclerView.NO_POSITION) {
+			notifyItemChanged(mExpandedItemPosition, PAYLOAD_COLLAPSE);
 		}
 
-		if (expandedItemPosition != position) {
-			expandedItemPosition = position;
+		if (mExpandedItemPosition != position) {
+			mExpandedItemPosition = position;
 			notifyItemChanged(position, PAYLOAD_EXPAND);
 		} else {
-			expandedItemPosition = RecyclerView.NO_POSITION;
+			mExpandedItemPosition = RecyclerView.NO_POSITION;
 		}
 	}
 
@@ -279,9 +279,9 @@ public class ItemRVAdapter
 		} else if (payloads.contains(PAYLOAD_COLLAPSE)) {
 			handleItemExpansion(holder, false);
 		} else if (payloads.contains(PAYLOAD_EXP_EDIT)) {
-			updateExpirationViews(holder, items.get(position));
+			updateExpirationViews(holder, mItems.get(position));
 		} else if (payloads.contains(PAYLOAD_QUA_EDIT)) {
-			updateQuantityViews(holder, items.get(position));
+			updateQuantityViews(holder, mItems.get(position));
 		} else {
 			onBindViewHolder(holder, position);
 		}
@@ -289,34 +289,34 @@ public class ItemRVAdapter
 
 	@Override
 	public int getItemCount() {
-		return items.size();
+		return mItems.size();
 	}
 
 	public void setItemsList(final ArrayList<Item> newItems) {
-		int oldSize = items.size();
-		items.clear();
+		int oldSize = mItems.size();
+		mItems.clear();
 		if (oldSize > 0) {
 			notifyItemRangeRemoved(0, oldSize);
 		}
-		items.addAll(newItems);
-		if (items.size() > 0) {
-			notifyItemRangeInserted(0, items.size());
+		mItems.addAll(newItems);
+		if (mItems.size() > 0) {
+			notifyItemRangeInserted(0, mItems.size());
 		}
 	}
 
 	public void addItem(Item item, int position) {
-		if (position < 0 || position > items.size()) {
+		if (position < 0 || position > mItems.size()) {
 			return;
 		}
 
-		items.add(position, item);
+		mItems.add(position, item);
 		notifyItemInserted(position);
 
 		expandItem(position);
 	}
 
 	public void changeItem(int position) {
-		if (position < 0 || position >= items.size()) {
+		if (position < 0 || position >= mItems.size()) {
 			return;
 		}
 
@@ -328,54 +328,54 @@ public class ItemRVAdapter
 			return;
 		}
 
-		items.remove(position);
+		mItems.remove(position);
 		notifyItemRemoved(position);
 
-		if (position == expandedItemPosition) {
-			expandedItemPosition = RecyclerView.NO_POSITION;
+		if (position == mExpandedItemPosition) {
+			mExpandedItemPosition = RecyclerView.NO_POSITION;
 		}
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return items.get(position).getRowID();
+		return mItems.get(position).getRowID();
 	}
 
 	@Override
 	public void onDelete(int position) {
-		Item item = items.get(position);
-		parent.removeItem(item, position);
+		Item item = mItems.get(position);
+		mParent.removeItem(item, position);
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
 		String msg = "Removed " + item.getName() + " from " +
 				inventory + ".";
-		parent.getParent()
-				.showSnackbar(item, parent.getView(), position,
-						msg, parent::undoDelete);
+		mParent.getParent()
+				.showSnackbar(item, mParent.getView(), position,
+						msg, mParent::undoDelete);
 	}
 
 	@Override
 	public void onSwapList(int position) {
-		Item item = items.get(position);
-		parent.swapList(item, position);
+		Item item = mItems.get(position);
+		mParent.swapList(item, position);
 		String inventory = (item.getInventory().isEmpty()) ?
 				"inventory" : item.getInventory();
 		String msg = "Moved " + item.getName() + " to the Grocery List.";
-		parent.getParent()
-				.showSnackbar(item, parent.getView(), position,
-						msg, parent::undoSwapList);
+		mParent.getParent()
+				.showSnackbar(item, mParent.getView(), position,
+						msg, mParent::undoSwapList);
 	}
 
 	public Item getItem(int position) {
-		return items.get(position);
+		return mItems.get(position);
 	}
 
 	public int getContextMenuPosition() {
-		return contextMenuPosition;
+		return mContextMenuPosition;
 	}
 
 	public void setContextMenuPosition(int contextMenuPosition) {
-		this.contextMenuPosition = contextMenuPosition;
+		this.mContextMenuPosition = contextMenuPosition;
 	}
 
 	public static class ViewHolder extends RecyclerView.ViewHolder
@@ -395,7 +395,7 @@ public class ItemRVAdapter
 		public LinearLayout mExpiresContainer;
 		public TextView mExpiresDate;
 		public Button mEditExpirationButton;
-		// quantity views
+		// mQuantity views
 		public LinearLayout mQuantityContainer;
 		public TextView mDetailQuantity;
 		public ImageButton mDecQuantityButton;
@@ -408,14 +408,14 @@ public class ItemRVAdapter
 		public TextView mTypeLabel;
 		public Button mEditButton;
 
-		public ViewHolderClickListener viewHolderClickListener;
-		private MainActivity parent;
+		public ViewHolderClickListener mViewHolderClickListener;
+		private MainActivity mParent;
 
 		public ViewHolder(View itemView,
 						  MainActivity parent) {
 			super(itemView);
 			mItemView = itemView;
-			this.parent = parent;
+			mParent = parent;
 
 			getViews();
 			setListeners();
@@ -459,7 +459,7 @@ public class ItemRVAdapter
 		}
 
 		private void setListeners() {
-			viewHolderClickListener = null;
+			mViewHolderClickListener = null;
 
 			mItemView.setOnClickListener(this);
 			mItemView.setOnLongClickListener(this);
@@ -467,24 +467,24 @@ public class ItemRVAdapter
 		}
 
 		public ViewHolderClickListener getViewHolderClickListener() {
-			return viewHolderClickListener;
+			return mViewHolderClickListener;
 		}
 
 		public void setViewHolderClickListener(ViewHolderClickListener viewHolderClickListener) {
-			this.viewHolderClickListener = viewHolderClickListener;
+			this.mViewHolderClickListener = viewHolderClickListener;
 		}
 
 		@Override
 		public void onClick(View v) {
-			if (viewHolderClickListener != null) {
-				viewHolderClickListener.onClick(getAdapterPosition());
+			if (mViewHolderClickListener != null) {
+				mViewHolderClickListener.onClick(getAdapterPosition());
 			}
 		}
 
 		@Override
 		public boolean onLongClick(View v) {
-			if (viewHolderClickListener != null) {
-				viewHolderClickListener.onLongClick(getAdapterPosition(),
+			if (mViewHolderClickListener != null) {
+				mViewHolderClickListener.onLongClick(getAdapterPosition(),
 						itemView);
 			}
 
@@ -501,10 +501,10 @@ public class ItemRVAdapter
 		 */
 		@Override
 		public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-			if (parent == null) {
+			if (mParent == null) {
 				return;
 			}
-			MenuInflater inflater = parent.getMenuInflater();
+			MenuInflater inflater = mParent.getMenuInflater();
 			inflater.inflate(
 					R.menu.list_item_context_menu, menu);
 		}

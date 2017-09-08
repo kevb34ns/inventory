@@ -13,7 +13,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 
-import expandableRVAdapter.*
+import com.kevinkyang.expandableRVAdapter.*
 
 import kotlinx.android.synthetic.main.drawer_list_group.view.*
 import kotlinx.android.synthetic.main.drawer_list_child.view.*

@@ -142,7 +142,7 @@ public class TimeManager {
 	}
 
 	/**
-	 * TODO better method name, same issue where you arbitrarily decide that 1 month = 30 days, and it's not the best solution
+	 * TODO better method mName, same issue where you arbitrarily decide that 1 month = 30 days, and it's not the best solution
 	 * @param suggestion
 	 * @return
 	 */

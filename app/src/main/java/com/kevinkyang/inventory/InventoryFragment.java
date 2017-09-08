@@ -16,71 +16,71 @@ import android.widget.AdapterView;
 import java.util.ArrayList;
 
 public class InventoryFragment extends Fragment implements CustomFragment {
-	private MainActivity parent;
+	private MainActivity mParent;
 
-	private ItemManager itemManager = null;
+	private ItemManager mItemManager = null;
 
-	private RecyclerView itemRecyclerView;
-	private ItemRVAdapter itemRVAdapter;
-	private RecyclerView.LayoutManager layoutManager;
-	private ItemTouchHelper itemTouchHelper;
+	private RecyclerView mItemRecyclerView;
+	private ItemRVAdapter mItemRVAdapter;
+	private RecyclerView.LayoutManager mLayoutManager;
+	private ItemTouchHelper mItemTouchHelper;
 
-	private String inventory = null;
-	private boolean initFinished = false;
+	private String mInventory = null;
+	private boolean mInitFinished = false;
 
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_inventory, container, false);
-		itemRecyclerView = (RecyclerView) view.findViewById(R.id.inventory_rv);
-		registerForContextMenu(itemRecyclerView);
+		mItemRecyclerView = (RecyclerView) view.findViewById(R.id.inventory_rv);
+		registerForContextMenu(mItemRecyclerView);
 		return view;
 	}
 
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		// TODO this fragment can only be attached to com.kevinkyang.inventory.MainActivity, is this safe?
-		parent = (MainActivity) getActivity();
+		// TODO this fragment can only be attached to com.kevinkyang.mInventory.MainActivity, is this safe?
+		mParent = (MainActivity) getActivity();
 
-		itemManager = ItemManager.getInstance();
+		mItemManager = ItemManager.getInstance();
 
-		itemRVAdapter = new ItemRVAdapter(new ArrayList<Item>(), itemRecyclerView, this);
-		itemRecyclerView.setAdapter(itemRVAdapter);
-		layoutManager = new LinearLayoutManager(parent);
-		itemRecyclerView.setLayoutManager(layoutManager);
-		DividerItemDecoration divider = new DividerItemDecoration(parent, DividerItemDecoration.VERTICAL);
-		itemRecyclerView.addItemDecoration(divider);
-		itemRecyclerView.setHasFixedSize(false);
-		itemTouchHelper = new ItemTouchHelper(
+		mItemRVAdapter = new ItemRVAdapter(new ArrayList<Item>(), mItemRecyclerView, this);
+		mItemRecyclerView.setAdapter(mItemRVAdapter);
+		mLayoutManager = new LinearLayoutManager(mParent);
+		mItemRecyclerView.setLayoutManager(mLayoutManager);
+		DividerItemDecoration divider = new DividerItemDecoration(mParent, DividerItemDecoration.VERTICAL);
+		mItemRecyclerView.addItemDecoration(divider);
+		mItemRecyclerView.setHasFixedSize(false);
+		mItemTouchHelper = new ItemTouchHelper(
 						new ListItemTouchHelperCallback(
-								getContext(), itemRVAdapter, false));
-		itemTouchHelper.attachToRecyclerView(itemRecyclerView);
+								getContext(), mItemRVAdapter, false));
+		mItemTouchHelper.attachToRecyclerView(mItemRecyclerView);
 
-		initFinished = true;
+		mInitFinished = true;
 
 		if (savedInstanceState != null) {
-			inventory =
+			mInventory =
 					savedInstanceState.getString("currentInventory");
 			refresh();
-			parent.changeToCurrentList();
+			mParent.changeToCurrentList();
 		}
 
-		showInventory(inventory);
+		showInventory(mInventory);
 
 		super.onActivityCreated(savedInstanceState);
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		outState.putString("currentInventory", inventory);
+		outState.putString("currentInventory", mInventory);
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		int position = itemRVAdapter.getContextMenuPosition();
-		Item it = itemRVAdapter.getItem(position);
+		int position = mItemRVAdapter.getContextMenuPosition();
+		Item it = mItemRVAdapter.getItem(position);
 		switch (item.getItemId()) {
 			case R.id.list_item_delete:
 				removeItem(it, position);
@@ -95,103 +95,103 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 
 	/**
 	 * Changes the list displayed by this fragment
-	 * to the items belonging to a certain inventory.
-	 * @param inventory the name of the inventory to
+	 * to the items belonging to a certain mInventory.
+	 * @param inventory the mName of the mInventory to
 	 *                  display, or null to display
 	 *                  all items.
 	 */
 	public void showInventory(String inventory) {
-		this.inventory = inventory;
+		this.mInventory = inventory;
 		refresh();
-		parent.changeActionBarTitle(inventory);
+		mParent.changeActionBarTitle(inventory);
 	}
 
 	public void showSearchResults(String query, ArrayList<Item> items) {
-		itemRVAdapter.setItemsList(items);
-		parent.changeActionBarTitle("Results for: " + query);
+		mItemRVAdapter.setItemsList(items);
+		mParent.changeActionBarTitle("Results for: " + query);
 	}
 
 	public String getCurrentInventory() {
 		//TODO this can be null even though in the db an empty string represents no inv, which causes confusion
-		return inventory;
+		return mInventory;
 	}
 
 	@Override
 	public MainActivity getParent() {
-		return parent;
+		return mParent;
 	}
 
 	/**
 	 * Call this when changes occur in other parts of the
-	 * app that affect the inventory list.
+	 * app that affect the mInventory list.
 	 */
 	@Override
 	public void refresh() {
-		if (inventory != null && inventory.equals("Expiring")) {
-			itemRVAdapter.setItemsList(
-					itemManager.getItemsByInventory(inventory,
+		if (mInventory != null && mInventory.equals("Expiring")) {
+			mItemRVAdapter.setItemsList(
+					mItemManager.getItemsByInventory(mInventory,
 							ExpirationManager.getExpirationInterval(
 									getContext())));
 		} else {
-			itemRVAdapter.setItemsList(
-					itemManager.getItemsByInventory(inventory));
+			mItemRVAdapter.setItemsList(
+					mItemManager.getItemsByInventory(mInventory));
 		}
 	}
 
 	@Override
 	public void itemAdded(Item item) {
-		itemRVAdapter.addItem(item, itemRVAdapter.getItemCount());
-		layoutManager.scrollToPosition(itemRVAdapter.getItemCount() - 1);
+		mItemRVAdapter.addItem(item, mItemRVAdapter.getItemCount());
+		mLayoutManager.scrollToPosition(mItemRVAdapter.getItemCount() - 1);
 	}
 
 	@Override
 	public void itemSaved(int position) {
-		itemRVAdapter.changeItem(position);
+		mItemRVAdapter.changeItem(position);
 	}
 
 	public void itemExpanded(int position) {
-		if (position == itemRVAdapter.getItemCount() - 1) {
-			layoutManager.scrollToPosition(itemRVAdapter.getItemCount() - 1);
+		if (position == mItemRVAdapter.getItemCount() - 1) {
+			mLayoutManager.scrollToPosition(mItemRVAdapter.getItemCount() - 1);
 		}
 	}
 
 	public void setInventory(String inventory) {
-		this.inventory = inventory;
+		this.mInventory = inventory;
 	}
 
 	public boolean isInitFinished() {
-		return initFinished;
+		return mInitFinished;
 	}
 
 	public void removeItem(Item item, int position) {
-		if (itemManager.removeItem(item)) {
-			itemRVAdapter.removeItem(position);
+		if (mItemManager.removeItem(item)) {
+			mItemRVAdapter.removeItem(position);
 		}
 	}
 
 	/**
 	 *
 	 * @param item
-	 * @param position the position of the item in itemRVAdapter's
+	 * @param position the position of the item in mItemRVAdapter's
 	 *                 internal data structure
 	 */
 	@Override
 	public void swapList(Item item, int position) {
 		item.setInGroceryList(true);
-		itemManager.updateItem(item);
-		itemRVAdapter.removeItem(position);
+		mItemManager.updateItem(item);
+		mItemRVAdapter.removeItem(position);
 	}
 
 	@Override
 	public void undoDelete(Item item, Integer position) {
-		itemManager.addItem(item);
-		itemRVAdapter.addItem(item, position);
+		mItemManager.addItem(item);
+		mItemRVAdapter.addItem(item, position);
 	}
 
 	@Override
 	public void undoSwapList(Item item, Integer position) {
 		item.setInGroceryList(false);
-		itemManager.updateItem(item);
-		itemRVAdapter.addItem(item, position);
+		mItemManager.updateItem(item);
+		mItemRVAdapter.addItem(item, position);
 	}
 }

@@ -6,52 +6,51 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
-import java.util.StringTokenizer;
 
 import com.kevinkyang.inventory.DBSchema.TABLE_ITEMS;
 import com.kevinkyang.inventory.DBSchema.TABLE_INVENTORY_INFO;
 
 public class DBManager {
-	private static DBManager instance = null;
-	private Context context = null;
-	private SQLiteDatabase database = null;
+	private static DBManager mInstance = null;
+	private Context mContext = null;
+	private SQLiteDatabase mDatabase = null;
 
-	private ArrayList<String> inventories = null;
+	private ArrayList<String> mInventories = null;
 
 	private DBManager() {
 
 	}
 
 	public static DBManager getInstance() {
-		if (instance == null) {
-			instance = new DBManager();
+		if (mInstance == null) {
+			mInstance = new DBManager();
 		}
-		return instance;
+		return mInstance;
 	}
 
 	public void init(Context context) {
-		this.context = context;
+		this.mContext = context;
 		// TODO should not call getWritableDatabase from main thread
 		// TODO main thread will have to wait to populate the list
-		database = new DBHelper(context).getWritableDatabase();
+		mDatabase = new DBHelper(context).getWritableDatabase();
 	}
 
 	public boolean isInitialized() {
-		// TODO database has a close method, check when to close/if it's needed, and if it's needed, must check if database is closed in this method
-		return (context != null && database != null);
+		// TODO mDatabase has a close method, check when to close/if it's needed, and if it's needed, must check if mDatabase is closed in this method
+		return (mContext != null && mDatabase != null);
 	}
 
 	/**
 	 * Returns the list of inventory names. Gets
-	 * them from the database if it is the first
+	 * them from the mDatabase if it is the first
 	 * time this method is called.
 	 * @return a copy of the inventory names list.
 	 */
 	public ArrayList<String> getInventories() {
-		if (inventories == null) {
-			inventories = new ArrayList<String>();
-			if (database == null) {
-				return inventories;
+		if (mInventories == null) {
+			mInventories = new ArrayList<String>();
+			if (mDatabase == null) {
+				return mInventories;
 			}
 
 			String[] cols = {
@@ -59,7 +58,7 @@ public class DBManager {
 					TABLE_INVENTORY_INFO.KEY_COLOR
 			};
 
-			Cursor cursor = database.query(
+			Cursor cursor = mDatabase.query(
 					false, TABLE_INVENTORY_INFO.TABLE_NAME,
 					cols, null, null, null, null, null, null);
 
@@ -68,7 +67,7 @@ public class DBManager {
 					String name = cursor.getString(TABLE_INVENTORY_INFO.COL_NAME);
 					String color = cursor.getString(TABLE_INVENTORY_INFO.COL_COLOR); //TODO
 
-					inventories.add(name);
+					mInventories.add(name);
 					if (!cursor.moveToNext()) {
 						break;
 					}
@@ -77,21 +76,21 @@ public class DBManager {
 
 			cursor.close();
 
-			if (inventories.isEmpty()) {
+			if (mInventories.isEmpty()) {
 				addDefaultInventories();
 			}
 		}
 
-		return new ArrayList<String>(inventories);
+		return new ArrayList<String>(mInventories);
 	}
 
 	public ArrayList<Item> getItems() {
 		ArrayList<Item> items = new ArrayList<Item>();
-		if (database == null) {
+		if (mDatabase == null) {
 			return items;
 		}
 
-		if (inventories == null) {
+		if (mInventories == null) {
 			getInventories();
 		}
 
@@ -106,7 +105,7 @@ public class DBManager {
 				TABLE_ITEMS.KEY_INVENTORY
 		};
 
-		Cursor cursor = database.query(
+		Cursor cursor = mDatabase.query(
 				false, TABLE_ITEMS.TABLE_NAME,
 				cols, null, null, null, null, null, null);
 
@@ -133,10 +132,10 @@ public class DBManager {
 					inventory = invTokens[0];
 				}
 
-				// add unlisted inventories to the database
-				if (!inventory.isEmpty() && !inventories.contains(inventory)) {
+				// add unlisted mInventories to the mDatabase
+				if (!inventory.isEmpty() && !mInventories.contains(inventory)) {
 					addInventory(inventory);
-					inventories.add(inventory);
+					mInventories.add(inventory);
 				}
 
 				items.add(new Item(rowID, name, created, expires, quantity, unit, type, inventory, inGroceryList));
@@ -158,7 +157,7 @@ public class DBManager {
 		cv.put(TABLE_ITEMS.KEY_TYPE, item.getType());
 		cv.put(TABLE_ITEMS.KEY_INVENTORY, getInventoryString(item));
 
-		long rowID = database.insert(TABLE_ITEMS.TABLE_NAME, null, cv);
+		long rowID = mDatabase.insert(TABLE_ITEMS.TABLE_NAME, null, cv);
 		item.setRowID(rowID);
 	}
 
@@ -181,26 +180,26 @@ public class DBManager {
 				getInventoryString(item));
 
 		String[] whereArgs = { String.valueOf(item.getRowID()) };
-		database.update(TABLE_ITEMS.TABLE_NAME, values, "rowid=?", whereArgs);
+		mDatabase.update(TABLE_ITEMS.TABLE_NAME, values, "rowid=?", whereArgs);
 	}
 
 	public int removeItem(Item item) {
 		String[] whereArgs = { String.valueOf(item.getRowID()) };
-		return database.delete(TABLE_ITEMS.TABLE_NAME, "rowid=?", whereArgs);
+		return mDatabase.delete(TABLE_ITEMS.TABLE_NAME, "rowid=?", whereArgs);
 	}
 
 	/**
 	 * Adds a new inventory to the app.
-	 * @param inventory the name of the inventory
+	 * @param inventory the mName of the inventory
 	 *                  to be added.
 	 * @return true if it was added successfully,
-	 * false if it already exists in the database.
+	 * false if it already exists in the mDatabase.
 	 */
 	public boolean addInventory(String inventory) {
 		if (inventory == null) {
 			return false;
 		} else if (inventory.isEmpty() ||
-				inventories.contains(inventory)) {
+				mInventories.contains(inventory)) {
 			return false;
 		}
 
@@ -208,15 +207,15 @@ public class DBManager {
 		ContentValues cv = new ContentValues();
 		cv.put(TABLE_INVENTORY_INFO.KEY_NAME, inventory);
 		cv.put(TABLE_INVENTORY_INFO.KEY_COLOR, "0x00000000");
-		long id = database.insert(TABLE_INVENTORY_INFO.TABLE_NAME,
+		long id = mDatabase.insert(TABLE_INVENTORY_INFO.TABLE_NAME,
 				null, cv);
 
 		if (id == -1) {
 			return false;
 		}
 
-		if (inventories != null) {
-			inventories.add(inventory);
+		if (mInventories != null) {
+			mInventories.add(inventory);
 		}
 
 		return true;
@@ -224,14 +223,14 @@ public class DBManager {
 
 	/**
 	 * Update the display color of the specified inventory.
-	 * @param inventory The name of an existing inventory.
+	 * @param inventory The mName of an existing inventory.
 	 * @param color A hexadecimal string representing a color, in
 	 *              the format "0xRRGGBBAA".
 	 * @return true if the inventory was updated, false otherwise.
 	 */
 	public boolean updateInventory(String inventory, String color) {
 		if (inventory == null || inventory.isEmpty() ||
-				!inventories.contains(inventory)) {
+				!mInventories.contains(inventory)) {
 			return false;
 		}
 
@@ -244,7 +243,7 @@ public class DBManager {
 		cv.put(TABLE_INVENTORY_INFO.KEY_NAME, inventory);
 		cv.put(TABLE_INVENTORY_INFO.KEY_COLOR, color);
 
-		long result = database.update(
+		long result = mDatabase.update(
 				TABLE_INVENTORY_INFO.TABLE_NAME,
 				cv, where, args);
 
@@ -253,7 +252,7 @@ public class DBManager {
 
 	public boolean removeInventory(String inventory) {
 		if (inventory == null || inventory.isEmpty() ||
-				!inventories.contains(inventory)) {
+				!mInventories.contains(inventory)) {
 			return false;
 		}
 
@@ -263,7 +262,7 @@ public class DBManager {
 		String where = sb.toString();
 		String[] args = {inventory};
 
-		int result = database.delete(
+		int result = mDatabase.delete(
 				TABLE_INVENTORY_INFO.TABLE_NAME, where, args);
 
 		return result > 0;

@@ -12,63 +12,62 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class GroceryFragment extends Fragment implements CustomFragment {
-	private MainActivity parent;
+	private MainActivity mParent;
 
-	private ItemManager itemManager = null;
+	private ItemManager mItemManager = null;
 
-	private RecyclerView itemRecyclerView;
-	private GroceryItemRVAdapter itemRVAdapter;
-	private LinearLayoutManager layoutManager;
-	private ItemTouchHelper itemTouchHelper;
+	private RecyclerView mItemRecyclerView;
+	private GroceryItemRVAdapter mItemRVAdapter;
+	private LinearLayoutManager mLayoutManager;
+	private ItemTouchHelper mItemTouchHelper;
 
-	private boolean initFinished = false;
+	private boolean mInitFinished = false;
 
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_inventory, container, false);
-//		inventoryListView = (ListView) view.findViewById(R.id.inventory_listview); TODO
-		itemRecyclerView = (RecyclerView) view.findViewById(R.id.inventory_rv);
-		registerForContextMenu(itemRecyclerView);
+		mItemRecyclerView = (RecyclerView) view.findViewById(R.id.inventory_rv);
+		registerForContextMenu(mItemRecyclerView);
 		return view;
 	}
 
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		// this fragment can only be attached to MainActivity
-		parent = (MainActivity) getActivity();
+		mParent = (MainActivity) getActivity();
 
-		itemManager = ItemManager.getInstance();
+		mItemManager = ItemManager.getInstance();
 
-		itemRVAdapter =
+		mItemRVAdapter =
 				new GroceryItemRVAdapter(
-						itemManager.getGroceryListItems(), this);
-		itemRecyclerView.setAdapter(itemRVAdapter);
-		layoutManager = new LinearLayoutManager(parent);
-		itemRecyclerView.setLayoutManager(layoutManager);
-		DividerItemDecoration divider = new DividerItemDecoration(parent, DividerItemDecoration.VERTICAL);
-		itemRecyclerView.addItemDecoration(divider);
-		itemRecyclerView.setHasFixedSize(false);
-		itemTouchHelper = new ItemTouchHelper(
+						mItemManager.getGroceryListItems(), this);
+		mItemRecyclerView.setAdapter(mItemRVAdapter);
+		mLayoutManager = new LinearLayoutManager(mParent);
+		mItemRecyclerView.setLayoutManager(mLayoutManager);
+		DividerItemDecoration divider = new DividerItemDecoration(mParent, DividerItemDecoration.VERTICAL);
+		mItemRecyclerView.addItemDecoration(divider);
+		mItemRecyclerView.setHasFixedSize(false);
+		mItemTouchHelper = new ItemTouchHelper(
 				new ListItemTouchHelperCallback(
-						getContext(), itemRVAdapter, true));
-		itemTouchHelper.attachToRecyclerView(itemRecyclerView);
+						getContext(), mItemRVAdapter, true));
+		mItemTouchHelper.attachToRecyclerView(mItemRecyclerView);
 
-		initFinished = true;
+		mInitFinished = true;
 		if (savedInstanceState != null) {
-			parent.changeToCurrentList();
+			mParent.changeToCurrentList();
 		}
 		super.onActivityCreated(savedInstanceState);
 	}
 // TODO solve this context menu problem, this fragment has a different context menu than the invfragment but there's no layout for that menu atm
 //	@Override
 //	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-//		if (parent == null) {
+//		if (mParent == null) {
 //			return;
 //		}
 //
 //		super.onCreateContextMenu(menu, v, menuInfo);
-//		MenuInflater inflater = parent.getMenuInflater();
+//		MenuInflater inflater = mParent.getMenuInflater();
 //		inflater.inflate(R.menu.list_item_context_menu, menu);
 //	}
 //
@@ -78,7 +77,7 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 //		switch (item.getItemId()) {
 //			case R.id.list_item_delete:
 //				ItemBase it = itemAdapter.getItem(menuInfo.position);
-//				if (itemManager.swapList(it)) {
+//				if (mItemManager.swapList(it)) {
 //					itemAdapter.notifyDataSetChanged();
 //					return true;
 //				}
@@ -95,29 +94,29 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	 */
 	@Override
 	public void refresh() {
-		itemRVAdapter.setItemsList(itemManager.getGroceryListItems());
+		mItemRVAdapter.setItemsList(mItemManager.getGroceryListItems());
 	}
 
 	@Override
 	public MainActivity getParent() {
-		return parent;
+		return mParent;
 	}
 
 	@Override
 	public void itemAdded(Item item) {
-		itemRVAdapter.addItem(item, itemRVAdapter.getItemCount());
-		layoutManager.scrollToPosition(itemRVAdapter.getItemCount() - 1);
+		mItemRVAdapter.addItem(item, mItemRVAdapter.getItemCount());
+		mLayoutManager.scrollToPosition(mItemRVAdapter.getItemCount() - 1);
 	}
 
 	@Override
 	public void itemSaved(int position) {
-		itemRVAdapter.changeItem(position);
+		mItemRVAdapter.changeItem(position);
 	}
 
 	@Override
 	public void removeItem(Item item, int position) {
-		if (itemManager.removeItem(item)) {
-			itemRVAdapter.removeItem(position);
+		if (mItemManager.removeItem(item)) {
+			mItemRVAdapter.removeItem(position);
 		}
 	}
 
@@ -129,24 +128,24 @@ public class GroceryFragment extends Fragment implements CustomFragment {
 	@Override
 	public void swapList(Item item, int position) {
 		item.setInGroceryList(false);
-		itemManager.updateItem(item);
-		itemRVAdapter.removeItem(position);
+		mItemManager.updateItem(item);
+		mItemRVAdapter.removeItem(position);
 	}
 
 	@Override
 	public void undoDelete(Item item, Integer position) {
-		itemManager.addItem(item);
-		itemRVAdapter.addItem(item, position);
+		mItemManager.addItem(item);
+		mItemRVAdapter.addItem(item, position);
 	}
 
 	@Override
 	public void undoSwapList(Item item, Integer position) {
 		item.setInGroceryList(true);
-		itemManager.updateItem(item);
-		itemRVAdapter.addItem(item, position);
+		mItemManager.updateItem(item);
+		mItemRVAdapter.addItem(item, position);
 	}
 
 	public boolean isInitFinished() {
-		return initFinished;
+		return mInitFinished;
 	}
 }

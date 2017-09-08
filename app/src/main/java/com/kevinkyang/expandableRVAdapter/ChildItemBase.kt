@@ -1,4 +1,4 @@
-package expandableRVAdapter
+package com.kevinkyang.expandableRVAdapter
 
 abstract class ChildItemBase : ExpandableRecyclerViewAdapter.ItemBase {
 

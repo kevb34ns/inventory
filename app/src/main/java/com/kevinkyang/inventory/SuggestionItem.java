@@ -1,10 +1,10 @@
 package com.kevinkyang.inventory;
 
 public class SuggestionItem {
-	private String name;
-	private String type;
-	private String defaultExpiration;
-	private String defaultUnit;
+	private String mName;
+	private String mType;
+	private String mDefaultExpiration;
+	private String mDefaultUnit;
 
 	public SuggestionItem() {
 
@@ -13,42 +13,42 @@ public class SuggestionItem {
 	public SuggestionItem(String name, String type,
 						  String defaultExpiration,
 						  String defaultUnit) {
-		this.name = name;
-		this.type = type;
-		this.defaultExpiration = defaultExpiration;
-		this.defaultUnit = defaultUnit;
+		mName = name;
+		mType = type;
+		mDefaultExpiration = defaultExpiration;
+		mDefaultUnit = defaultUnit;
 	}
 
 	public String getName() {
-		return name;
+		return mName;
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.mName = name;
 	}
 
 	public String getType() {
-		return type;
+		return mType;
 	}
 
 	public void setType(String type) {
-		this.type = type;
+		this.mType = type;
 	}
 
 	public String getDefaultExpiration() {
-		return defaultExpiration;
+		return mDefaultExpiration;
 	}
 
 	public void setDefaultExpiration(String defaultExpiration) {
-		this.defaultExpiration = defaultExpiration;
+		this.mDefaultExpiration = defaultExpiration;
 	}
 
 	public String getDefaultUnit() {
-		return defaultUnit;
+		return mDefaultUnit;
 	}
 
 	public void setDefaultUnit(String defaultUnit) {
-		this.defaultUnit = defaultUnit;
+		this.mDefaultUnit = defaultUnit;
 	}
 
 	@Override

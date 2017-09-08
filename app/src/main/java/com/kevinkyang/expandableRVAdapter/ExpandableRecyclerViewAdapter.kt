@@ -1,4 +1,4 @@
-package expandableRVAdapter
+package com.kevinkyang.expandableRVAdapter
 
 import android.support.v7.widget.RecyclerView.Adapter
 import android.support.v7.widget.RecyclerView.ViewHolder
