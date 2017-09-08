@@ -378,6 +378,4 @@ abstract class ExpandableRecyclerViewAdapter
 
         fun onChildClick(groupPosition: Int, childPosition: Int): Boolean
     }
-
-    //TODO may need to override parent class notify() methods and others in order to prevent user from calling the parent versions and fucking shit up
 }

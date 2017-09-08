@@ -106,7 +106,7 @@ public class TimeManager {
 	 * "integer unitOfTime"
 	 */
 	private static String convertTime(int num, int unit) {
-		// TODO issue here where anything > 360 days and < 365 will say 12 months when it should say 11. Probaby other cases where this happens as well
+		// TODO issue here where anything > 360 days and < 365 will say 12 months when it should say 11
 		if (unit == 0 && num < 7) {
 			String result = "" + num + " DAY";
 			return (num != 1) ? result + "S" : result;
@@ -142,7 +142,7 @@ public class TimeManager {
 	}
 
 	/**
-	 * TODO better method mName, same issue where you arbitrarily decide that 1 month = 30 days, and it's not the best solution
+	 * TODO issue where you arbitrarily decide that 1 month = 30 days
 	 * @param suggestion
 	 * @return
 	 */

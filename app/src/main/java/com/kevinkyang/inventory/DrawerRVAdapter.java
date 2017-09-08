@@ -413,7 +413,6 @@ public class DrawerRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 	}
 
 	public interface OnDrawerClickListener {
-		//TODO these methods need useful parameters like position, itemView
 		public boolean onGroupClick(int groupPosition);
 
 		public boolean onChildClick(int groupPosition, int childPosition);

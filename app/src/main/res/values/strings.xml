@@ -9,7 +9,7 @@
     <string name="type">Type</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
-    <string name="expires_button_default_string">Expires...</string>
+    <string name="expires_button_default_string">Expires…</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -86,4 +86,25 @@
     <string name="notifications_enabled_pref_summary">Receive daily notifications for items that are expiring soon.</string>
     <string name="notification_time_pref_summary">When to receive a notification each day.</string>
     <string name="expiration_interval_pref_summary">You will be notified for expired items and items expiring within %1$s.</string>
+    <string name="open_nav_drawer">Open Navigation Drawer</string>
+    <string name="close_nav_drawer">Close Navigation Drawer</string>
+    <string name="add_an_item">Add an item</string>
+    <string name="finish_adding_item">Finish Adding Item</string>
+    <string name="settings">Settings</string>
+    <string name="edit_new_item">Edit New Item</string>
+    <string name="inventory_color">Inventory Color</string>
+    <string name="expand_collapse">Expand/Collapse</string>
+    <string name="clear_date">Clear Date</string>
+    <string name="save_date">Save Date</string>
+    <string name="decrease_quantity">Decrease Quantity</string>
+    <string name="increase_quantity">Increase Quantity</string>
+    <string name="expiration">Expiration</string>
+    <string name="change">Change…</string>
+    <string name="edit">Edit</string>
+    <string name="add_to_grocery_list">Add to Grocery List</string>
+    <string name="delete">Delete</string>
+    <string name="sort_by">Sort By…</string>
+    <string name="search">Search</string>
+    <string name="add_new_inventory">Add New Inventory</string>
+    <string name="save">Save</string>
 </resources>

@@ -70,7 +70,6 @@ class ExpirationPickerPopup(val context: Context,
     }
 
     private fun setListeners() {
-        //TODO need to make custom listeners to be able to generalize
         val cancelButton = contentView.clear_button
         cancelButton.setOnClickListener {
             clearButtonClickListener?.onClick()

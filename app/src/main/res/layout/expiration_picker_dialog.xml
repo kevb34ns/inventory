@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
@@ -106,7 +105,8 @@
             android:layout_marginBottom="10dp"
             android:padding="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_cancel"/>
+            android:src="@drawable/ic_cancel"
+            android:contentDescription="@string/clear_date"/>
 
         <Space
             android:layout_width="50dp"
@@ -119,7 +119,8 @@
             android:padding="4dp"
             android:layout_marginBottom="10dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_check_circle"/>
+            android:src="@drawable/ic_check_circle"
+            android:contentDescription="@string/save_date"/>
     </LinearLayout>
 
 

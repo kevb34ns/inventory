@@ -110,7 +110,6 @@ public class SuggestionManager {
 
 		if (latestVersion > localVersion) {
 			// download a newer version online
-			// TODO for safety, should download to a temp file, then transfer to the local file when safely downloaded
 			StorageReference dbStorageRef =
 					FirebaseStorage.getInstance().getReference().child("database.json");
 			final File localFile = new File(mContext.getFilesDir(), "suggestion_database.json");
@@ -337,7 +336,7 @@ public class SuggestionManager {
 	}
 
 	/**
-	 * TODO temp function that deletes prefs and deletes internal storage file
+	 * deletes prefs and deletes internal storage file
 	 */
 	public void clearData() {
 		SharedPreferences.Editor editor = mContext.getSharedPreferences(PREFS_NAME, 0).edit();
@@ -359,7 +358,6 @@ public class SuggestionManager {
 			if (!hasCheckedOnlineToday()) {
 				Log.d(TAG, "No online check today yet");
 				checkSuggestionDb();
-				// TODO ensure that all cases are handled, such as first time opening the app (no internal storage db), app has been updated (new assets/ db), local file gets corrupted but the prefs tell the app to use it, causing the app to crash when it tries to parse the file
 			} else {
 				Log.d(TAG, "Checked online today already");
 				readDatabase();

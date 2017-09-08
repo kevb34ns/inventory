@@ -75,7 +75,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="Expiration"
+                    android:text="@string/expiration"
                     android:textColor="@color/colorGrey"/>
 
                 <TextView
@@ -93,7 +93,7 @@
                     android:paddingEnd="4dp"
                     android:background="?attr/selectableItemBackground"
                     android:drawableStart="@drawable/ic_date_range"
-                    android:text="  Change..."/>
+                    android:text="@string/change"/>
             </LinearLayout>
 
             <LinearLayout
@@ -108,7 +108,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="Quantity"
+                    android:text="@string/quantity"
                     android:textColor="@color/colorGrey"/>
 
                 <TextView
@@ -133,7 +133,8 @@
                         android:scaleX="1.25"
                         android:scaleY="1.25"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_remove_circle"/>
+                        android:src="@drawable/ic_remove_circle"
+                        android:contentDescription="@string/decrease_quantity"/>
 
                     <View
                         android:layout_width="8dp"
@@ -150,7 +151,8 @@
                         android:scaleX="1.25"
                         android:scaleY="1.25"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_add_circle"/>
+                        android:src="@drawable/ic_add_circle"
+                        android:contentDescription="@string/increase_quantity"/>
 
                 </LinearLayout>
             </LinearLayout>
@@ -216,7 +218,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_gravity="end"
-                android:text="Edit"
+                android:text="@string/edit"
                 android:textColor="@drawable/button_borderless_text_color"
                 style="@style/Base.Widget.AppCompat.Button.Borderless"/>
 

@@ -30,13 +30,10 @@ public class DBManager {
 
 	public void init(Context context) {
 		this.mContext = context;
-		// TODO should not call getWritableDatabase from main thread
-		// TODO main thread will have to wait to populate the list
 		mDatabase = new DBHelper(context).getWritableDatabase();
 	}
 
 	public boolean isInitialized() {
-		// TODO mDatabase has a close method, check when to close/if it's needed, and if it's needed, must check if mDatabase is closed in this method
 		return (mContext != null && mDatabase != null);
 	}
 
@@ -65,7 +62,7 @@ public class DBManager {
 			if (cursor.moveToFirst()) {
 				while(true) {
 					String name = cursor.getString(TABLE_INVENTORY_INFO.COL_NAME);
-					String color = cursor.getString(TABLE_INVENTORY_INFO.COL_COLOR); //TODO
+					String color = cursor.getString(TABLE_INVENTORY_INFO.COL_COLOR);
 
 					mInventories.add(name);
 					if (!cursor.moveToNext()) {
@@ -161,7 +158,6 @@ public class DBManager {
 		item.setRowID(rowID);
 	}
 
-	//TODO may want to return a boolean and have callers check for success
 	public void updateItem(Item item) {
 		ContentValues values = new ContentValues();
 		values.put(TABLE_ITEMS.KEY_NAME,
@@ -203,7 +199,6 @@ public class DBManager {
 			return false;
 		}
 
-		// TODO handle colors in the future
 		ContentValues cv = new ContentValues();
 		cv.put(TABLE_INVENTORY_INFO.KEY_NAME, inventory);
 		cv.put(TABLE_INVENTORY_INFO.KEY_COLOR, "0x00000000");

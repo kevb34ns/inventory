@@ -4,38 +4,18 @@
 
     <item
         android:id="@+id/options_item_sort"
-        android:title="Sort By..."
+        android:title="@string/sort_by"
         android:icon="@drawable/ic_sort"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/options_item_search"
-        android:title="Search"
+        android:title="@string/search"
         android:icon="@drawable/ic_search"
         app:showAsAction="collapseActionView|always"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
 
     <item
-        android:id="@+id/options_item_suggestions"
-        android:title="Get Suggestions"/>
-
-    <item
-        android:id="@+id/options_item_clear"
-        android:title="Clear Suggestion Data"/>
-
-    <item
-        android:id="@+id/options_item_notify"
-        android:title="Notify"/>
-
-    <item
-        android:id="@+id/options_item_schedule"
-        android:title="Schedule"/>
-
-    <item
-        android:id="@+id/options_item_cancel"
-        android:title="Cancel Notifications"/>
-
-    <item
-        android:id="@+id/options_item_check_enabled"
-        android:title="Check Notif Enabled"/>
+        android:id="@+id/options_settings"
+        android:title="@string/settings"/>
 </menu>

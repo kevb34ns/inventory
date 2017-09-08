@@ -39,7 +39,6 @@ public class InventoryFragment extends Fragment implements CustomFragment {
 
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		// TODO this fragment can only be attached to com.kevinkyang.mInventory.MainActivity, is this safe?
 		mParent = (MainActivity) getActivity();
 
 		mItemManager = ItemManager.getInstance();

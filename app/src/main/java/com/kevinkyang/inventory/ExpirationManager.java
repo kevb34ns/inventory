@@ -157,7 +157,7 @@ public class ExpirationManager {
 
 		AlarmManager alarmMgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
 		alarmMgr.setRepeating(AlarmManager.RTC, cal.getTimeInMillis(),
-				AlarmManager.INTERVAL_DAY, pendingIntent); //TODO could this be inexact?
+				AlarmManager.INTERVAL_DAY, pendingIntent);
 
 		// enable NotificationReceiver
 		ComponentName receiver = new ComponentName(mContext, NotificationReceiver.class);

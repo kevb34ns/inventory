@@ -120,7 +120,6 @@ class ExpandableDrawerAdapter(var context: Context,
             holder.itemCountLabel.visibility = View.INVISIBLE
         }
 
-        //TODO animation experiment
         setChildAnimation(holder.itemView)
     }
 
@@ -136,7 +135,6 @@ class ExpandableDrawerAdapter(var context: Context,
         view.startAnimation(collapseAnim)
     }
 
-    //TODO animation experiments, may want to include in ERVA, you'd have to pass context to it
     fun setChildAnimation(viewToAnimate: View) {
             val anim = AnimationUtils.loadAnimation(context, R.anim.push_in_top)
             anim.duration = 500

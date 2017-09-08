@@ -91,7 +91,6 @@ public class ListItemTouchHelperCallback extends ItemTouchHelper.Callback {
 								itemView.getBottom());
 				c.drawRect(background, paint);
 
-				// TODO can make this rectf slightly bigger if groceryMode to make add icon look same size as the other icons
 				RectF icon_loc =
 						new RectF((float) itemView.getRight() - 2 *	 width,
 								(float) itemView.getTop() + heightOffset,

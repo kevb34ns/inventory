@@ -81,8 +81,6 @@ public class ItemManager {
 	}
 
 	/**
-	 * TODO description here
-	 *
 	 * @param inventory the mName of the inventory the mItems
 	 *                  are located in, or null to return
 	 *                  all mItems.
@@ -113,8 +111,6 @@ public class ItemManager {
 	}
 
 	/**
-	 * TODO inefficient alg, description needed
-	 *
 	 * @param inventory the mName of the inventory the mItems
 	 *                  are located in, or null for all mItems.
 	 * @return the number of mItems in the specified inventory
@@ -218,7 +214,7 @@ public class ItemManager {
 		protected ArrayList<Item> doInBackground(String... strings) {
 			ArrayList<Item> result = new ArrayList<>();
 
-			//TODO for now, search the first string in the params only; in the future, could have multiple
+			// search for the first string parameter only
 			if (strings.length == 0 || strings[0] == null) {
 				return result;
 			}

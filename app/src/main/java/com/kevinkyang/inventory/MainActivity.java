@@ -17,6 +17,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -29,7 +30,6 @@ import android.text.InputType;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.TypefaceSpan;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -60,7 +60,6 @@ import java.util.Calendar;
 import com.kevinkyang.expandableRVAdapter.ExpandableRecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity implements ItemChangeListener {
-	public static final String TAG = "inventory";
 	public static final int SETTINGS_REQUEST = 0x73;
 
 	private ItemManager mItemManager = null;
@@ -71,18 +70,12 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	private SearchView mSearchView;
 
 	private DrawerLayout mDrawerLayout;
-	private RecyclerView mDrawerRV;
 	private DrawerRVAdapter mDrawerRVAdapter;
 	private ExpandableDrawerAdapter mDrawerAdapter;
-	private LinearLayoutManager mDrawerLayoutManager;
-
-	private ImageButton mDrawerSettingsButton;
 
 	// add item widget views
 	private LinearLayout mAddItemWidget;
 	private EditText mAddItemEditText;
-	private ImageButton mEditNewItemButton;
-	private ImageButton mAddNewItemButton;
 
 	private Toolbar mToolbar;
 
@@ -94,8 +87,8 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
 
 		mItemManager = ItemManager.getInstance();
 		if (!mItemManager.isInitialized()) {
@@ -118,9 +111,9 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 
 		mToolbar.setNavigationOnClickListener((v) -> {
 			if (mDrawerLayout != null &&
-					!mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+					!mDrawerLayout.isDrawerOpen(Gravity.START)) {
 
-				mDrawerLayout.openDrawer(Gravity.LEFT);
+				mDrawerLayout.openDrawer(Gravity.START);
 			}
 		});
 
@@ -149,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 					.commit();
 		}
 
-		//TODO should probably handle the 'getIntent' below this in handleIntent too
 		handleIntent(getIntent());
 
 		Intent intent = getIntent();
@@ -159,13 +151,8 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 			changeActionBarTitle(intentInventory);
 		}
 
-		if (savedInstanceState != null) {
-			mInGroceryMode =
-					savedInstanceState
-							.getBoolean("mInGroceryMode", false);
-		} else {
-			mInGroceryMode = false;
-		}
+		mInGroceryMode = savedInstanceState != null &&
+				savedInstanceState.getBoolean("mInGroceryMode", false);
 
 		mColorArray = null;
 
@@ -183,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		// TODO on settings result, check resultCode that settings were changed, and get the changed settings from the intent, and apply them, if applicable (some settings wouldn't require any action)
+
 	}
 
 	@Override
@@ -195,13 +182,11 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	private void handleIntent(Intent intent) {
 		if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
 			final String query = intent.getStringExtra(SearchManager.QUERY);
-			// TODO eventually, use searchview's onquerytextlistener to search every time the search text changes (put in an autocompletetextview maybe?
 
 			mToolbar.collapseActionView();
 			if (mItemManager != null) {
-				mItemManager.search(query, (items) -> {
-					mInventoryFragment.showSearchResults(query, items);
-				});
+				mItemManager.search(query, (items) ->
+					mInventoryFragment.showSearchResults(query, items));
 				changeFragments("0");
 			}
 		}
@@ -222,47 +207,18 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 
 		EditText searchField = (EditText) mSearchView.findViewById(
 				android.support.v7.appcompat.R.id.search_src_text);
-		searchField.setTextColor(getResources()
-				.getColor(R.color.defaultTextColor));
+		searchField.setTextColor(ContextCompat
+				.getColor(this, R.color.defaultTextColor));
 
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		ExpirationManager manager = null; //TODO fix this
 		switch (item.getItemId()) {
-			// TODO some options for testing only; get rid of it
-			case R.id.options_item_suggestions:
-				ArrayList<SuggestionItem> sItems = mSuggestionManager.getItemSuggestions();
-				String msg = "Suggestions:\n";
-				for (SuggestionItem sItem : sItems) {
-					msg += sItem.getName() + "\n";
-				}
-				Log.d(TAG, msg);
-				return true;
-			case R.id.options_item_clear:
-				mSuggestionManager.clearData();
-				return true;
-			case R.id.options_item_notify:
-				manager = new ExpirationManager(this);
-				manager.sendNotifications();
-				return true;
-			case R.id.options_item_schedule:
-				manager = new ExpirationManager(this);
-				manager.scheduleNotifications();
-				return true;
-			case R.id.options_item_cancel:
-				manager = new ExpirationManager(this);
-				manager.cancelNotifications();
-				return true;
-			case R.id.options_item_check_enabled:
-				PendingIntent pendingIntent =
-						PendingIntent.getBroadcast(this, 0,
-								new Intent(this, NotificationReceiver.class),
-								PendingIntent.FLAG_NO_CREATE);
-				Boolean enabled = pendingIntent != null;
-				Toast.makeText(this, enabled.toString(), Toast.LENGTH_SHORT).show();
+			case R.id.options_settings:
+				Intent intent = new Intent(this, SettingsActivity.class);
+				startActivityForResult(intent, SETTINGS_REQUEST);
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
@@ -272,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	@Override
 	public void onBackPressed() {
 		if (mAddItemWidget != null && mAddItemWidget.getVisibility() == View.VISIBLE) {
-			//TODO find way to make additemwidget invisible on keyboard hide
 			mAddItemEditText.clearFocus();
 		} else {
 			super.onBackPressed();
@@ -293,10 +248,10 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		children.add(new ArrayList<>());
 		children.add(new ArrayList<>());
 
-		mDrawerRV = (RecyclerView) findViewById(R.id.drawer_rv_list);
+		RecyclerView mDrawerRV = (RecyclerView) findViewById(R.id.drawer_rv_list);
 		mDrawerAdapter = new ExpandableDrawerAdapter(this, groups, children);
 		mDrawerRV.setAdapter(mDrawerAdapter);
-		mDrawerLayoutManager = new LinearLayoutManager(this);
+		LinearLayoutManager mDrawerLayoutManager = new LinearLayoutManager(this);
 		mDrawerRV.setLayoutManager(mDrawerLayoutManager);
 
 		mDrawerAdapter.setOnItemClickListener(new ExpandableRecyclerViewAdapter.OnItemClickListener() {
@@ -329,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 				String title = mDrawerAdapter.getGroup(groupPosition).getName();
 				if (title.equals("Inventory")) {
 					if (childPosition != mDrawerAdapter.getChildrenCount(groupPosition) - 1) {
-						String inventory = (String) mDrawerAdapter
+						String inventory = mDrawerAdapter
 								.getChild(groupPosition, childPosition)
 								.getName();
 						mInventoryFragment.showInventory(inventory);
@@ -346,20 +301,20 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 			}
 		});
 
-		mDrawerSettingsButton = (ImageButton)
+		ImageButton mDrawerSettingsButton = (ImageButton)
 				findViewById(R.id.drawer_settings_button);
 		mDrawerSettingsButton.setOnClickListener((v -> {
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivityForResult(intent, SETTINGS_REQUEST);
 		}));
 
-		// TODO fix R.string.app_name
-		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.app_name, R.string.app_name);
+		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+				this, mDrawerLayout, mToolbar,
+				R.string.open_nav_drawer, R.string.close_nav_drawer);
 		toggle.syncState();
 	}
 
 	public void changeActionBarTitle(String title) {
-		// TODO the way the title is changed right now is not very integrated; whoever changes the inventory is responsible for changing the mToolbar title. This needs to be overhauled so that any time the inventory is changed, the title is guaranteed to be changed to the correct thing
 		if (title == null) {
 			title = "Inventory";
 		}
@@ -379,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 
 		TextView title = new TextView(this);
-		title.setText("Add New Inventory");
+		title.setText(R.string.add_new_inventory);
 		title.setGravity(Gravity.START);
 		title.setPadding(30, 30, 30, 30);
 		title.setTextSize(20);
@@ -395,33 +350,26 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		alertDialog.setView(input);
 
 		alertDialog.setPositiveButton("Add",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						String newInventory = input.getText().toString().trim();
-						if (newInventory.isEmpty()) {
-							return;
-						}
+				(dialog, which) -> {
+					String newInventory = input.getText().toString().trim();
+					if (newInventory.isEmpty()) {
+						return;
+					}
 
-						if (newInventory.equals("Expiring")) {
-							// TODO 'Expiring' is a reserved inventory; do not hardcode, make array of reserved inventories and check against it; also, 'Expiring' shouldn't be reserved so this whole section may be unnecessary
-							String msg = "This inventory is reserved by the app.";
-							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-						} else if (mDbManager.getInventories().contains(newInventory)) {
-							String msg = "This inventory already exists.";
-							Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
-						} else {
-							mDbManager.addInventory(newInventory);
-							mDrawerRVAdapter.addInventory(newInventory);
-						}
+					if (newInventory.equals("Expiring")) {
+						String msg = "This inventory is reserved by the app.";
+						Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+					} else if (mDbManager.getInventories().contains(newInventory)) {
+						String msg = "This inventory already exists.";
+						Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+					} else {
+						mDbManager.addInventory(newInventory);
+						mDrawerRVAdapter.addInventory(newInventory);
 					}
 				});
 
 		alertDialog.setNegativeButton("Cancel",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-				});
+				(dialog, which) -> dialog.cancel());
 
 		AlertDialog dialog = alertDialog.create();
 		dialog.show();
@@ -444,8 +392,8 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		Fragment fragment;
 		fragment = fragmentManager.findFragmentByTag(tag);
 
-		String otherTag = (tag.equals("0")) ? "1" : "0"; // TODO unsustainable solution if more than 2 fragments
-		mInGroceryMode = tag.equals("1"); //TODO must change once structure of drawer changes
+		String otherTag = (tag.equals("0")) ? "1" : "0";
+		mInGroceryMode = tag.equals("1");
 		Fragment otherFragment;
 		otherFragment = fragmentManager.findFragmentByTag(otherTag);
 
@@ -546,7 +494,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		mAddItemWidget = (LinearLayout) findViewById(R.id.add_item_widget);
 		mAddItemEditText = (EditText) findViewById(R.id.widget_edittext);
 
-		mEditNewItemButton = (ImageButton)
+		ImageButton mEditNewItemButton = (ImageButton)
 				findViewById(R.id.widget_more_button);
 		mEditNewItemButton.setOnClickListener((v -> {
 			AddItemDialog dialog = new AddItemDialog();
@@ -570,12 +518,10 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 			toggleAddButton(true);
 		}));
 
-		mAddNewItemButton = (ImageButton)
+		ImageButton mAddNewItemButton = (ImageButton)
 				findViewById(R.id.widget_add_button);
 
-		mAddNewItemButton.setOnClickListener((v -> {
-			quickAddItem();
-		}));
+		mAddNewItemButton.setOnClickListener((v -> quickAddItem()));
 
 		mAddItemEditText.setFocusableInTouchMode(true);
 		mAddItemEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -616,25 +562,6 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 							String type, String expiresDate,
 							String inventory,
 							boolean inGroceryList) {
-		/* Selected item Positions TODO find better solution for visibility
-		   None = 0
-		   1 day = 1
-		   3 days = 2
-		   1 week = 3
-		   2 weeks = 4
-		   1 month = 5
-		   3 months = 6
-		 */
-//		int daysToAdd = 0; TODO
-//		switch (expCode) {
-//			case 1: daysToAdd = 1; break;
-//			case 2: daysToAdd = 3; break;
-//			case 3: daysToAdd = 7; break;
-//			case 4: daysToAdd = 14; break;
-//			case 5: daysToAdd = 30; break;
-//			case 6: daysToAdd = 90; break;
-//			default: break;
-//		}
 		Item item = new Item(-1, name, TimeManager.getDateTimeLocal(),
 				expiresDate, quantity, unit, type, inventory,
 				inGroceryList);
@@ -654,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		item.setUnit(unit);
 		item.setType(type);
 		item.setInventory(inventory);
-		item.setInGroceryList(inGroceryList); // TODO is this needed
+		item.setInGroceryList(inGroceryList);
 
 		mItemManager.updateItem(item);
 		saveToCurrentList(position);
@@ -675,7 +602,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 
 	/**
 	 *
-	 * @param item
+	 * @param item The item to edit.
 	 * @param position mPosition of the item in the current
 	 *                 adapter.
 	 */
@@ -724,7 +651,6 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 	}
 
 	private void setUIColor(int color) {
-		//TODO don't need to change mToolbar color anymore, and must set FAB to accent, not primary
 		mToolbar.setBackgroundColor(color);
 		mFloatingAddButton.setBackgroundTintList(
 				ColorStateList.valueOf(
@@ -740,7 +666,6 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		return mColorArray.getColor(position, 0);
 	}
 
-	// TODO should be part of a static/manager class
 	public static int getAttributeColor(Context context, int attrId) {
 		TypedValue typedValue = new TypedValue();
 		context.getTheme().resolveAttribute(attrId, typedValue, true);
@@ -764,17 +689,15 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 							 String msg,
 							 final BiConsumer<Item, Integer>
 									 clickMethod) {
-		View.OnClickListener listener = v -> {
-			clickMethod.accept(item, position);
-		};
+		View.OnClickListener listener = v -> clickMethod.accept(item, position);
 		Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
 				.setAction("Undo", listener)
 				.show();
 	}
 
 	// mimics Java 8 functional interface, since my minSDKVersion < 24
-	public static interface BiConsumer<T, U> {
-		public void accept(T t, U u);
+	public interface BiConsumer<T, U> {
+		void accept(T t, U u);
 	}
 
 	public static class AddItemDialog extends DialogFragment {
@@ -843,7 +766,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 			mInventorySpinner = (Spinner) view.findViewById(R.id.spinner_inventory);
 			ArrayList<String> inventories = DBManager.getInstance().getInventories();
 			inventories.add(0, "Inventory");
-			mInventorySpinner.setAdapter(new ArrayAdapter<String>(getContext(),
+			mInventorySpinner.setAdapter(new ArrayAdapter<>(getContext(),
 					android.R.layout.simple_spinner_dropdown_item,
 					inventories));
 
@@ -871,49 +794,46 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 		}
 
 		private void addListeners() {
-			mAddButton.setOnClickListener(new View.OnClickListener() {
-				public void onClick(View view) {
-					String name = mNameEditText.getText().toString().trim();
-					if (!name.isEmpty()) {
-						String quantityString = mQuantityEditText.getText().toString();
-						float quantity = 1;
-						if (!quantityString.isEmpty()) {
-							quantity = Float.parseFloat(quantityString);
-						}
-						String unitString = mUnitEditText.getText().toString();
-						String typeString = mTypeEditText.getText().toString();
-						String expiresString = "";
-						if (mDateSet) {
-							expiresString = mExpirationButton
-									.getText()
-									.toString();
-						}
-						String invString = "";
-						if (mInventorySpinner.getSelectedItemPosition() != 0) {
-							invString = (String) mInventorySpinner.getSelectedItem();
-						}
-
-						ItemChangeListener activity = (ItemChangeListener) getActivity();
-						if (mInEditMode) {
-							activity.onItemSaved(name, quantity,
-									unitString, typeString, expiresString,
-									invString, activity.isInGroceryMode(),
-									mItemToEdit, mPosition);
-						} else {
-							activity.onItemAdded(name, quantity,
-									unitString, typeString, expiresString,
-									invString, activity.isInGroceryMode());
-						}
-
-						AddItemDialog.this.dismiss();
+			mAddButton.setOnClickListener(view -> {
+				String name = mNameEditText.getText().toString().trim();
+				if (!name.isEmpty()) {
+					String quantityString = mQuantityEditText.getText().toString();
+					float quantity = 1;
+					if (!quantityString.isEmpty()) {
+						quantity = Float.parseFloat(quantityString);
+					}
+					String unitString = mUnitEditText.getText().toString();
+					String typeString = mTypeEditText.getText().toString();
+					String expiresString = "";
+					if (mDateSet) {
+						expiresString = mExpirationButton
+								.getText()
+								.toString();
+					}
+					String invString = "";
+					if (mInventorySpinner.getSelectedItemPosition() != 0) {
+						invString = (String) mInventorySpinner.getSelectedItem();
 					}
 
+					ItemChangeListener activity = (ItemChangeListener) getActivity();
+					if (mInEditMode) {
+						activity.onItemSaved(name, quantity,
+								unitString, typeString, expiresString,
+								invString, activity.isInGroceryMode(),
+								mItemToEdit, mPosition);
+					} else {
+						activity.onItemAdded(name, quantity,
+								unitString, typeString, expiresString,
+								invString, activity.isInGroceryMode());
+					}
+
+					AddItemDialog.this.dismiss();
 				}
+
 			});
 
-			mCancelButton.setOnClickListener((view) -> {
-				AddItemDialog.this.dismiss();
-			});
+			mCancelButton.setOnClickListener((view) ->
+					AddItemDialog.this.dismiss());
 
 			mExpirationButton.setOnClickListener((view) -> {
 				if (mDateSet) {
@@ -927,7 +847,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 
 		private void populateFields() {
 			if (mInEditMode) {
-				mAddButton.setText("Save");
+				mAddButton.setText(R.string.save);
 				mNameEditText.setText(mItemToEdit.getName());
 				mQuantityEditText.setText(Utilities.Math.formatFloat(mItemToEdit.getQuantity()));
 				mUnitEditText.setText(mItemToEdit.getUnit());
@@ -952,7 +872,7 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 				final ArrayList<SuggestionItem> items =
 						suggestionManager.getItemSuggestions();
 				ArrayAdapter<SuggestionItem> nameAdapter =
-						new ArrayAdapter<SuggestionItem>(getContext(),
+						new ArrayAdapter<>(getContext(),
 								R.layout.simple_dropdown_item_1line,
 								items);
 				mNameEditText.setAdapter(nameAdapter);
@@ -975,13 +895,13 @@ public class MainActivity extends AppCompatActivity implements ItemChangeListene
 				});
 
 				ArrayAdapter<String> typeAdapter =
-						new ArrayAdapter<String>(getContext(),
+						new ArrayAdapter<>(getContext(),
 								R.layout.simple_dropdown_item_1line,
 								suggestionManager.getTypeSuggestions());
 				mTypeEditText.setAdapter(typeAdapter);
 
 				ArrayAdapter<String> unitAdapter =
-						new ArrayAdapter<String>(getContext(),
+						new ArrayAdapter<>(getContext(),
 								R.layout.simple_dropdown_item_1line,
 								suggestionManager.getUnitSuggestions());
 				mUnitEditText.setAdapter(unitAdapter);
