@@ -10,10 +10,10 @@ public class DBSchema {
 
 		// Column names
 		public static final String ROW_ID = "rowid"; // provided by sqlite
-		public static final String KEY_NAME = "mName";
+		public static final String KEY_NAME = "name";
 		public static final String KEY_CREATED = "created";
 		public static final String KEY_EXPIRES = "expires";
-		public static final String KEY_QUANTITY = "mQuantity";
+		public static final String KEY_QUANTITY = "quantity";
 		public static final String KEY_UNIT = "unit";
 		public static final String KEY_TYPE = "type";
 		public static final String KEY_INVENTORY = "inventory";
@@ -33,7 +33,7 @@ public class DBSchema {
 		public static final String TABLE_NAME = "inventory_info";
 
 		// Column names
-		public static final String KEY_NAME = "mName";
+		public static final String KEY_NAME = "name";
 		public static final String KEY_COLOR = "color";
 
 		// Column indices
